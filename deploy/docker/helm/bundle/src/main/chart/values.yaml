@@ -9,11 +9,15 @@ global:
     istio:
       enabled: false
 
-  prometheus:
-    enabled: false
-    retention: 1w
-    scrapeInterval: 10s
-    scrapeTimeout: 10s
+  metrics:
+    prometheus:
+      enabled: false
+      retention: 1w
+    scrape:
+      interval: 10s
+      timeout: 10s
+    servicemonitor:
+      enabled: false
 
 ########################################################################################################################
 # LOCAL
@@ -24,7 +28,7 @@ nameOverride: edusharing
 image:
   pullSecrets: []
 #  - name: registry
-#    server: registry.docker.edu-sharing.com
+#    server: docker.edu-sharing.com
 #    username: someone
 #    password: secret
 
