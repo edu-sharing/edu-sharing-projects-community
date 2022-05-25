@@ -2,7 +2,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: {{ include "edusharing_rendering_service.name" . }}-cachecleaner
-  labels: {{ include "edusharing_rendering_service.labels" . | nindent 4 }}
+  labels: {{ include "edusharing_rendering_service.labels.app" . | nindent 4 }}
     app.kubernetes.io/component: cachecleaner
 spec:
   concurrencyPolicy: Forbid
@@ -16,6 +16,9 @@ spec:
         metadata:
           annotations:
             sidecar.istio.io/inject: "false"
+            {{- if .Values.job.cachecleaner.podAnnotations }}
+            {{- toYaml .Values.job.cachecleaner.podAnnotations | nindent 12 }}
+            {{- end }}
         spec:
           restartPolicy: OnFailure
           containers:

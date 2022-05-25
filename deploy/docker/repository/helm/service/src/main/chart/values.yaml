@@ -34,6 +34,13 @@ global:
     pullPolicy: Always
     pullSecrets: []
 
+  metrics:
+    scrape:
+      interval: 10s
+      timeout: 10s
+    servicemonitor:
+      enabled: false
+
   patroni:
     enabled: false
     name: edusharing-repository-postgresql
@@ -71,6 +78,7 @@ service:
       internal: 8080
       external: 8081
     gossip: 5701
+    metrics: 9090
 
 ########################################################################################################################
 
@@ -177,8 +185,15 @@ config:
         proxyport: ""
         proxyuser: ""
         proxypass: ""
-    session:
-      timeout: 60
+    server:
+      csp:
+        connect: ""
+        default: ""
+        font: ""
+        img: ""
+        script: ""
+      session:
+        timeout: 60
 
   saml:
     enabled: false
@@ -242,6 +257,8 @@ tolerations: []
 
 ########################################################################################################################
 
+podAnnotations: {}
+
 podSecurityContext:
 
   runAsUser: 1000
@@ -290,9 +307,17 @@ init:
 
   permission:
 
-    resources: {}
+    resources:
+
+      limits:
+        cpu: 100m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 1Gi
 
     securityContext:
+
       runAsUser: 0
 
 ########################################################################################################################

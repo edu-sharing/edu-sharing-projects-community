@@ -2,22 +2,27 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "edusharing_rendering_service.name" . }}
-  labels: {{ include "edusharing_rendering_service.labels" . | nindent 4 }}
+  labels: {{ include "edusharing_rendering_service.labels.app" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
-    matchLabels: {{ include "edusharing_rendering_service.labels.instance" . | nindent 6 }}
+    matchLabels: {{ include "edusharing_rendering_service.labels.app" . | nindent 6 }}
   serviceName: {{ include "edusharing_rendering_service.name" . }}-headless
   template:
     metadata:
-      labels: {{ include "edusharing_rendering_service.labels" . | nindent 8 }}
+      labels: {{ include "edusharing_rendering_service.labels.app" . | nindent 8 }}
       annotations:
         checksum/configmap-env: {{ include (print .Template.BasePath "/configmap-env.yaml") . | sha256sum | trunc 63 }}
         checksum/secret-env: {{ include (print .Template.BasePath "/secret-env.yaml") . | sha256sum | trunc 63 }}
+        {{- if not .Values.global.metrics.servicemonitor.enabled }}
         prometheus.io/path: "/metrics"
         prometheus.io/port: "9117"
         prometheus.io/scrape: {{ .Values.sidecar.metrics.enabled | quote }}
+        {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
+        {{- if .Values.podAnnotations }}
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end }}
     spec:
       initContainers:
       {{- if (default .Values.global.cluster.storage.share.permission .Values.persistence.share.permission) }}
@@ -82,7 +87,7 @@ spec:
         {{- with .Values.readinessProbe }}
         readinessProbe:
           httpGet:
-            path: /esrender/admin/
+            path: /esrender/application/esmain/version.php
             port: api-internal
           failureThreshold: {{ .failureThreshold }}
           initialDelaySeconds: {{ .initialDelaySeconds }}
@@ -100,9 +105,12 @@ spec:
       - name: {{ include "edusharing_rendering_service.name" . }}-metrics
         image: {{ .Values.image.registry }}/{{ .Values.image.repository }}/{{ .Values.image.prefix }}-deploy-docker-build-apache_exporter:{{ .Values.image.tag }}
         args:
-        - --scrape_uri=http://127.0.0.1:8080/server-status/?auto
+        - --scrape_uri=http://127.0.0.1:8082/server-status/?auto
         - --telemetry.address={{ if .Values.global.cluster.istio.enabled }}127.0.0.1{{ end }}:9117
         - --telemetry.endpoint=/metrics
+        ports:
+        - name: metrics
+          containerPort: 9117
         {{- with .Values.sidecar.metrics.resources }}
         resources: {{ toYaml . | nindent 10 }}
         {{- end }}
@@ -133,14 +141,14 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - topologyKey: kubernetes.io/hostname
             labelSelector:
-              matchLabels: {{ include "edusharing_rendering_service.labels.instance" . | nindent 16 }}
+              matchLabels: {{ include "edusharing_rendering_service.labels.app" . | nindent 16 }}
           {{- else if eq .Values.podAntiAffinity "soft" }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
             podAffinityTerm:
               topologyKey: kubernetes.io/hostname
               labelSelector:
-                matchLabels: {{ include "edusharing_rendering_service.labels.instance" . | nindent 18 }}
+                matchLabels: {{ include "edusharing_rendering_service.labels.app" . | nindent 18 }}
           {{- end }}
         {{- end }}
       {{- end }}

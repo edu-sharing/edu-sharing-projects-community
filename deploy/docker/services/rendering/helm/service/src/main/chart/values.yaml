@@ -28,6 +28,13 @@ global:
     pullPolicy: Always
     pullSecrets: []
 
+  metrics:
+    scrape:
+      interval: 10s
+      timeout: 10s
+    servicemonitor:
+      enabled: false
+
   patroni:
     enabled: false
     name: edusharing-rendering-postgresql
@@ -64,6 +71,7 @@ service:
     api:
       internal: 8080
       external: 8081
+    metrics: 9117
 
 ########################################################################################################################
 
@@ -120,6 +128,15 @@ config:
 #       name: "external Sources"
 #       ref: "https://www.excample.com/gdpr"
 
+  http:
+    client:
+      proxy:
+        nonproxyhosts: []
+        proxyhost: ""
+        proxyport: ""
+        proxyuser: ""
+        proxypass: ""
+
   plugins: []
 #   - class: "ESRender_Plugin_...."
 #     args: ['"arg1"','"arg2"']
@@ -158,6 +175,8 @@ podAntiAffinity: "soft"
 tolerations: []
 
 ########################################################################################################################
+
+podAnnotations: {}
 
 podSecurityContext:
 
@@ -207,9 +226,17 @@ init:
 
   permission:
 
-    resources: {}
+    resources:
+
+      limits:
+        cpu: 100m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 1Gi
 
     securityContext:
+
       runAsUser: 0
 
 ########################################################################################################################
@@ -218,9 +245,19 @@ job:
 
   init:
 
-    resources: {}
+    podAnnotations: {}
+
+    resources:
+
+      limits:
+        cpu: 100m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 1Gi
 
     securityContext:
+
       allowPrivilegeEscalation: false
       capabilities:
         drop:
@@ -228,11 +265,21 @@ job:
 
   cachecleaner:
 
-    resources: {}
+    podAnnotations: {}
+
+    resources:
+
+      limits:
+        cpu: 100m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 1Gi
 
     schedule: "0 * * * *"
 
     securityContext:
+
       allowPrivilegeEscalation: false
       capabilities:
         drop:

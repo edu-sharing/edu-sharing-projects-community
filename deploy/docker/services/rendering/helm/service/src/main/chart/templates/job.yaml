@@ -1,8 +1,9 @@
+{{- if .Release.IsInstall }}
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ include "edusharing_rendering_service.name" . }}-init
-  labels: {{ include "edusharing_rendering_service.labels" . | nindent 4 }}
+  labels: {{ include "edusharing_rendering_service.labels.app" . | nindent 4 }}
     app.kubernetes.io/component: init
 spec:
   completions: 1
@@ -11,6 +12,9 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
+        {{- if .Values.job.init.podAnnotations }}
+        {{- toYaml .Values.job.init.podAnnotations | nindent 8 }}
+        {{- end }}
     spec:
       restartPolicy: OnFailure
       containers:
@@ -45,3 +49,4 @@ spec:
       affinity:
         nodeAffinity: {{ toYaml . | nindent 10 }}
       {{- end }}
+{{- end }}

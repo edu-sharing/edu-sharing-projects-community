@@ -2,24 +2,29 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "edusharing_rediscluster.name" . }}
-  labels: {{ include "edusharing_rediscluster.labels" . | nindent 4 }}
+  labels: {{ include "edusharing_rediscluster.labels.app" . | nindent 4 }}
 spec:
   podManagementPolicy: Parallel
   replicas: {{ include "edusharing_rediscluster.replicas" . }}
   selector:
-    matchLabels: {{ include "edusharing_rediscluster.labels.instance" . | nindent 6 }}
+    matchLabels: {{ include "edusharing_rediscluster.labels.app" . | nindent 6 }}
   serviceName: {{ include "edusharing_rediscluster.name" . }}-headless
   template:
     metadata:
       name: {{ include "edusharing_rediscluster.name" . }}
-      labels: {{ include "edusharing_rediscluster.labels" . | nindent 8 }}
+      labels: {{ include "edusharing_rediscluster.labels.app" . | nindent 8 }}
       annotations:
         checksum/configmap-env: {{ include (print .Template.BasePath "/configmap-env.yaml") . | sha256sum | trunc 63 }}
         checksum/configmap-file: {{ include (print .Template.BasePath "/configmap-file.yaml") . | sha256sum | trunc 63 }}
+        {{- if not .Values.global.metrics.servicemonitor.enabled }}
         prometheus.io/path: "/metrics"
         prometheus.io/port: "9114"
         prometheus.io/scrape: {{ .Values.sidecar.metrics.enabled | quote }}
+        {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
+        {{- if .Values.podAnnotations }}
+        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- end }}
     spec:
       initContainers:
       {{- if (default .Values.global.cluster.storage.data.permission .Values.persistence.data.permission) }}
@@ -77,8 +82,12 @@ spec:
           subPath: redis-default.conf
         {{- with .Values.livenessProbe }}
         livenessProbe:
-          tcpSocket:
-            port: api
+          exec:
+            command:
+              - "/bin/bash"
+              - "-ec"
+              - |
+                [[ $(redis-cli ping) == "PONG" || $(redis-cli ping | head -n1 | awk '{print $1;}') =~ ^LOADING$|^MASTERDOWN$ ]] || exit 1
           failureThreshold: {{ .failureThreshold }}
           initialDelaySeconds: {{ .initialDelaySeconds }}
           periodSeconds: {{ .periodSeconds }}
@@ -91,7 +100,7 @@ spec:
             - "/bin/bash"
             - "-ec"
             - |
-              [[ $(redis-cli ping) == "PONG" ]] || exit 1
+              [[ $(redis-cli ping) == "PONG" && $(redis-cli CLUSTER INFO | grep cluster_state | tr -d '[:space:]') == "cluster_state:ok" ]] || exit 1
           failureThreshold: {{ .failureThreshold }}
           initialDelaySeconds: {{ .initialDelaySeconds }}
           periodSeconds: {{ .periodSeconds }}
@@ -112,6 +121,9 @@ spec:
         - --redis.addr=redis://127.0.0.1:6379
         - --web.listen-address={{ if .Values.global.cluster.istio.enabled }}127.0.0.1{{ end }}:9114
         - --web.telemetry-path=/metrics
+        ports:
+        - name: metrics
+          containerPort: 9114
         {{- with .Values.sidecar.metrics.resources }}
         resources: {{ toYaml . | nindent 10 }}
         {{- end }}
@@ -142,14 +154,14 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - topologyKey: kubernetes.io/hostname
             labelSelector:
-              matchLabels: {{ include "edusharing_rediscluster.labels.instance" . | nindent 16 }}
+              matchLabels: {{ include "edusharing_rediscluster.labels.app" . | nindent 16 }}
           {{- else if eq .Values.podAntiAffinity "soft" }}
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 1
             podAffinityTerm:
               topologyKey: kubernetes.io/hostname
               labelSelector:
-                matchLabels: {{ include "edusharing_rediscluster.labels.instance" . | nindent 18 }}
+                matchLabels: {{ include "edusharing_rediscluster.labels.app" . | nindent 18 }}
           {{- end }}
         {{- end }}
       {{- end }}
@@ -160,5 +172,5 @@ spec:
   volumeClaimTemplates:
   - metadata:
       name: data
-      labels: {{ include "edusharing_rediscluster.labels" . | nindent 8 }}
+      labels: {{ include "edusharing_rediscluster.labels.app" . | nindent 8 }}
     spec: {{ merge .Values.persistence.data.spec .Values.global.cluster.storage.data.spec | toYaml | nindent 6 }}
