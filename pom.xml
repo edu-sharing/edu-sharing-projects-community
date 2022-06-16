@@ -302,7 +302,8 @@
 
   </repositories>
 
-<modules>  <module>deploy</module>
+  <modules>
+    <module>deploy</module>
     <module>repository</module>
   </modules>
 </project>
