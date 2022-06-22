@@ -226,6 +226,9 @@ init() {
 		# plugin elastic (please check deploy/installer/repository/scripts/../load_config.sh inside plugin)
 		echo "REPOSITORY_SEARCH_ELASTIC_INDEX_HOST=repository-elastic"
 
+	  # plugin mongo (please check deploy/installer/repository/scripts/../load_config.sh inside plugin)
+		echo "REPOSITORY_MONGO_CONNECTION_STRING=mongodb://repository:repository@repository-mongo:27017/edu-sharing"
+
 		# plugin transform (please check deploy/installer/repository/scripts/../load_config.sh inside plugin)
 		echo "REPOSITORY_TRANSFORM_SERVER_HOST=repository-transform"
 	} >> repository/.env

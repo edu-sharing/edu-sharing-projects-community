@@ -752,9 +752,10 @@ restores=(
 	'tomcat/shared/classes/config/node'
 )
 
-for restore in "${restores[@]}"
-do
-	if [[ $(tar -tf  "$snapshot_name" | grep -c "${restore}") -gt 0 ]]; then
+backup_content=($(tar -tf  "$snapshot_name"))
+
+for restore in "${restores[@]}" ; do
+	if [[ $(echo "${backup_content[*]}" | grep -c "${restore}") -gt 0 ]]; then
 		echo "- restore ${restore} from snapshot"
 		tar -zxf "$snapshot_name" "${restore}" -C $(dirname "${restore}")
 	fi
