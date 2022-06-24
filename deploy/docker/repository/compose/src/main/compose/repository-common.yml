@@ -18,8 +18,8 @@ services:
     image: "${docker.repository}/${docker.prefix}-deploy-docker-repository-build-search-solr4:${docker.tag}"
     environment:
       CATALINA_OPTS: >-
-        -Xms${REPOSITORY_SEARCH_SOLR4_JAVA_XMS:-1g}
-        -Xmx${REPOSITORY_SEARCH_SOLR4_JAVA_XMX:-1g}
+        -Xms${REPOSITORY_SEARCH_SOLR4_JAVA_XMS:-512m}
+        -Xmx${REPOSITORY_SEARCH_SOLR4_JAVA_XMX:-512m}
         -Dcom.sun.management.jmxremote
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.port=7199
@@ -46,8 +46,8 @@ services:
       CACHE_HOST: cache
       CACHE_PORT: "6379"
       CATALINA_OPTS: >-
-        -Xms${REPOSITORY_SERVICE_JAVA_XMS:-1g}
-        -Xmx${REPOSITORY_SERVICE_JAVA_XMX:-1g}
+        -Xms${REPOSITORY_SERVICE_JAVA_XMS:-2g}
+        -Xmx${REPOSITORY_SERVICE_JAVA_XMX:-4g}
         -Dcom.sun.management.jmxremote
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.port=7199
