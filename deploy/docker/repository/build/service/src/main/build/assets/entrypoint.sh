@@ -70,6 +70,10 @@ repository_search_solr4_port="${REPOSITORY_SEARCH_SOLR4_PORT:-8080}"
 repository_transform_host="${REPOSITORY_TRANSFORM_HOST:-}"
 repository_transform_port="${REPOSITORY_TRANSFORM_PORT:-}"
 
+dev_mode="${DEV_MODE:-false}"
+enable_alfresco_share="${ENABLE_ALFRESCO_SHARE:-false}"
+
+
 catSConf="tomcat/conf/server.xml"
 catCConf="tomcat/conf/Catalina/localhost/edu-sharing.xml"
 catWConf="tomcat/webapps/edu-sharing/WEB-INF/web.xml"
@@ -459,6 +463,16 @@ xmlstarlet ed -L \
   -N x="http://java.sun.com/xml/ns/javaee" \
 	-u '/x:web-app/x:session-config/x:session-timeout' -v "${my_http_server_session_timeout}" \
 	${catWConf}
+
+if [[ "${enable_alfresco_share}" == "false" ]] ; then
+	rm -rf tomcat/webapps/share
+	rm -f tomcat/conf/Catalina/localhost/share.xml
+fi
+
+if [[ "${dev_mode}" == "true" ]] ; then
+	sed -i -r 's|^[#]*\s*tomcat\.util\.scan\.StandardJarScanFilter\.jarsToSkip=\\|tomcat.util.scan.StandardJarScanFilter.jarsToSkip=*|' tomcat/conf/catalina.properties
+	export CATALINA_OPTS="$CATALINA_OPTS -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:MaxPermSize=256M"
+fi
 
 ########################################################################################################################
 

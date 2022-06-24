@@ -42,6 +42,10 @@ services:
     image: "${docker.repository}/${docker.prefix}-deploy-docker-repository-build-service:${docker.tag}"
     environment:
       CACHE_CLUSTER: "false"
+      # Warning: The dev mode is only intented for local testing and can cause different behaviour then production
+      # Please DO NOT ENABLE this on any production machine or if you want to reproduce production behaviour!
+      DEV_MODE: "false"
+      ENABLE_ALFRESCO_SHARE: "true"
       CACHE_DATABASE: "0"
       CACHE_HOST: cache
       CACHE_PORT: "6379"
