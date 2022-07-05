@@ -109,6 +109,9 @@ RUN set -eux \
       -x "WEB-INF/lib/jackson-*" \
       -x "WEB-INF/lib/log4j-*" \
       -x "WEB-INF/lib/slf4j-*" \
+      -x "WEB-INF/lib/jsr305-*" \
+      -x "WEB-INF/lib/asm-*" \
+      -x "WEB-INF/lib/antlr-2.*" \
     && rm -f tomcat/webapps/alfresco.war \
     && mv alf_data/keystore .
 
