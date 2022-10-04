@@ -1,0 +1,125 @@
+version: '3.7'
+
+services:
+
+  repository-database:
+    image: "${docker.repository}/${docker.prefix}-deploy-docker-build-postgresql:${docker.tag}"
+    container_name: "repository-database_${COMPOSE_PROJECT_NAME}"
+    environment:
+      POSTGRESQL_DATABASE: "${REPOSITORY_DATABASE_NAME:-repository}"
+      POSTGRESQL_PASSWORD: "${REPOSITORY_DATABASE_PASS:-repository}"
+      POSTGRESQL_POSTGRES_PASSWORD: "${REPOSITORY_DATABASE_PASS:-repository}"
+      POSTGRESQL_USERNAME: "${REPOSITORY_DATABASE_USER:-repository}"
+    expose:
+      - "5432"
+    volumes:
+      - "repository-database-volume-data:/bitnami/postgresql"
+
+  repository-mailcatcher:
+    image: "${docker.repository}/${docker.prefix}-deploy-docker-build-mailcatcher:${docker.tag}"
+    container_name: "repository-mailcatcher_${COMPOSE_PROJECT_NAME}"
+    expose:
+      - "1025"
+    ports:
+      - "${COMMON_BIND_HOST:-127.0.0.1}:${REPOSITORY_MAILCATCHER_PORT_HTTP:-8025}:1080"
+
+  repository-search-solr4:
+    image: "${docker.repository}/${docker.prefix}-deploy-docker-repository-build-search-solr4:${docker.tag}"
+    container_name: "repository-search-solr4_${COMPOSE_PROJECT_NAME}"
+    environment:
+      CATALINA_OPTS: >-
+        -Xms${REPOSITORY_SEARCH_SOLR4_JAVA_XMS:-512m}
+        -Xmx${REPOSITORY_SEARCH_SOLR4_JAVA_XMX:-512m}
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.port=7199
+        -Dcom.sun.management.jmxremote.ssl=false
+        -javaagent:/opt/alfresco/tomcat/agent/jmx_prometheus_javaagent.jar=9090:/opt/alfresco/tomcat/agent/jmx-exporter-config.yaml
+      REPOSITORY_SEARCH_SOLR4_HOST: repository-search-solr4
+      REPOSITORY_SEARCH_SOLR4_PORT: "8080"
+      REPOSITORY_SERVICE_HOST: repository-service
+      REPOSITORY_SERVICE_PORT: "8080"
+    expose:
+      - "7199"
+      - "8080"
+      - "9090"
+    volumes:
+      - "repository-search-solr4-volume-data:/opt/alfresco/alf_data"
+    depends_on:
+      - repository-service
+
+  repository-service:
+    image: "${docker.repository}/${docker.prefix}-deploy-docker-repository-build-service:${docker.tag}"
+    container_name: "repository-service_${COMPOSE_PROJECT_NAME}"
+    environment:
+      CACHE_CLUSTER: "false"
+      CACHE_DATABASE: "0"
+      CACHE_HOST: cache
+      CACHE_PORT: "6379"
+      CATALINA_OPTS: >-
+        -Xms${REPOSITORY_SERVICE_JAVA_XMS:-2g}
+        -Xmx${REPOSITORY_SERVICE_JAVA_XMX:-4g}
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.port=7199
+        -Dcom.sun.management.jmxremote.ssl=false
+        -javaagent:/opt/alfresco/tomcat/agent/jmx_prometheus_javaagent.jar=9090:/opt/alfresco/tomcat/agent/jmx-exporter-config.yaml
+      REPOSITORY_DATABASE_HOST: repository-database
+      REPOSITORY_DATABASE_NAME: "${REPOSITORY_DATABASE_NAME:-repository}"
+      REPOSITORY_DATABASE_PASS: "${REPOSITORY_DATABASE_PASS:-repository}"
+      REPOSITORY_DATABASE_PORT: "5432"
+      REPOSITORY_DATABASE_USER: "${REPOSITORY_DATABASE_USER:-repository}"
+      REPOSITORY_SEARCH_SOLR4_HOST: repository-search-solr4
+      REPOSITORY_SEARCH_SOLR4_PORT: "8080"
+      REPOSITORY_SERVICE_ADMIN_PASS: "${REPOSITORY_SERVICE_ADMIN_PASS:-admin}"
+      REPOSITORY_SERVICE_GUEST_PASS: "${REPOSITORY_SERVICE_GUEST_PASS:-}"
+      REPOSITORY_SERVICE_GUEST_USER: "${REPOSITORY_SERVICE_GUEST_USER:-}"
+      REPOSITORY_SERVICE_HOME_APPID: "${COMPOSE_PROJECT_NAME:-local}"
+      REPOSITORY_SERVICE_HOME_PROVIDER: "${REPOSITORY_SERVICE_PROVIDER:-}"
+      REPOSITORY_SERVICE_HOST_EXTERNAL: "${REPOSITORY_SERVICE_HOST:-repository.127.0.0.1.nip.io}"
+      REPOSITORY_SERVICE_HTTP_SERVER_CSP_CONNECT: "${REPOSITORY_SERVICE_HTTP_SERVER_CSP_CONNECT:-}"
+      REPOSITORY_SERVICE_HTTP_SERVER_CSP_DEFAULT: "${REPOSITORY_SERVICE_HTTP_SERVER_CSP_DEFAULT:-}"
+      REPOSITORY_SERVICE_HTTP_SERVER_CSP_FONT: "${REPOSITORY_SERVICE_HTTP_SERVER_CSP_FONT:-}"
+      REPOSITORY_SERVICE_HTTP_SERVER_CSP_IMG: "${REPOSITORY_SERVICE_HTTP_SERVER_CSP_IMG:-}"
+      REPOSITORY_SERVICE_HTTP_SERVER_CSP_SCRIPT: "${REPOSITORY_SERVICE_HTTP_SERVER_CSP_SCRIPT:-}"
+      REPOSITORY_SERVICE_HTTP_SERVER_SESSION_TIMEOUT: "${REPOSITORY_SERVICE_HTTP_SERVER_SESSION_TIMEOUT:-60}"
+      REPOSITORY_SERVICE_MAIL_FROM: "${REPOSITORY_SERVICE_MAIL_FROM:-no-reply@edu-sharing.net}"
+      REPOSITORY_SERVICE_MAIL_ADDREPLYTO: "${REPOSITORY_SERVICE_MAIL_ADDREPLYTO:-true}"
+      REPOSITORY_SERVICE_MAIL_REGISTER_RECEIVER: "${REPOSITORY_SERVICE_MAIL_REGISTER_RECEIVER:-}"
+      REPOSITORY_SERVICE_MAIL_REPORT_RECEIVER: "${REPOSITORY_SERVICE_MAIL_REPORT_RECEIVER:-}"
+      REPOSITORY_SERVICE_MAIL_SERVER_SMTP_HOST: "${REPOSITORY_SERVICE_MAIL_SERVER_SMTP_HOST:-repository-mailcatcher}"
+      REPOSITORY_SERVICE_MAIL_SERVER_SMTP_PORT: "${REPOSITORY_SERVICE_MAIL_SERVER_SMTP_PORT:-1025}"
+      REPOSITORY_SERVICE_MAIL_SERVER_SMTP_USERNAME: "${REPOSITORY_SERVICE_MAIL_SERVER_SMTP_USERNAME:-}"
+      REPOSITORY_SERVICE_MAIL_SERVER_SMTP_PASSWORD: "${REPOSITORY_SERVICE_MAIL_SERVER_SMTP_PASSWORD:-}"
+      REPOSITORY_SERVICE_MAIL_SERVER_SMTP_AUTHTYPE: "${REPOSITORY_SERVICE_MAIL_SERVER_SMTP_AUTHTYPE:-}"
+      REPOSITORY_SERVICE_PORT_EXTERNAL: "${REPOSITORY_SERVICE_PORT_HTTP:-8100}"
+      REPOSITORY_SERVICE_HOST_INTERNAL: repository-service
+      REPOSITORY_SERVICE_PORT_INTERNAL: "8080"
+      REPOSITORY_TRANSFORM_HOST: repository-transform
+      REPOSITORY_TRANSFORM_PORT: "8100"
+    expose:
+      - "7199"
+      - "8080"
+      - "9090"
+    ports:
+      - "${COMMON_BIND_HOST:-127.0.0.1}:${REPOSITORY_SERVICE_PORT_HTTP:-8100}:8081"
+    volumes:
+      - "repository-service-volume-config-cluster:/usr/local/tomcat/shared/classes/config/cluster"
+      - "repository-service-volume-config-node:/usr/local/tomcat/shared/classes/config/node"
+      - "repository-service-volume-data:/opt/alfresco/alf_data"
+    depends_on:
+      - repository-database
+      - repository-transform
+
+  repository-transform:
+    image: "${docker.repository}/${docker.prefix}-deploy-docker-repository-build-transform:${docker.tag}"
+    container_name: "repository-transform_${COMPOSE_PROJECT_NAME}"
+    expose:
+      - "8100"
+
+volumes:
+  repository-database-volume-data:
+  repository-search-solr4-volume-data:
+  repository-service-volume-config-cluster:
+  repository-service-volume-config-node:
+  repository-service-volume-data:
