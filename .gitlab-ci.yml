@@ -57,6 +57,42 @@ test docker:
     - tags
     - web
 
+e2e:
+  stage: test
+  artifacts:
+    paths:
+      - repository/Frontend/src/generated/ng/playwright-report/
+    when: always
+  before_script:
+    - apt-get update -y
+    - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip
+    - apt-get install -y docker.io docker-compose jq wait-for-it
+    - curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
+    - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  variables:
+    E2E_TEST_BASE_URL: http://docker:8100/edu-sharing/
+    REPOSITORY_SERVICE_HOST: docker
+    REPOSITORY_SERVICE_PORT: 8100
+  script:
+    - mkdir -p "$MAVEN_HOME"
+    - mvn $MAVEN_CLI -s .mvn/settings.xml install
+    - pushd deploy/docker
+    - . deploy.sh ci
+    - pushd ../../repository/Frontend/src/generated/ng
+    - npx playwright install --with-deps
+    - "until wait-for-it docker:8100 -t 3; do sleep 1; done"
+    - "until [[ $(curl -sSf -w '%{http_code}\n' -o /dev/null -H 'Accept: application/json' http://docker:8100/edu-sharing/rest/_about/status/SERVICE?timeoutSeconds=3) -eq 200 ]]; do sleep 1; done"
+    - npm run e2e-prepare-edu-sharing
+    - npm run e2e
+    - popd
+    - . deploy.sh stop
+    - cmp -s openapi.json repository/build/service/target/build/rest-api/openapi.json || exit 1
+    - popd
+  only:
+    - schedules
+    - tags
+    - web
+
 test installer:
   stage: test
   artifacts:
