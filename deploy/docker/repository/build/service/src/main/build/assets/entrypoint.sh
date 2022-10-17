@@ -212,6 +212,7 @@ xmlstarlet ed -L \
 	-i '$external2' -t attr -n "URIEncoding" -v "UTF-8" \
 	-i '$external2' -t attr -n "connectionTimeout" -v "${my_wait_external}" \
 	-i '$external2' -t attr -n "maxThreads" -v "${my_pool_external}" \
+	-i '$external2' -t attr -n "secretRequired" -v "false" \
 	${catSConf}
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
@@ -467,8 +468,8 @@ xmlstarlet ed -L \
 }
 
 [[ -n "${my_http_client_proxy_nonproxyhosts}" ]] && {
-	export CATALINA_OPTS="-Dhttp.nonProxyHosts=${my_http_client_proxy_nonproxyhosts} $CATALINA_OPTS"
-	export CATALINA_OPTS="-Dhttps.nonProxyHosts=${my_http_client_proxy_nonproxyhosts} $CATALINA_OPTS"
+	export CATALINA_OPTS="-Dhttp.nonProxyHosts=\"${my_http_client_proxy_nonproxyhosts/,/|}\" $CATALINA_OPTS"
+	export CATALINA_OPTS="-Dhttps.nonProxyHosts=\"${my_http_client_proxy_nonproxyhosts/,/|}\" $CATALINA_OPTS"
 	hocon -f ${eduSConf} \
 		set "repository.httpclient.proxy.nonproxyhosts" '"'"${my_http_client_proxy_nonproxyhosts}"'"'
 }
