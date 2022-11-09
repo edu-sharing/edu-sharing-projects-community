@@ -33,6 +33,8 @@ my_gdpr_enabled="${SERVICES_RENDERING_SERVICE_GDPR_ENABLED:-false}"
 my_gdpr_modules="${SERVICES_RENDERING_SERVICE_GDPR_MODULES:-}"
 my_gdpr_urls="${SERVICES_RENDERING_SERVICE_GDPR_URLS:-}"
 
+my_viewer_enabled="${SERVICES_RENDERING_SERVICE_VIEWER_ENABLED:-true}"
+
 my_plugins="${SERVICES_RENDERING_SERVICE_PLUGINS:-}"
 
 cache_cluster="${CACHE_CLUSTER:-false}"
@@ -170,7 +172,8 @@ if [[ ! -f "${RS_CACHE}/config/version.json" ]]; then
 	find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
 	find "${RS_CACHE}/config" -type d -empty -delete
 
-	cp "$RS_ROOT"/version.json "${RS_CACHE}"/config/version.json
+	cp "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json"
+  cp "${RS_CACHE}/config/version.json" "${RS_CACHE}/config/version.json.$(date +%d-%m-%Y_%H-%M-%S )"
 
 	echo "config saved."
 
@@ -183,9 +186,9 @@ else
 	find . -type d -exec mkdir -p "${RS_ROOT}/{}" \;
 	find . -type f -exec cp -f {} "${RS_ROOT}/{}" \;
 
-	cmp -s "$RS_ROOT"/version.json version.json || {
-		mv version.json version.json."$(date +%d-%m-%Y_%H-%M-%S )"
-		cp "$RS_ROOT"/version.json version.json
+	cmp -s "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json" || {
+    cp "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json"
+    cp "${RS_CACHE}/config/version.json" "${RS_CACHE}/config/version.json.$(date +%d-%m-%Y_%H-%M-%S )"
 	}
 
 	popd
@@ -195,7 +198,19 @@ fi
 
 ########################################################################################################################
 
+before="$(mktemp)"
+
 yes | php admin/cli/update.php
+
+echo "config saving."
+
+find -L . -type d -exec mkdir -p "${RS_CACHE}/config/{}" \;
+find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
+find "${RS_CACHE}/config" -type d -empty -delete
+
+echo "config saved."
+
+########################################################################################################################
 
 dbConf="${RS_ROOT}/conf/db.conf.php"
 sed -i -r "s|\$dsn.*|\$dsn = \"${rendering_database_driv}:host=${rendering_database_host};port=${rendering_database_port};dbname=${rendering_database_name}\";|" "${dbConf}"
@@ -209,6 +224,9 @@ sed -i -r "s|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = '${RS_CACHE}';|" "${systemCon
 
 sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules/,/\",\"}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
 grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [\"${my_gdpr_modules/,/\",\"}\"], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
+
+sed -i -r "s|DEFINE\(\"ENABLE_VIEWER_JS\".*|DEFINE\(\"ENABLE_VIEWER_JS\", ${my_viewer_enabled}\);|" "${systemConf}"
+grep -q 'ENABLE_VIEWER_JS' "${systemConf}" || echo "DEFINE(\"ENABLE_VIEWER_JS\", ${my_viewer_enabled});" >> "${systemConf}"
 
 proxyConf="${RS_ROOT}/conf/proxy.conf.php"
 rm -f "${proxyConf}"

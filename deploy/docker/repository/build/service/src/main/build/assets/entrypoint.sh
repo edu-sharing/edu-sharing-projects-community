@@ -130,11 +130,12 @@ for config in "${configs[@]}"; do
         unzip -o $jar -d tomcat/shared/classes/config/$config -x 'META-INF/*'
 			fi
 		done
-		cp -f tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config
+    cp tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json
+    cp tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
 	else
-		cmp -s tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config/version.json || {
-			mv tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
-			cp tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config/version.json
+		cmp -s tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json || {
+			cp tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json
+			cp tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
 		}
 	fi
 done
@@ -213,6 +214,8 @@ xmlstarlet ed -L \
 	-i '$external2' -t attr -n "connectionTimeout" -v "${my_wait_external}" \
 	-i '$external2' -t attr -n "maxThreads" -v "${my_pool_external}" \
 	-i '$external2' -t attr -n "secretRequired" -v "false" \
+	-i '$external2' -t attr -n "tomcatAuthentication" -v "false" \
+	-i '$external2' -t attr -n "allowedRequestAttributesPattern" -v ".*" \
 	${catSConf}
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
