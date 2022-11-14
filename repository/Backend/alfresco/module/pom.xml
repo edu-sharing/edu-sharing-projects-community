@@ -42,8 +42,8 @@
             </goals>
             <phase>generate-resources</phase>
             <configuration>
-              <outputDirectory>src/main/amp/config/alfresco/module/${project.artifactId}</outputDirectory>
-              <thirdPartyFilename>THIRD-PARTY.txt</thirdPartyFilename>
+              <outputDirectory>src/main/amp/licenses</outputDirectory>
+              <thirdPartyFilename>THIRD-PARTY-${project.artifactId}.txt</thirdPartyFilename>
             </configuration>
           </execution>
         </executions>
@@ -90,7 +90,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-community-repository-backend-alfresco-fixes</artifactId>
+      <artifactId>edu_sharing-community-repository-backend-alfresco-common</artifactId>
       <scope>provided</scope>
     </dependency>
 

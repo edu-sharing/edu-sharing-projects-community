@@ -14,6 +14,10 @@ my_bind="${REPOSITORY_SERVICE_BIND:-"0.0.0.0"}"
 my_home_appid="${REPOSITORY_SERVICE_HOME_APPID:-local}"
 my_home_auth="${REPOSITORY_SERVICE_HOME_AUTH:-}"
 my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
+my_allow_origin="${REPOSITORY_SERVICE_ALLOW_ORIGIN:-}"
+if [[ ! -z "$my_allow_origin" ]]; then
+  my_allow_origin=",${my_allow_origin}"
+fi
 
 my_prot_external="${REPOSITORY_SERVICE_PROT_EXTERNAL:-http}"
 my_host_external="${REPOSITORY_SERVICE_HOST_EXTERNAL:-repository.127.0.0.1.nip.io}"
@@ -130,11 +134,12 @@ for config in "${configs[@]}"; do
         unzip -o $jar -d tomcat/shared/classes/config/$config -x 'META-INF/*'
 			fi
 		done
-		cp -f tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config
+    cp tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json
+    cp tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
 	else
-		cmp -s tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config/version.json || {
-			mv tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
-			cp tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config/version.json
+		cmp -s tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json || {
+			cp tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json
+			cp tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
 		}
 	fi
 done
@@ -212,6 +217,9 @@ xmlstarlet ed -L \
 	-i '$external2' -t attr -n "URIEncoding" -v "UTF-8" \
 	-i '$external2' -t attr -n "connectionTimeout" -v "${my_wait_external}" \
 	-i '$external2' -t attr -n "maxThreads" -v "${my_pool_external}" \
+	-i '$external2' -t attr -n "secretRequired" -v "false" \
+	-i '$external2' -t attr -n "tomcatAuthentication" -v "false" \
+	-i '$external2' -t attr -n "allowedRequestAttributesPattern" -v ".*" \
 	${catSConf}
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
@@ -356,7 +364,7 @@ xmlstarlet ed -L \
 	-u '/properties/entry[@key="host"]' -v "${my_host_internal}" \
 	-u '/properties/entry[@key="password"]' -v "${my_admin_pass}" \
 	-u '/properties/entry[@key="port"]' -v "${my_port_internal}" \
-	-u '/properties/entry[@key="allow_origin"]' -v "${my_origin},http://localhost:54361" \
+	-u '/properties/entry[@key="allow_origin"]' -v "${my_origin},http://localhost:54361${my_allow_origin}" \
 	${homeProp}
 
 [[ -n "${my_guest_user}" ]] && {
@@ -467,8 +475,8 @@ xmlstarlet ed -L \
 }
 
 [[ -n "${my_http_client_proxy_nonproxyhosts}" ]] && {
-	export CATALINA_OPTS="-Dhttp.nonProxyHosts=${my_http_client_proxy_nonproxyhosts} $CATALINA_OPTS"
-	export CATALINA_OPTS="-Dhttps.nonProxyHosts=${my_http_client_proxy_nonproxyhosts} $CATALINA_OPTS"
+	export CATALINA_OPTS="-Dhttp.nonProxyHosts=\"${my_http_client_proxy_nonproxyhosts/,/|}\" $CATALINA_OPTS"
+	export CATALINA_OPTS="-Dhttps.nonProxyHosts=\"${my_http_client_proxy_nonproxyhosts/,/|}\" $CATALINA_OPTS"
 	hocon -f ${eduSConf} \
 		set "repository.httpclient.proxy.nonproxyhosts" '"'"${my_http_client_proxy_nonproxyhosts}"'"'
 }

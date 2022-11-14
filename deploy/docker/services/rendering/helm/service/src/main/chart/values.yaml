@@ -147,6 +147,9 @@ config:
     port: 8080
     password: admin
 
+  viewer:
+    enabled: true
+
 ########################################################################################################################
 
 persistence:
@@ -183,6 +186,7 @@ podSecurityContext:
 
   runAsUser: 1000
   fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
 
 securityContext:
 

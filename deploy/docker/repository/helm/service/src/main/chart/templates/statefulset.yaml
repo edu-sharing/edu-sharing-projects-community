@@ -43,9 +43,15 @@ spec:
         - "/bin/bash"
         - "-ec"
         - |
-          chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /usr/local/tomcat/shared/classes/config/cluster
-          chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /usr/local/tomcat/shared/classes/config/node
-          chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+          if [[ ! "$(ls -A /usr/local/tomcat/shared/classes/config/cluster)" ]]; then
+            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /usr/local/tomcat/shared/classes/config/cluster
+          fi
+          if [[ ! "$(ls -A /usr/local/tomcat/shared/classes/config/node)" ]]; then
+            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /usr/local/tomcat/shared/classes/config/node
+          fi
+          if [[ ! "$(ls -A /opt/alfresco/alf_data)" ]]; then
+            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+          fi
         volumeMounts:
         - name: data
           mountPath: /usr/local/tomcat/shared/classes/config/node
@@ -64,7 +70,7 @@ spec:
       - name: {{ include "edusharing_repository_service.name" . }}-server
         image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-repository-build-service:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
-        {{- if .Values.config.jvm.debug }}
+        {{- if default .Values.global.debug .Values.debug }}
         args: [ "catalina.sh", "jpda", "run" ]
         {{- end }}
         {{- $patroni := merge .Values.config.database.patroni .Values.global.patroni }}
@@ -91,6 +97,10 @@ spec:
         {{- if .Values.config.metrics }}
         - name: metrics
           containerPort: 9090
+        {{- end }}
+        {{- if default .Values.global.debug .Values.debug }}
+        - name: jpda
+          containerPort: 5005
         {{- end }}
         volumeMounts:
         - name: data

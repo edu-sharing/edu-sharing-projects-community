@@ -28,7 +28,7 @@
       dockerio.mirror.docker.edu-sharing.com/schickling/mailcatcher:master
     </docker.from.mailcatcher>
     <docker.from.minideb>
-      dockerio.mirror.docker.edu-sharing.com/bitnami/minideb:bullseye
+      dockerio.mirror.docker.edu-sharing.com/bitnami/bitnami-shell:11
     </docker.from.minideb>
     <docker.from.openjdk.8>
       dockerio.mirror.docker.edu-sharing.com/openjdk:8-jdk-bullseye
@@ -65,6 +65,21 @@
     <redisson.version>3.17.1</redisson.version>
 
   </properties>
+
+  <profiles>
+    <profile>
+      <id>customer.deploy</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <file>
+          <exists>customer/pom.xml</exists>
+        </file>
+      </activation>
+      <modules>
+        <module>customer</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <build>
 
