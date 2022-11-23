@@ -134,7 +134,7 @@ e2e:
     - popd
   only:
     variables:
-      $E2E_TEST == "true"
+      - $E2E_TEST == "true"
 
 deploy:
   stage: deploy
