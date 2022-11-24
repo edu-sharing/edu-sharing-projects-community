@@ -213,19 +213,19 @@ echo "config saved."
 ########################################################################################################################
 
 dbConf="${RS_ROOT}/conf/db.conf.php"
-sed -i -r "s|\$dsn.*|\$dsn = \"${rendering_database_driv}:host=${rendering_database_host};port=${rendering_database_port};dbname=${rendering_database_name}\";|" "${dbConf}"
-sed -i -r "s|\$dbuser.*|\$dbuser = \"${rendering_database_user}\";|" "${dbConf}"
-sed -i -r "s|\$pwd.*|\pwd = \"${rendering_database_pass}\";|" "${dbConf}"
+sed -i -r 's|\$dsn.*|\$dsn = "'"${rendering_database_driv}:host=${rendering_database_host};port=${rendering_database_port};dbname=${rendering_database_name}"'";|' "${dbConf}"
+sed -i -r 's|\$dbuser.*|\$dbuser = "'"${rendering_database_user}"'";|' "${dbConf}"
+sed -i -r 's|\$pwd.*|\$pwd = "'"${rendering_database_pass}"'";|' "${dbConf}"
 
 systemConf="${RS_ROOT}/conf/system.conf.php"
-sed -i -r "s|\$MC_URL.*|\$MC_URL = '${my_base_external}';|" "${systemConf}"
-sed -i -r "s|\$MC_DOCROOT.*|\$MC_DOCROOT = '${RS_ROOT}';|" "${systemConf}"
-sed -i -r "s|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = '${RS_CACHE}';|" "${systemConf}"
+sed -i -r 's|\$MC_URL = ['"'"'"].*|\$MC_URL = "'"${my_base_external}"'";|' "${systemConf}"
+sed -i -r 's|\$MC_DOCROOT.*|\$MC_DOCROOT = "'"${RS_ROOT}"'";|' "${systemConf}"
+sed -i -r 's|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = "'"${RS_CACHE}"'";|' "${systemConf}"
 
 sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules//,/\",\"}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
 grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [\"${my_gdpr_modules//,/\",\"}\"], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
 
-sed -i -r "s|DEFINE\(\"ENABLE_VIEWER_JS\".*|DEFINE\(\"ENABLE_VIEWER_JS\", ${my_viewer_enabled}\);|" "${systemConf}"
+sed -i -r 's|DEFINE\("ENABLE_VIEWER_JS".*|DEFINE\("ENABLE_VIEWER_JS", '"${my_viewer_enabled}"'\);|' "${systemConf}"
 grep -q 'ENABLE_VIEWER_JS' "${systemConf}" || echo "DEFINE(\"ENABLE_VIEWER_JS\", ${my_viewer_enabled});" >> "${systemConf}"
 
 proxyConf="${RS_ROOT}/conf/proxy.conf.php"
