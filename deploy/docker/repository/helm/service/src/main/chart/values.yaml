@@ -11,6 +11,9 @@ global:
 
     domain: cluster.local
 
+    ingress:
+      ingressClassName: ""
+
     istio:
       enabled: false
       gateway:
@@ -30,6 +33,8 @@ global:
         permission: false
         spec: {}
 
+  debug: false
+
   image:
     pullPolicy: Always
     pullSecrets: []
@@ -48,6 +53,8 @@ global:
     name: edusharing-repository-postgresql
     secrets: "credentials.postgresql.acid.zalan.do"
     team: edusharing
+
+  password: ""
 
 ########################################################################################################################
 # LOCAL
@@ -92,10 +99,6 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
-    nginx.ingress.kubernetes.io/server-snippet: |
-      location ~ ^/.*/(wc)?s(ervice)?/api/solr/.*$ {return 403;}
-      location ~ ^/.*/proxy/.*/api/solr/.*$ {return 403;}
-      location ~ ^/.*/-default-/proxy/.*/api/.*$ {return 403;}
 
   hosts:
   - repository.127.0.0.1.nip.io
@@ -107,15 +110,13 @@ ingress:
 
   paths:
   - /edu-sharing
-  - /alfresco
-  - /share
 
 ########################################################################################################################
 
 config:
 
   admin:
-    password: admin
+    password: ""
 
   antivirus:
     enabled: ${helm.config.antivirus.enabled}
@@ -151,7 +152,7 @@ config:
     port: 5432
     database: repository
     username: repository
-    password: repository
+    password: ""
     protocol: postgresql
     options: "?sslmode=disable"
     patroni: {}
@@ -168,7 +169,6 @@ config:
     appid: local
 
   jvm:
-    debug: false
     ram:
       minPercentage: "75.0"
       maxPercentage: "75.0"
@@ -186,6 +186,8 @@ config:
         proxyuser: ""
         proxypass: ""
     server:
+      # additional, allowed origins to allow CORS-Access from
+      allowOrigin: []
       csp:
         connect: ""
         default: ""
@@ -244,6 +246,10 @@ config:
 
 ########################################################################################################################
 
+debug: false
+
+########################################################################################################################
+
 persistence:
 
   data:
@@ -287,6 +293,7 @@ podSecurityContext:
 
   runAsUser: 1000
   fsGroup: 1000
+  fsGroupChangePolicy: OnRootMismatch
 
 securityContext:
 

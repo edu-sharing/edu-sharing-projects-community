@@ -36,8 +36,13 @@ test docker:
     when: always
   before_script:
     - apt-get update -y
+    - apt-get install -y ca-certificates curl gnupg jq lsb-release wait-for-it
+    - mkdir -p /etc/apt/keyrings
+    - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - apt-get update -y
+    - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
     - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip
-    - apt-get install -y docker.io docker-compose jq wait-for-it
     - docker info
     - docker version
     - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
@@ -53,39 +58,84 @@ test docker:
     - cmp -s openapi.json repository/build/service/target/build/rest-api/openapi.json || exit 1
     - popd
   only:
+    - triggers
     - schedules
     - tags
     - web
 
-test installer:
+#test installer:
+#  stage: test
+#  artifacts:
+#    paths:
+#      - deploy/installer/openapi.json
+#      - deploy/installer/repository/distribution/target/dist/rest-api/openapi.json
+#    when: always
+#  before_script:
+#    - apt-get update -y
+#    - apt-get install -y ca-certificates curl gnupg jq lsb-release wait-for-it
+#    - mkdir -p /etc/apt/keyrings
+#    - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+#    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+#    - apt-get update -y
+#    - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
+#    - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip
+#    - docker info
+#    - docker version
+#    - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+#  script:
+#    - mkdir -p "$MAVEN_HOME"
+#    - mvn $MAVEN_CLI -s .mvn/settings.xml install
+#    - pushd deploy/installer
+#    - . deploy.sh ci
+#    - "until wait-for-it docker:8100 -t 3; do sleep 1; done"
+#    - "until [[ $(curl -sSf -w '%{http_code}\n' -o /dev/null -H 'Accept: application/json' http://docker:8100/edu-sharing/rest/_about/status/SERVICE?timeoutSeconds=3) -eq 200 ]]; do sleep 1; done"
+#    - "curl -m 300 -H 'Accept: application/json' --user 'admin:admin' http://docker:8100/edu-sharing/rest/openapi.json | jq -S . > openapi.json"
+#    - . deploy.sh stop
+#    - cmp -s openapi.json repository/distribution/target/dist/rest-api/openapi.json || exit 1
+#    - popd
+#  only:
+#    - schedules
+#    - tags
+#    - web
+
+e2e:
   stage: test
   artifacts:
     paths:
-      - deploy/installer/openapi.json
-      - deploy/installer/repository/distribution/target/dist/rest-api/openapi.json
+      - repository/Frontend/src/generated/ng/playwright-report/
     when: always
   before_script:
     - apt-get update -y
+    - apt-get install -y ca-certificates curl gnupg jq lsb-release wait-for-it
+    - mkdir -p /etc/apt/keyrings
+    - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - apt-get update -y
+    - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
     - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip
-    - apt-get install -y docker.io docker-compose jq wait-for-it
-    - docker info
-    - docker version
+    - curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && apt-get install -y nodejs
     - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+  variables:
+    E2E_TEST_BASE_URL: http://docker:8100/edu-sharing/
+    REPOSITORY_SERVICE_HOST: docker
+    REPOSITORY_SERVICE_PORT: 8100
   script:
     - mkdir -p "$MAVEN_HOME"
     - mvn $MAVEN_CLI -s .mvn/settings.xml install
-    - pushd deploy/installer
+    - pushd deploy/docker
     - . deploy.sh ci
+    - pushd ../../repository/Frontend/src/generated/ng
+    - npx playwright install --with-deps
     - "until wait-for-it docker:8100 -t 3; do sleep 1; done"
     - "until [[ $(curl -sSf -w '%{http_code}\n' -o /dev/null -H 'Accept: application/json' http://docker:8100/edu-sharing/rest/_about/status/SERVICE?timeoutSeconds=3) -eq 200 ]]; do sleep 1; done"
-    - "curl -m 300 -H 'Accept: application/json' --user 'admin:admin' http://docker:8100/edu-sharing/rest/openapi.json | jq -S . > openapi.json"
+    - npm run e2e-prepare-edu-sharing
+    - npm run e2e
+    - popd
     - . deploy.sh stop
-    - cmp -s openapi.json repository/distribution/target/dist/rest-api/openapi.json || exit 1
     - popd
   only:
-    - schedules
-    - tags
-    - web
+    variables:
+      - $E2E_TEST == "true"
 
 deploy:
   stage: deploy

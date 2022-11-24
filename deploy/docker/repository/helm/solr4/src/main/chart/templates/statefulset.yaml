@@ -34,7 +34,9 @@ spec:
         - "/bin/bash"
         - "-ec"
         - |
-          chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+          if [[ ! "$(ls -A /opt/alfresco/alf_data)" ]]; then
+            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+          fi
         volumeMounts:
         - name: data
           mountPath: /opt/alfresco/alf_data
@@ -49,7 +51,7 @@ spec:
       - name: {{ include "edusharing_repository_search_solr4.name" . }}
         image: {{ include "edusharing_repository_search_solr4.image" . }}{{ .Values.image.prefix }}-deploy-docker-repository-build-search-solr4:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
-        {{- if .Values.config.jvm.debug }}
+        {{- if default .Values.global.debug .Values.debug }}
         args: [ "catalina.sh", "jpda", "run" ]
         {{- end }}
         envFrom:
@@ -61,6 +63,10 @@ spec:
         {{- if .Values.config.metrics }}
         - name: metrics
           containerPort: 9090
+        {{- end }}
+        {{- if default .Values.global.debug .Values.debug }}
+        - name: jpda
+          containerPort: 5005
         {{- end }}
         volumeMounts:
         - name: data
