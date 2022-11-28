@@ -104,7 +104,8 @@ e2e:
   artifacts:
     paths:
       - repository/Frontend/src/generated/ng/playwright-report/
-    when: on_failure
+    when: on_failure    
+    expire_in: 3 day
   before_script:
     - apt-get update -y
     - apt-get install -y ca-certificates curl gnupg jq lsb-release wait-for-it
