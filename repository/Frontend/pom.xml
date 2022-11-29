@@ -27,7 +27,7 @@
         <artifactId>frontend-maven-plugin</artifactId>
         <configuration>
           <!--suppress UnresolvedMavenProperty -->
-          <nodeVersion>${node.version}</nodeVersion>
+          <nodeVersion>v${node.version}</nodeVersion>
           <!--suppress UnresolvedMavenProperty -->
           <npmVersion>${npm.version}</npmVersion>
         </configuration>
@@ -57,6 +57,16 @@
             <phase>compile</phase>
             <configuration>
               <arguments>${npm.args.build}</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>licenses</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>process-classes</phase>
+            <configuration>
+              <arguments>run print-licenses</arguments>
             </configuration>
           </execution>
         </executions>
@@ -90,6 +100,13 @@
               <filesets>
                 <fileset>
                   <directory>src/generated/ng/dist</directory>
+                </fileset>
+                <fileset>
+                  <directory>src/generated/ng/node_modules/@angular/compiler-cli/ngcc</directory>
+                  <includes>
+                    <include>**/ngcc_lock_file</include>
+                    <include>**/__ngcc_lock_file__</include>
+                  </includes>
                 </fileset>
                 <fileset>
                   <directory>src/generated/ng/src</directory>

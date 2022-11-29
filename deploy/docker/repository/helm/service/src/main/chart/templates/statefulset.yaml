@@ -43,14 +43,20 @@ spec:
         - "/bin/bash"
         - "-ec"
         - |
-          chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /usr/local/tomcat/shared/classes/config/cluster
-          chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /usr/local/tomcat/shared/classes/config/node
-          chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+          if [[ ! "$(ls -A /opt/bitnami/tomcat/shared/classes/config/cluster)" ]]; then
+            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/bitnami/tomcat/shared/classes/config/cluster
+          fi
+          if [[ ! "$(ls -A /opt/bitnami/tomcat/shared/classes/config/node)" ]]; then
+            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/bitnami/tomcat/shared/classes/config/node
+          fi
+          if [[ ! "$(ls -A /opt/alfresco/alf_data)" ]]; then
+            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+          fi
         volumeMounts:
         - name: data
-          mountPath: /usr/local/tomcat/shared/classes/config/node
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/node
         - name: share-config
-          mountPath: /usr/local/tomcat/shared/classes/config/cluster
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/cluster
         - name: share-data
           mountPath: /opt/alfresco/alf_data
         {{- with .Values.init.permission.resources }}
@@ -64,7 +70,7 @@ spec:
       - name: {{ include "edusharing_repository_service.name" . }}-server
         image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-repository-build-service:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
-        {{- if .Values.config.jvm.debug }}
+        {{- if default .Values.global.debug .Values.debug }}
         args: [ "catalina.sh", "jpda", "run" ]
         {{- end }}
         {{- $patroni := merge .Values.config.database.patroni .Values.global.patroni }}
@@ -92,42 +98,46 @@ spec:
         - name: metrics
           containerPort: 9090
         {{- end }}
+        {{- if default .Values.global.debug .Values.debug }}
+        - name: jpda
+          containerPort: 5005
+        {{- end }}
         volumeMounts:
         - name: data
-          mountPath: /usr/local/tomcat/shared/classes/config/node
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/node
         - name: share-config
-          mountPath: /usr/local/tomcat/shared/classes/config/cluster
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/cluster
         - name: share-data
           mountPath: /opt/alfresco/alf_data
         {{- with .Values.config.override.config.application.client }}
         - name: file
-          mountPath: /usr/local/tomcat/shared/classes/config/defaults/client.config.xml
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/defaults/client.config.xml
           subPath: config-application-client
         {{- end }}
         {{- with .Values.config.override.config.application.server }}
         - name: file
-          mountPath: /usr/local/tomcat/shared/classes/config/cluster/edu-sharing.override.conf
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/cluster/edu-sharing.override.conf
           subPath: config-application-server
         {{- end }}
         {{- with .Values.config.override.logging.application }}
         - name: file
-          mountPath: /usr/local/tomcat/webapps/alfresco/WEB-INF/classes/log4j2.xml
+          mountPath: /opt/bitnami/tomcat/webapps/alfresco/WEB-INF/classes/log4j2.xml
           subPath: logging-application
         {{- end }}
         {{- with .Values.config.override.logging.server }}
         - name: file
-          mountPath: /usr/local/tomcat/conf/logging.properties
+          mountPath: /opt/bitnami/tomcat/conf/logging.properties
           subPath: logging-server
         {{- end }}
         {{- if .Values.config.saml.enabled }}
         {{- with .Values.config.saml.config }}
         - name: saml-file
-          mountPath: /usr/local/tomcat/webapps/edu-sharing/WEB-INF/securityContext.xml
+          mountPath: /opt/bitnami/tomcat/webapps/edu-sharing/WEB-INF/securityContext.xml
           subPath: security
         {{- end }}
         {{- with .Values.config.saml.files }}
         - name: saml-files
-          mountPath: /usr/local/tomcat/webapps/edu-sharing/WEB-INF/classes/saml
+          mountPath: /opt/bitnami/tomcat/webapps/edu-sharing/WEB-INF/classes/saml
         {{- end }}
         {{- end }}
         {{- with .Values.startupProbe }}

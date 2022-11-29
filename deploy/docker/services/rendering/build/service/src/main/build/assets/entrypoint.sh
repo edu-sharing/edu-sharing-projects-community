@@ -1,4 +1,5 @@
 #!/bin/bash
+[[ -n $DEBUG ]] && set -x
 set -eu
 
 ########################################################################################################################
@@ -32,6 +33,8 @@ my_proxy_pass="${SERVICES_RENDERING_SERVICE_PROXY_PASS:-}"
 my_gdpr_enabled="${SERVICES_RENDERING_SERVICE_GDPR_ENABLED:-false}"
 my_gdpr_modules="${SERVICES_RENDERING_SERVICE_GDPR_MODULES:-}"
 my_gdpr_urls="${SERVICES_RENDERING_SERVICE_GDPR_URLS:-}"
+
+my_viewer_enabled="${SERVICES_RENDERING_SERVICE_VIEWER_ENABLED:-true}"
 
 my_plugins="${SERVICES_RENDERING_SERVICE_PLUGINS:-}"
 
@@ -126,37 +129,37 @@ if [[ ! -f "${RS_CACHE}/config/version.json" ]]; then
 	cat >/tmp/config.ini <<-EOF
 		[application]
 		; url for client requests (accessible from the internet)
-		application_url_client=${my_base_external}
+		application_url_client="${my_base_external}"
 		; url for requests from repository
-		application_url_repository=${my_base_internal}
+		application_url_repository="${my_base_internal}"
 		; ip of the server
 		application_host=
 		; root directory of the rendering service application
-		application_root=${RS_ROOT}
+		application_root="${RS_ROOT}"
 		; cache directory
-		application_cache=${RS_CACHE}/data
+		application_cache="${RS_CACHE}/data"
 		; save cache directory (optional)
 		application_cache_save=
 		; path to the ffmpeg binary
-		application_ffmpeg=/usr/bin/ffmpeg
+		application_ffmpeg="/usr/bin/ffmpeg"
 
 		[database]
 		; driver (mysql or pgsql)
-		db_driver=${rendering_database_driv}
+		db_driver="${rendering_database_driv}"
 		; db host
-		db_host=${rendering_database_host}
+		db_host="${rendering_database_host}"
 		; db port
-		db_port=${rendering_database_port}
+		db_port="${rendering_database_port}"
 		; db name
-		db_name=${rendering_database_name}
+		db_name="${rendering_database_name}"
 		; db user
-		db_user=${rendering_database_user}
+		db_user="${rendering_database_user}"
 		; db password
-		db_password=${rendering_database_pass}
+		db_password="${rendering_database_pass}"
 
 		[repository]
 		; url of the repository to fetch properties and content from
-		repository_url=${repository_service_base}
+		repository_url="${repository_service_base}"
 	EOF
 
 	before="$(mktemp)"
@@ -170,7 +173,8 @@ if [[ ! -f "${RS_CACHE}/config/version.json" ]]; then
 	find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
 	find "${RS_CACHE}/config" -type d -empty -delete
 
-	cp "$RS_ROOT"/version.json "${RS_CACHE}"/config/version.json
+	cp "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json"
+  cp "${RS_CACHE}/config/version.json" "${RS_CACHE}/config/version.json.$(date +%d-%m-%Y_%H-%M-%S )"
 
 	echo "config saved."
 
@@ -183,9 +187,9 @@ else
 	find . -type d -exec mkdir -p "${RS_ROOT}/{}" \;
 	find . -type f -exec cp -f {} "${RS_ROOT}/{}" \;
 
-	cmp -s "$RS_ROOT"/version.json version.json || {
-		mv version.json version.json."$(date +%d-%m-%Y_%H-%M-%S )"
-		cp "$RS_ROOT"/version.json version.json
+	cmp -s "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json" || {
+    cp "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json"
+    cp "${RS_CACHE}/config/version.json" "${RS_CACHE}/config/version.json.$(date +%d-%m-%Y_%H-%M-%S )"
 	}
 
 	popd
@@ -195,32 +199,55 @@ fi
 
 ########################################################################################################################
 
+before="$(mktemp)"
+
 yes | php admin/cli/update.php
 
+echo "config saving."
+
+find -L . -type d -exec mkdir -p "${RS_CACHE}/config/{}" \;
+find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
+find "${RS_CACHE}/config" -type d -empty -delete
+
+echo "config saved."
+
+########################################################################################################################
+
 dbConf="${RS_ROOT}/conf/db.conf.php"
-sed -i -r "s|\$dsn.*|\$dsn = \"${rendering_database_driv}:host=${rendering_database_host};port=${rendering_database_port};dbname=${rendering_database_name}\";|" "${dbConf}"
-sed -i -r "s|\$dbuser.*|\$dbuser = \"${rendering_database_user}\";|" "${dbConf}"
-sed -i -r "s|\$pwd.*|\pwd = \"${rendering_database_pass}\";|" "${dbConf}"
+sed -i -r 's|\$dsn.*|\$dsn = "'"${rendering_database_driv}:host=${rendering_database_host};port=${rendering_database_port};dbname=${rendering_database_name}"'";|' "${dbConf}"
+sed -i -r 's|\$dbuser.*|\$dbuser = "'"${rendering_database_user}"'";|' "${dbConf}"
+sed -i -r 's|\$pwd.*|\$pwd = "'"${rendering_database_pass}"'";|' "${dbConf}"
 
 systemConf="${RS_ROOT}/conf/system.conf.php"
-sed -i -r "s|\$MC_URL.*|\$MC_URL = '${my_base_external}';|" "${systemConf}"
-sed -i -r "s|\$MC_DOCROOT.*|\$MC_DOCROOT = '${RS_ROOT}';|" "${systemConf}"
-sed -i -r "s|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = '${RS_CACHE}';|" "${systemConf}"
+sed -i -r 's|\$MC_URL = ['"'"'"].*|\$MC_URL = "'"${my_base_external}"'";|' "${systemConf}"
+sed -i -r 's|\$MC_DOCROOT.*|\$MC_DOCROOT = "'"${RS_ROOT}"'";|' "${systemConf}"
+sed -i -r 's|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = "'"${RS_CACHE}/data"'";|' "${systemConf}"
 
-sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
-grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [${my_gdpr_modules}], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
+sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules//,/\",\"}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
+grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [\"${my_gdpr_modules//,/\",\"}\"], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
+
+sed -i -r 's|DEFINE\("ENABLE_VIEWER_JS".*|DEFINE\("ENABLE_VIEWER_JS", '"${my_viewer_enabled}"'\);|' "${systemConf}"
+grep -q 'ENABLE_VIEWER_JS' "${systemConf}" || echo "DEFINE(\"ENABLE_VIEWER_JS\", ${my_viewer_enabled});" >> "${systemConf}"
 
 proxyConf="${RS_ROOT}/conf/proxy.conf.php"
 rm -f "${proxyConf}"
 if [[ -n $my_proxy_host ]] ; then
+
 	my_proxy_auth=""
 	if [[ -n $my_proxy_user ]] ; then
 		my_proxy_auth="${my_proxy_user}:${my_proxy_pass}@"
 	fi
+
+	# attach repository to the non proxy host
+  if [[ -n $my_proxy_nonh ]]; then
+    my_proxy_nonh="${my_proxy_nonh},"
+  fi
+  my_proxy_nonh="${my_proxy_nonh}${REPOSITORY_SERVICE_HOST}"
+
 	{
 		echo "<?php"
 		echo "\$PROXY_CONFIG = ["
-    echo "  \"http.nonproxyhosts\" => [${my_proxy_nonh}],"
+    echo "  \"http.nonproxyhosts\" => [\"${my_proxy_nonh//,/\",\"}\"],"
     echo "  \"http.proxy\"         => \"http://${my_proxy_auth}${my_proxy_host}:${my_proxy_port}\","
     echo "  \"https.proxy\"        => \"http://${my_proxy_auth}${my_proxy_host}:${my_proxy_port}\""
 		echo "];"

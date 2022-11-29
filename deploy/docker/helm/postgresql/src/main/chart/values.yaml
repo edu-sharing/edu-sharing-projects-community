@@ -41,6 +41,8 @@ global:
       strict: true
     team: edusharing
 
+  password: ""
+
 ########################################################################################################################
 # LOCAL
 ########################################################################################################################
@@ -65,7 +67,7 @@ config:
 
   database: postgresql
   username: postgresql
-  password: postgresql
+  password: ""
 
   extra:
     max_connections: "300"
@@ -95,6 +97,7 @@ podSecurityContext:
 
   runAsUser: 1001
   fsGroup: 1001
+  fsGroupChangePolicy: OnRootMismatch
 
 securityContext:
 

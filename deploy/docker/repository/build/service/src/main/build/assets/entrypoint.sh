@@ -1,4 +1,5 @@
 #!/bin/bash
+[[ -n $DEBUG ]] && set -x
 set -eu
 
 ########################################################################################################################
@@ -23,6 +24,7 @@ my_base_external="${my_prot_external}://${my_host_external}:${my_port_external}$
 my_auth_external="${my_base_external}/services/authentication"
 my_pool_external="${REPOSITORY_SERVICE_POOL_EXTERNAL:-200}"
 my_wait_external="${REPOSITORY_SERVICE_WAIT_EXTERNAL:--1}"
+my_proxy_buffer_size="${REPOSITORY_SERVICE_PROXY_BUFFER_SIZE:-65536}"
 
 my_host_internal="${REPOSITORY_SERVICE_HOST_INTERNAL:-repository-service}"
 my_port_internal="${REPOSITORY_SERVICE_PORT_INTERNAL:-8080}"
@@ -56,6 +58,7 @@ my_http_server_csp_script="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_SCRIPT:-}"
 my_http_server_session_timeout="${REPOSITORY_SERVICE_HTTP_SERVER_SESSION_TIMEOUT:-60}"
 
 my_http_accesslog_enabled="${REPOSITORY_SERVICE_HTTP_ACCESSLOG_ENABLED:-}"
+my_http_jvmroute="${REPOSITORY_SERVICE_HTTP_JVMROUTE:-}"
 
 cache_cluster="${CACHE_CLUSTER:-false}"
 cache_database="${CACHE_DATABASE:-0}"
@@ -124,21 +127,20 @@ configs=(defaults plugins cluster node)
 for config in "${configs[@]}"; do
 	if [[ ! -f tomcat/shared/classes/config/$config/version.json ]]; then
 		mkdir -p tomcat/shared/classes/config/$config
-		for jar in tomcat/shared/lib/$config/*.jar; do
+		for jar in tomcat/shared/assets/$config/*.jar; do
 		  if [[ -f $jar ]] ; then
         unzip -o $jar -d tomcat/shared/classes/config/$config -x 'META-INF/*'
 			fi
 		done
-		cp -f tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config
+    cp tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json
+    cp tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
 	else
-		cmp -s tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config/version.json || {
-			mv tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
-			cp tomcat/webapps/edu-sharing/version.json tomcat/shared/classes/config/$config/version.json
+		cmp -s tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json || {
+			cp tomcat/webapps/edu-sharing/WEB-INF/classes/version.json tomcat/shared/classes/config/$config/version.json
+			cp tomcat/shared/classes/config/$config/version.json tomcat/shared/classes/config/$config/version.json.$(date +%d-%m-%Y_%H-%M-%S )
 		}
 	fi
 done
-
-rm -rf tomcat/shared/lib/*
 
 reinstall.sh
 
@@ -163,6 +165,12 @@ xmlstarlet ed -L \
 	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/Valve[@className="org.apache.catalina.valves.AccessLogValve"]' \
 	${catSConf}
 
+[[ -n $my_http_jvmroute ]] && {
+	xmlstarlet ed -L \
+		-i '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]]' -t attr -n 'jvmRoute' -v "${my_http_jvmroute}" \
+		${catSConf}
+}
+
 [[ -n $my_http_accesslog_enabled ]] && {
 	xmlstarlet ed -L \
 		-s '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]' -t elem -n 'Valve' -v '' \
@@ -185,15 +193,30 @@ xmlstarlet ed -L \
 	-i '$internal' -t attr -n "connectionTimeout" -v "${my_wait_internal}" \
 	-i '$internal' -t attr -n "maxThreads" -v "${my_pool_internal}" \
 	-s '/Server/Service[@name="Catalina"]' -t elem -n 'Connector' -v '' \
-	--var external '$prev' \
-	-i '$external' -t attr -n "address" -v "${my_bind}" \
-	-i '$external' -t attr -n "port" -v "8081" \
-	-i '$external' -t attr -n "scheme" -v "${my_prot_external}" \
-	-i '$external' -t attr -n "proxyName" -v "${my_host_external}" \
-	-i '$external' -t attr -n "proxyPort" -v "${my_port_external}" \
-	-i '$external' -t attr -n "protocol" -v "org.apache.coyote.http11.Http11NioProtocol" \
-	-i '$external' -t attr -n "connectionTimeout" -v "${my_wait_external}" \
-	-i '$external' -t attr -n "maxThreads" -v "${my_pool_external}" \
+	--var external1 '$prev' \
+	-i '$external1' -t attr -n "address" -v "${my_bind}" \
+	-i '$external1' -t attr -n "port" -v "8081" \
+	-i '$external1' -t attr -n "scheme" -v "${my_prot_external}" \
+	-i '$external1' -t attr -n "proxyName" -v "${my_host_external}" \
+	-i '$external1' -t attr -n "proxyPort" -v "${my_port_external}" \
+	-i '$external1' -t attr -n "protocol" -v "org.apache.coyote.http11.Http11NioProtocol" \
+	-i '$external1' -t attr -n "connectionTimeout" -v "${my_wait_external}" \
+	-i '$external1' -t attr -n "maxThreads" -v "${my_pool_external}" \
+	-s '/Server/Service[@name="Catalina"]' -t elem -n 'Connector' -v '' \
+	--var external2 '$prev' \
+	-i '$external2' -t attr -n "address" -v "${my_bind}" \
+	-i '$external2' -t attr -n "port" -v "8009" \
+	-i '$external2' -t attr -n "scheme" -v "${my_prot_external}" \
+	-i '$external2' -t attr -n "proxyName" -v "${my_host_external}" \
+	-i '$external2' -t attr -n "proxyPort" -v "${my_port_external}" \
+	-i '$external2' -t attr -n "protocol" -v "org.apache.coyote.ajp.AjpNioProtocol" \
+	-i '$external2' -t attr -n "URIEncoding" -v "UTF-8" \
+	-i '$external2' -t attr -n "connectionTimeout" -v "${my_wait_external}" \
+	-i '$external2' -t attr -n "maxThreads" -v "${my_pool_external}" \
+	-i '$external2' -t attr -n "secretRequired" -v "false" \
+	-i '$external2' -t attr -n "tomcatAuthentication" -v "false" \
+	-i '$external2' -t attr -n "allowedRequestAttributesPattern" -v ".*" \
+	-i '$external2' -t attr -n "packetSize" -v "${my_proxy_buffer_size}" \
 	${catSConf}
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
@@ -449,8 +472,8 @@ xmlstarlet ed -L \
 }
 
 [[ -n "${my_http_client_proxy_nonproxyhosts}" ]] && {
-	export CATALINA_OPTS="-Dhttp.nonProxyHosts=${my_http_client_proxy_nonproxyhosts} $CATALINA_OPTS"
-	export CATALINA_OPTS="-Dhttps.nonProxyHosts=${my_http_client_proxy_nonproxyhosts} $CATALINA_OPTS"
+	export CATALINA_OPTS="-Dhttp.nonProxyHosts=\"${my_http_client_proxy_nonproxyhosts//,/|}\" $CATALINA_OPTS"
+	export CATALINA_OPTS="-Dhttps.nonProxyHosts=\"${my_http_client_proxy_nonproxyhosts//,/|}\" $CATALINA_OPTS"
 	hocon -f ${eduSConf} \
 		set "repository.httpclient.proxy.nonproxyhosts" '"'"${my_http_client_proxy_nonproxyhosts}"'"'
 }
@@ -523,5 +546,12 @@ for entrypoint in bin/plugins/plugin-*/entrypoint.sh; do
 done
 
 ########################################################################################################################
+
+# Load libraries
+. /opt/bitnami/scripts/libtomcat.sh
+. /opt/bitnami/scripts/liblog.sh
+
+# Load Tomcat environment variables
+. /opt/bitnami/scripts/tomcat-env.sh
 
 exec "$@"
