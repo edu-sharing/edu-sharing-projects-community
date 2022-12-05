@@ -109,6 +109,9 @@
                   </includes>
                 </fileset>
                 <fileset>
+                  <directory>src/generated/ng/projects</directory>
+                </fileset>
+                <fileset>
                   <directory>src/generated/ng/src</directory>
                 </fileset>
               </filesets>
