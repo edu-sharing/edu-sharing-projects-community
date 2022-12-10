@@ -61,6 +61,24 @@ edusharing_repository_rediscluster:
 
 ########################################################################################################################
 
+edusharing_repository_mongo:
+
+  enabled: ${helm.edusharing_repository_mongo.enabled}
+
+  nameOverride: &mongoNameOverride edusharing-repository-mongo
+
+  service:
+
+    port:
+      api: &mongoServicePortApi 27017
+
+  config:
+
+    database: &mongoConfigDatabase repository
+    username: &mongoConfigUsername repository
+
+########################################################################################################################
+
 edusharing_repository_search_elastic_index:
 
   enabled: ${helm.edusharing_repository_search_elastic_index.enabled}
@@ -132,6 +150,13 @@ edusharing_repository_service:
       port: *postgresqlServicePortApi
       database: *postgresqlConfigDatabase
       username: *postgresqlConfigUsername
+
+    mongo:
+      enabled: ${helm.edusharing_repository_mongo.enabled}
+      host: *mongoNameOverride
+      port: *mongoServicePortApi
+      database: *mongoConfigDatabase
+      username: *mongoConfigUsername
 
     search:
 
