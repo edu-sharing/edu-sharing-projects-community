@@ -212,6 +212,14 @@ config:
         password: ""
         authtype: ""
 
+  mongo:
+    enabled: false
+    host: edusharing-repository-mongo
+    port: 27017
+    database: repository
+    username: repository
+    password: ""
+
   override:
     config:
       application:

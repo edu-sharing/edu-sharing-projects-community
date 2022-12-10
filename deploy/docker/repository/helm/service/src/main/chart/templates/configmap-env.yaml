@@ -45,6 +45,9 @@ data:
   REPOSITORY_DATABASE_POOL_SQL: {{ .Values.config.database.pool.sql | quote }}
   REPOSITORY_DATABASE_PORT: {{ .Values.config.database.port | quote }}
   REPOSITORY_DATABASE_PROT: {{ .Values.config.database.protocol | quote }}
+  {{- if .Values.config.mongo.enabled }}
+  REPOSITORY_MONGO_DATABASE: {{ .Values.config.mongo.database | quote }}
+  {{- end }}
   {{- if .Values.config.search.elastic.enabled }}
   REPOSITORY_SEARCH_ELASTIC_INDEX_HOST: {{ .Values.config.search.elastic.host | quote }}
   REPOSITORY_SEARCH_ELASTIC_INDEX_PORT: {{ .Values.config.search.elastic.port | quote }}

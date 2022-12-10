@@ -25,6 +25,14 @@
     <helm.edusharing_repository_antivirus.line3/>
     <helm.edusharing_repository_antivirus.line4/>
 
+    <helm.edusharing_repository_mongo.enabled>
+      false
+    </helm.edusharing_repository_mongo.enabled>
+    <helm.edusharing_repository_mongo.line1/>
+    <helm.edusharing_repository_mongo.line2/>
+    <helm.edusharing_repository_mongo.line3/>
+    <helm.edusharing_repository_mongo.line4/>
+
     <helm.edusharing_repository_search_elastic_index.enabled>
       false
     </helm.edusharing_repository_search_elastic_index.enabled>
@@ -138,6 +146,23 @@
               <classifier>bin</classifier>
               <outputDirectory>
                 ${project.build.directory}/chart/charts/edu_sharing-community-repository-plugin-elastic-tracker
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_mongo</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-plugin-mongo-deploy-docker-helm
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>
+                ${project.build.directory}/chart/charts/edu_sharing-community-repository-plugin-mongo
               </outputDirectory>
             </configuration>
           </execution>
@@ -321,7 +346,7 @@
             <artifactId>gmavenplus-plugin</artifactId>
             <executions>
               <execution>
-                <id>antivirus-rest-client</id>
+                <id>antivirus</id>
                 <goals>
                   <goal>execute</goal>
                 </goals>
@@ -399,7 +424,7 @@
             <artifactId>gmavenplus-plugin</artifactId>
             <executions>
               <execution>
-                <id>elastic-rest-client</id>
+                <id>elastic</id>
                 <goals>
                   <goal>execute</goal>
                 </goals>
@@ -488,6 +513,84 @@
 
     <profile>
 
+      <id>repository.mongo</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.REPOSITORY_MONGO_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>mongo</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-plugin-mongo-deploy-docker-helm:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-plugin-mongo-deploy-docker-helm:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <properties>
+
+        <helm.edusharing_repository_mongo.enabled>
+          true
+        </helm.edusharing_repository_mongo.enabled>
+        <helm.edusharing_repository_mongo.line1>
+          - name: edu_sharing-community-repository-plugin-mongo
+        </helm.edusharing_repository_mongo.line1>
+        <helm.edusharing_repository_mongo.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version: ${org.edu_sharing:edu_sharing-community-repository-plugin-mongo-deploy-docker-helm:tar.gz:bin.range}
+        </helm.edusharing_repository_mongo.line2>
+        <helm.edusharing_repository_mongo.line3>
+          alias: edusharing_repository_mongo
+        </helm.edusharing_repository_mongo.line3>
+        <helm.edusharing_repository_mongo.line4>
+          condition: edusharing_repository_mongo.enabled
+        </helm.edusharing_repository_mongo.line4>
+
+      </properties>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-repository-plugin-mongo-deploy-docker-helm</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+    <profile>
+
       <id>repository.transform</id>
 
       <activation>
@@ -507,7 +610,7 @@
             <artifactId>gmavenplus-plugin</artifactId>
             <executions>
               <execution>
-                <id>transform-rest-client</id>
+                <id>transform</id>
                 <goals>
                   <goal>execute</goal>
                 </goals>
