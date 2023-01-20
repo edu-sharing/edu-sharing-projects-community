@@ -16,15 +16,13 @@
   <fileSets>
 
     <fileSet>
-      <directory>${project.build.directory}/compose</directory>
+      <directory>${project.build.directory}/edu-sharing</directory>
       <outputDirectory>.</outputDirectory>
       <includes>
         <include>.env.sample</include>
-        <include>deploy.sh</include>
+        <include>utils.sh</include>
         <include>README.md</include>
-        <include>**/*-common.yml</include>
-        <include>**/*-remote.yml</include>
-        <include>**/*-productive.yml</include>
+        <include>**/*.yml</include>
       </includes>
     </fileSet>
 
