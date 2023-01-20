@@ -7,3 +7,6 @@ services:
 
   services-rendering-service:
     restart: unless-stopped
+
+  services-rendering-service-cache-cleaner:
+    restart: unless-stopped

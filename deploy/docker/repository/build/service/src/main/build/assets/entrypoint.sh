@@ -14,6 +14,8 @@ my_bind="${REPOSITORY_SERVICE_BIND:-"0.0.0.0"}"
 
 my_home_appid="${REPOSITORY_SERVICE_HOME_APPID:-local}"
 my_home_auth="${REPOSITORY_SERVICE_HOME_AUTH:-}"
+my_home_auth_external="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL:-false}"
+my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-/logout}"
 my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
 
 my_prot_external="${REPOSITORY_SERVICE_PROT_EXTERNAL:-http}"
@@ -399,7 +401,21 @@ xmlstarlet ed -L \
 		-i '$entry' -t attr -n "key" -v "allowed_authentication_types" \
 		${homeProp}
 
-	[[ "${my_home_auth}" == "shibboleth" ]] && {
+	if [[ "${my_home_auth_external}" == "true" ]] ; then
+    xmlstarlet ed -L \
+      -s '/config/values' -t elem -n 'loginUrl' -v '' \
+      -d '/config/values/loginUrl[position() != 1]' \
+			-u '/config/values/loginUrl' -v "${my_path_external}/shibboleth" \
+      -s '/config/values' -t elem -n 'logout' -v '' \
+      -d '/config/values/logout[position() != 1]' \
+      -s '/config/values/logout' -t elem -n 'url' -v '' \
+      -d '/config/values/logout/url[position() != 1]' \
+      -u '/config/values/logout/url' -v "${my_home_auth_external_logout}" \
+      -s '/config/values/logout' -t elem -n 'destroySession' -v '' \
+      -d '/config/values/logout/destroySession[position() != 1]' \
+      -u '/config/values/logout/destroySession' -v 'false' \
+      ${eduCConf}
+  else
 		sed -i -r 's|<!--\s*SAML||g' tomcat/webapps/edu-sharing/WEB-INF/web.xml
 		sed -i -r 's|SAML\s*-->||g'  tomcat/webapps/edu-sharing/WEB-INF/web.xml
 		xmlstarlet ed -L \
@@ -415,7 +431,7 @@ xmlstarlet ed -L \
 			-d '/config/values/logout/destroySession[position() != 1]' \
 			-u '/config/values/logout/destroySession' -v 'false' \
 			${eduCConf}
-	}
+	fi
 }
 
 xmlstarlet ed -L \

@@ -68,7 +68,7 @@
 
   <profiles>
     <profile>
-      <id>customer.deploy</id>
+      <id>deploy.deploy.docker.customer</id>
       <activation>
         <activeByDefault>false</activeByDefault>
         <file>

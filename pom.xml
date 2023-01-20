@@ -51,7 +51,7 @@
 
     <profile>
 
-      <id>customer.deploy</id>
+      <id>deploy.customer</id>
 
       <activation>
         <activeByDefault>false</activeByDefault>
