@@ -10,3 +10,6 @@ services:
 
   services-rendering-service-init:
     image: "${docker.registry}/${docker.repository}/${docker.prefix}-deploy-docker-services-rendering-build-service:${docker.tag}"
+
+  services-rendering-service-cache-cleaner:
+    image: "${docker.registry}/${docker.repository}/${docker.prefix}-deploy-docker-services-rendering-build-service:${docker.tag}"

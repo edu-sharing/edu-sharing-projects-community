@@ -17,13 +17,13 @@ Install
 2. Start up an instance from remote docker images by calling:
 
    ```
-   ./deploy.sh start
+   ./docker compose up -d
    ```
 
 3. Request all necessary informations by calling:
 
    ```
-   ./deploy.sh info
+   ./utils.sh info
    ```
 
 Uninstall
@@ -32,19 +32,19 @@ Uninstall
 1. Shut down an instance by calling:
 
    ```
-   ./deploy.sh stop
+   docker compose stop
    ```
 
 2. Clean up all container by calling:
 
    ```
-   ./deploy.sh remove
+   docker compose down
    ```
 
    or clean up all container and data volumes by calling:
 
    ```
-   ./deploy.sh purge
+   docker compose down -v
    ```
 ---
 If you need more information, please consult our [edu-sharing community sdk](https://scm.edu-sharing.com/edu-sharing-community/edu-sharing-community-sdk) project.
