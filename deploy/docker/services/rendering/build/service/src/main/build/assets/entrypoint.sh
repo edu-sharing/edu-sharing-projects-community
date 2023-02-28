@@ -53,6 +53,10 @@ rendering_database_user="${SERVICES_RENDERING_DATABASE_USER:-rendering}"
 repository_service_host="${REPOSITORY_SERVICE_HOST:-repository-service}"
 repository_service_port="${REPOSITORY_SERVICE_PORT:-8080}"
 
+rendering_rendermoodle_url="${SERVICES_RENDERING_RENDERMOODLE_URL:-}"
+rendering_rendermoodle_token="${SERVICES_RENDERING_RENDERMOODLE_TOKEN:-}"
+rendering_rendermoodle_category_id="${SERVICES_RENDERING_RENDERMOODLE_CATEGORY_ID:-1}"
+
 repository_service_base="http://${repository_service_host}:${repository_service_port}/edu-sharing"
 
 ### Wait ###############################################################################################################
@@ -195,6 +199,26 @@ else
 	popd
 
 	echo "config restored."
+fi
+
+########################################################################################################################
+
+# rendermoodle config
+rm -f "${RS_ROOT}/modules/moodle/config.php"
+rm -f "${RS_ROOT}/modules/scorm/config.php"
+if [[ -n "${rendering_rendermoodle_url}" ]]; then
+  cp "${RS_ROOT}/modules/moodle/config.php.dist" "${RS_ROOT}/modules/moodle/config.php"
+  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${RS_ROOT}/modules/moodle/config.php"
+  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${RS_ROOT}/modules/moodle/config.php"
+  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${RS_ROOT}/modules/moodle/config.php"
+
+  cp "${RS_ROOT}/modules/scorm/config.php.dist" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${RS_ROOT}/modules/scorm/config.php"
+  echo "configured rendering moodle at url ${rendering_rendermoodle_url}"
+else
+  echo "disabled rendering moodle"
 fi
 
 ########################################################################################################################
