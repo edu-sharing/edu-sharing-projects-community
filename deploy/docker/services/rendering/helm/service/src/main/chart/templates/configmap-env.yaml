@@ -40,3 +40,6 @@ data:
   SERVICES_RENDERING_SERVICE_PROXY_USER: {{ .Values.config.http.client.proxy.proxyuser | quote }}
   SERVICES_RENDERING_SERVICE_PROXY_PASS: {{ .Values.config.http.client.proxy.proxypass | quote }}
   SERVICES_RENDERING_SERVICE_VIEWER_ENABLED: {{ .Values.config.viewer.enabled | quote }}
+  SERVICES_RENDERING_RENDERMOODLE_URL: {{ .Values.config.rendermoodle.url | quote }}
+  SERVICES_RENDERING_RENDERMOODLE_TOKEN: {{ .Values.config.rendermoodle.token | quote }}
+  SERVICES_RENDERING_RENDERMOODLE_CATEGORY_ID: {{ .Values.config.rendermoodle.categoryId | quote }}

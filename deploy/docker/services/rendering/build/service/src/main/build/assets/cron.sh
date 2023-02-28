@@ -4,7 +4,7 @@ set -eu
 
 ########################################################################################################################
 
-my_cache_cleaner_schedule="${SERVICES_RENDERING_SERVICE_CACHE_CLEANER_SCHEDULE:-"0 0 * * 0"}"
+my_cache_cleaner_schedule="${SERVICES_RENDERING_SERVICE_CACHE_CLEANER_SCHEDULE:-0 0 * * 0}"
 
 ########################################################################################################################
 cron_file=schedule
