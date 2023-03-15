@@ -205,11 +205,17 @@ fi
 
 # rendermoodle config
 rm -f "${RS_ROOT}/modules/moodle/config.php"
+rm -f "${RS_ROOT}/modules/scorm/config.php"
 if [[ -n "${rendering_rendermoodle_url}" ]]; then
   cp "${RS_ROOT}/modules/moodle/config.php.dist" "${RS_ROOT}/modules/moodle/config.php"
   sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${RS_ROOT}/modules/moodle/config.php"
   sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${RS_ROOT}/modules/moodle/config.php"
   sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${RS_ROOT}/modules/moodle/config.php"
+
+  cp "${RS_ROOT}/modules/scorm/config.php.dist" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${RS_ROOT}/modules/scorm/config.php"
   echo "configured rendering moodle at url ${rendering_rendermoodle_url}"
 else
   echo "disabled rendering moodle"
