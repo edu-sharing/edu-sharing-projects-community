@@ -12,12 +12,6 @@ my_guest_pass="${REPOSITORY_SERVICE_GUEST_PASS:-}"
 
 my_bind="${REPOSITORY_SERVICE_BIND:-"0.0.0.0"}"
 
-my_home_appid="${REPOSITORY_SERVICE_HOME_APPID:-local}"
-my_home_auth="${REPOSITORY_SERVICE_HOME_AUTH:-}"
-my_home_auth_external="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL:-false}"
-my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-/logout}"
-my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
-
 my_prot_external="${REPOSITORY_SERVICE_PROT_EXTERNAL:-http}"
 my_host_external="${REPOSITORY_SERVICE_HOST_EXTERNAL:-repository.127.0.0.1.nip.io}"
 my_port_external="${REPOSITORY_SERVICE_PORT_EXTERNAL:-8100}"
@@ -27,6 +21,13 @@ my_auth_external="${my_base_external}/services/authentication"
 my_pool_external="${REPOSITORY_SERVICE_POOL_EXTERNAL:-200}"
 my_wait_external="${REPOSITORY_SERVICE_WAIT_EXTERNAL:--1}"
 my_proxy_buffer_size="${REPOSITORY_SERVICE_PROXY_BUFFER_SIZE:-65536}"
+
+my_home_appid="${REPOSITORY_SERVICE_HOME_APPID:-local}"
+my_home_auth="${REPOSITORY_SERVICE_HOME_AUTH:-}"
+my_home_auth_external="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL:-false}"
+my_home_auth_external_login="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN:-$my_path_external/shibboleth}"
+my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-/logout}"
+my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
 
 my_host_internal="${REPOSITORY_SERVICE_HOST_INTERNAL:-repository-service}"
 my_port_internal="${REPOSITORY_SERVICE_PORT_INTERNAL:-8080}"
@@ -405,7 +406,7 @@ xmlstarlet ed -L \
     xmlstarlet ed -L \
       -s '/config/values' -t elem -n 'loginUrl' -v '' \
       -d '/config/values/loginUrl[position() != 1]' \
-			-u '/config/values/loginUrl' -v "${my_path_external}/shibboleth" \
+			-u '/config/values/loginUrl' -v "${my_home_auth_external_login}" \
       -s '/config/values' -t elem -n 'logout' -v '' \
       -d '/config/values/logout[position() != 1]' \
       -s '/config/values/logout' -t elem -n 'url' -v '' \

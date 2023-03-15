@@ -35,7 +35,7 @@
   </properties>
   <profiles>
     <profile>
-      <id>customer.deploy</id>
+      <id>deploy.deploy.customer</id>
       <activation>
         <activeByDefault>false</activeByDefault>
         <file>
