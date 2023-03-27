@@ -175,7 +175,7 @@ if [[ ! -f "${RS_CACHE}/config/version.json" ]]; then
 
 	find -L . -type d -exec mkdir -p "${RS_CACHE}/config/{}" \;
 	find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
-	find "${RS_CACHE}/config" -type d -empty -delete
+	find "${RS_CACHE}/config" -type d -empty -delete || true
 
 	cp "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json"
   cp "${RS_CACHE}/config/version.json" "${RS_CACHE}/config/version.json.$(date +%d-%m-%Y_%H-%M-%S )"
@@ -231,7 +231,7 @@ echo "config saving."
 
 find -L . -type d -exec mkdir -p "${RS_CACHE}/config/{}" \;
 find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
-find "${RS_CACHE}/config" -type d -empty -delete
+find "${RS_CACHE}/config" -type d -empty -delete || true
 
 echo "config saved."
 
