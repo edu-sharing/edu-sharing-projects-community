@@ -122,7 +122,7 @@ config:
     enabled: ${helm.config.antivirus.enabled}
     host: edusharing-repository-antivirus
     port: 1344
-    service: virus_scan
+    service: squidclamav
 
   cache:
     cluster: true
