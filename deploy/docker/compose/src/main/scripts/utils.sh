@@ -191,11 +191,19 @@ backup() {
 
   if [[ -n $repo ]] ; then
     echo "backup postgres"
-    $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres | gzip" >"$backupDir/repository-db.gz"
+    $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres | gzip" >"$backupDir/repository-db.gz && exit -1" || {
+      rm -rf "$backupDir"
+      echo "ERROR on creating postgres dump"
+      exit 1
+    }
 
     if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
       echo "backup mongo"
-      $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" >"$backupDir/repository-mongo.gz"
+      $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" >"$backupDir/repository-mongo.gz" || {
+        rm -rf "$backupDir"
+        echo "ERROR on creating mongodb dump"
+        exit 1
+      }
     fi
 
     echo "backup binaries"
@@ -207,7 +215,11 @@ backup() {
       bash -c '
         cd /opt/alfresco/alf_data \
         && tar cvf /backup/binaries.tar .
-      '
+      ' || {
+        rm -rf "$backupDir"
+        echo "ERROR on copying binaries"
+        exit 1
+      }
   fi
 
   if [[ -n $solr ]] ; then
@@ -231,7 +243,11 @@ backup() {
         && echo "cleanup backup folder:" \
         && cd .. \
         && rm -rf backup
-      '
+      ' || {
+        rm -rf "$backupDir"
+        echo "ERROR on creating solr4 dump"
+        exit 1
+      }
   fi
 
   if [[ -n $elastic ]] ; then
@@ -243,7 +259,11 @@ backup() {
       elasticdump/elasticsearch-dump \
       --input=http://repository-search-elastic-index:9200/workspace \
       --output=$ \
-      | gzip > "$backupDir/elastic_workspace.gz"
+      | gzip > "$backupDir/elastic_workspace.gz" || {
+        rm -rf "$backupDir"
+        echo "ERROR on creating elastic workspace dump"
+        exit 1
+      }
 
     docker run \
       --rm \
@@ -252,7 +272,11 @@ backup() {
       elasticdump/elasticsearch-dump \
       --input=http://repository-search-elastic-index:9200/transactions \
       --output=$ \
-      | gzip > "$backupDir/elastic_transactions.gz"
+      | gzip > "$backupDir/elastic_transactions.gz" || {
+        rm -rf "$backupDir"
+        echo "ERROR on creating elastic transactions dump"
+        exit 1
+      }
   fi
 
 
