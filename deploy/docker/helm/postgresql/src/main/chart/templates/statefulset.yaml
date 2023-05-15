@@ -67,6 +67,10 @@ spec:
         - name: file
           mountPath: /bitnami/postgresql/conf/conf.d/extended.conf
           subPath: extended.conf
+        {{- if .Values.config.shmVolume.enabled }}
+        - name: dshm
+          mountPath: /dev/shm
+        {{- end }}
         {{- with .Values.startupProbe }}
         startupProbe:
           exec:
@@ -138,7 +142,7 @@ spec:
       {{- with .Values.global.image.pullSecrets }}
       imagePullSecrets: {{ toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.podSecurityContext }}
+      {{- with merge .Values.podSecurityContext .Values.global.security }}
       securityContext: {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
@@ -155,6 +159,14 @@ spec:
       - name: file
         configMap:
           name: {{ include "edusharing_postgresql.name" . }}-file
+      {{- if .Values.config.shmVolume.enabled }}
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          {{- with .Values.config.shmVolume.sizeLimit }}
+          sizeLimit: {{ . }}
+          {{- end }}
+      {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: data

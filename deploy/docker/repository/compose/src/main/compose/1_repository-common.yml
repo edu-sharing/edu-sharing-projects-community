@@ -12,6 +12,7 @@ services:
       POSTGRESQL_USERNAME: "${REPOSITORY_DATABASE_USER:-repository}"
     expose:
       - "5432"
+    shm_size: 256m
     volumes:
       - "repository-database-volume-data:/bitnami/postgresql"
 

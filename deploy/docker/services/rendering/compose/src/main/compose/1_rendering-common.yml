@@ -12,6 +12,7 @@ services:
       POSTGRESQL_USER: "${SERVICES_RENDERING_DATABASE_USER:-rendering}"
     expose:
       - "5432"
+    shm_size: 256m
     volumes:
       - "services-rendering-database-volume-data:/bitnami/postgresql"
 

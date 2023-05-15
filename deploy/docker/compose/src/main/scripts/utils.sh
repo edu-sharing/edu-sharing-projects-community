@@ -367,7 +367,7 @@ restore() {
   fi
 
   if [[ -n $elastic ]] ; then
-    echo "backup elastic"
+    echo "## restore elastic"
     if [[ -f "$backupDir/elastic_workspace.gz" ]] ; then
       docker run \
         --rm \
