@@ -1,7 +1,9 @@
 ---
 lowercaseOutputLabelNames: true
 lowercaseOutputName: true
-blacklistObjectNames: ["org.apache.logging.log4j2:*"]
+blacklistObjectNames:
+  - "org.apache.logging.log4j2:*"
+  - "org.alfresco.repo.admin:type=RepoServerMgmt,*"
 rules:
   - pattern: 'Alfresco<type=DataSource><>(.*)Connections:'
     name: alfresco_datasource_$1_connection

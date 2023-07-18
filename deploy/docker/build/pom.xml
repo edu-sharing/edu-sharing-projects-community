@@ -46,5 +46,7 @@
     <module>redis</module>
     <module>redis_exporter</module>
     <module>rediscluster</module>
+    <module>varnish</module>
+    <module>varnish_exporter</module>
   </modules>
 </project>

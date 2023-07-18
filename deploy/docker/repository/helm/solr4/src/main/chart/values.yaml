@@ -4,6 +4,8 @@
 
 global:
 
+  annotations: {}
+
   cluster:
 
     istio:
@@ -72,7 +74,9 @@ config:
       minPercentage: "75.0"
       maxPercentage: "75.0"
 
-  metrics: true
+  metrics:
+    enabled: true
+    relabelings: []
 
   override:
     logging:
@@ -112,7 +116,6 @@ podAnnotations: {}
 
 podSecurityContext:
 
-  runAsUser: 1000
   fsGroup: 1000
   fsGroupChangePolicy: OnRootMismatch
 
@@ -122,6 +125,7 @@ securityContext:
   capabilities:
     drop:
     - ALL
+  runAsUser: 1000
 
 ########################################################################################################################
 

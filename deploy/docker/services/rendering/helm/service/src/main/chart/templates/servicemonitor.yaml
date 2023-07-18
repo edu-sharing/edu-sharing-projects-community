@@ -1,22 +1,51 @@
-{{- if and .Values.global.metrics.servicemonitor.enabled .Values.sidecar.metrics.enabled }}
 {{- if .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" }}
+{{- if .Values.global.metrics.servicemonitor.enabled }}
+{{- if .Values.sidecar.metrics.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "edusharing_services_rendering.name" . }}
+  name: {{ include "edusharing_services_rendering.name" . }}-api
   labels: {{ include "edusharing_services_rendering.labels.app" . | nindent 4 }}
-    app.kubernetes.io/component: "metrics"
+    app.kubernetes.io/component: "metrics-api"
 spec:
   endpoints:
   - path: "/metrics"
-    port: http-metrics
+    port: http-metrics-api
     interval: {{ .Values.global.metrics.scrape.interval }}
     scrapeTimeout: {{ .Values.global.metrics.scrape.timeout }}
+    {{- with .Values.sidecar.metrics.relabelings }}
+    metricRelabelings: {{ toYaml . | nindent 6 }}
+    {{- end }}
   selector:
     matchLabels: {{ include "edusharing_services_rendering.labels.app" . | nindent 6 }}
-      app.kubernetes.io/component: "metrics"
+      app.kubernetes.io/component: "metrics-api"
   namespaceSelector:
     matchNames:
-    - {{ .Release.Namespace }}
+      - {{ .Release.Namespace }}
+{{- end }}
+{{- if .Values.sidecar.proxyMetrics.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "edusharing_services_rendering.name" . }}-proxy
+  labels: {{ include "edusharing_services_rendering.labels.app" . | nindent 4 }}
+    app.kubernetes.io/component: "metrics-proxy"
+spec:
+  endpoints:
+  - path: "/metrics"
+    port: http-metrics-proxy
+    interval: {{ .Values.global.metrics.scrape.interval }}
+    scrapeTimeout: {{ .Values.global.metrics.scrape.timeout }}
+    {{- with .Values.sidecar.proxyMetrics.relabelings }}
+    metricRelabelings: {{ toYaml . | nindent 6 }}
+    {{- end }}
+  selector:
+    matchLabels: {{ include "edusharing_services_rendering.labels.app" . | nindent 6 }}
+      app.kubernetes.io/component: "metrics-proxy"
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}
 {{- end }}
 {{- end }}
