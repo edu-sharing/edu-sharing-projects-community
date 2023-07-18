@@ -28,6 +28,7 @@ my_home_auth_external="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL:-false}"
 my_home_auth_external_login="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN:-$my_path_external/shibboleth}"
 my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-/logout}"
 my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
+my_home_cookie_attr="${REPOSITORY_SERVICE_HOME_COOKIE_ATTRIBUTES:-}"
 
 my_host_internal="${REPOSITORY_SERVICE_HOST_INTERNAL:-repository-service}"
 my_port_internal="${REPOSITORY_SERVICE_PORT_INTERNAL:-8080}"
@@ -366,6 +367,18 @@ xmlstarlet ed -L \
 	-u '/properties/entry[@key="port"]' -v "${my_port_internal}" \
 	-u '/properties/entry[@key="allow_origin"]' -v "${my_origin},http://localhost:54361" \
 	${homeProp}
+
+xmlstarlet ed -L \
+  -d '/properties/entry[@key="cookie_attributes"]' \
+  ${homeProp}
+
+[[ -n "${my_home_cookie_attr}" ]] && {
+	xmlstarlet ed -L \
+		-s '/properties' -t elem -n "entry" -v "${my_home_cookie_attr}" \
+		--var entry '$prev' \
+		-i '$entry' -t attr -n "key" -v "cookie_attributes" \
+		${homeProp}
+}
 
 xmlstarlet ed -L \
   -d '/properties/entry[@key="guest_username"]' \

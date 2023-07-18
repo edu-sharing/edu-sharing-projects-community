@@ -28,7 +28,7 @@ data:
     -Dhazelcast.shutdownhook.policy=GRACEFUL
     -Dhazelcast.graceful.shutdown.max.wait={{ .Values.terminationGracePeriod }}
     {{- end }}
-    {{- if .Values.config.metrics }}
+    {{- if .Values.config.metrics.enabled }}
     -javaagent:/opt/alfresco/tomcat/agent/jmx_prometheus_javaagent.jar=9090:/opt/alfresco/tomcat/agent/jmx-exporter-config.yaml
     {{- end }}
   JPDA_ADDRESS: "0.0.0.0:5005"
@@ -53,6 +53,7 @@ data:
   REPOSITORY_SEARCH_SOLR4_PORT: {{ .Values.config.search.solr4.port | quote }}
   REPOSITORY_SERVICE_HOME_APPID: {{ .Values.config.home.appid | quote }}
   REPOSITORY_SERVICE_HOME_AUTH: {{ if .Values.config.saml.enabled }}"shibboleth"{{ else }}""{{ end }}
+  REPOSITORY_SERVICE_HOME_COOKIE_ATTRIBUTES: {{ .Values.config.home.cookieAttributes | quote }}
   REPOSITORY_SERVICE_HOST_EXTERNAL: {{ .Values.ingress.hosts | first | quote }}
   REPOSITORY_SERVICE_HOST_INTERNAL: {{ printf "%s.%s.svc.%s" (include "edusharing_repository_service.name" .) .Release.Namespace .Values.global.cluster.domain | quote }}
   REPOSITORY_SERVICE_HTTP_CLIENT_DISABLE_SNI4HOSTS: {{ .Values.config.http.client.disablesni4host | quote }}
