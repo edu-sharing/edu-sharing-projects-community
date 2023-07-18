@@ -18,11 +18,11 @@ spec:
         {{- if not .Values.global.metrics.servicemonitor.enabled }}
         prometheus.io/path: "/metrics"
         prometheus.io/port: "9090"
-        prometheus.io/scrape: {{ .Values.config.metrics | quote }}
+        prometheus.io/scrape: {{ .Values.config.metrics.enabled | quote }}
         {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- with merge .Values.podAnnotations .Values.global.annotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       initContainers:
@@ -35,7 +35,7 @@ spec:
         - "-ec"
         - |
           if [[ ! "$(ls -A /opt/alfresco/alf_data)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
           fi
         volumeMounts:
         - name: data
@@ -60,7 +60,7 @@ spec:
         ports:
         - name: api
           containerPort: 8080
-        {{- if .Values.config.metrics }}
+        {{- if .Values.config.metrics.enabled }}
         - name: metrics
           containerPort: 9090
         {{- end }}

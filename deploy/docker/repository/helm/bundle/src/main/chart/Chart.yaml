@@ -36,6 +36,11 @@ dependencies:
     ${helm.edusharing_repository_antivirus.line3}
     ${helm.edusharing_repository_antivirus.line4}
   
+  ${helm.edusharing_repository_mongo.line1}
+    ${helm.edusharing_repository_mongo.line2}
+    ${helm.edusharing_repository_mongo.line3}
+    ${helm.edusharing_repository_mongo.line4}
+
   ${helm.edusharing_repository_search_elastic_index.line1}
     ${helm.edusharing_repository_search_elastic_index.line2}
     ${helm.edusharing_repository_search_elastic_index.line3}

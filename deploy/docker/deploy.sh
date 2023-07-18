@@ -299,7 +299,7 @@ logs() {
 
 	$COMPOSE_EXEC \
 		$COMPOSE_LIST \
-		logs -f || exit
+		logs -f $@  || exit
 }
 
 ps() {

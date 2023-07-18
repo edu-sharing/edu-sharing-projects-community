@@ -23,8 +23,8 @@ spec:
         prometheus.io/scrape: {{ .Values.sidecar.metrics.enabled | quote }}
         {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- with merge .Values.podAnnotations .Values.global.annotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       initContainers:
@@ -37,7 +37,7 @@ spec:
         - "-ec"
         - |
           if [[ ! "$(ls -A /bitnami/postgresql)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /bitnami/postgresql
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /bitnami/postgresql
           fi
         volumeMounts:
         - name: data
@@ -126,9 +126,9 @@ spec:
         - --disable-settings-metrics
         - --web.listen-address=:9114
         - --web.telemetry-path=/metrics
-        env:
-        - name: DATA_SOURCE_NAME
-          value: postgresql://{{ .Values.config.username }}:{{ .Values.config.password }}@127.0.0.1:5432/{{ .Values.config.database }}?sslmode=disable
+        envFrom:
+        - secretRef:
+            name: {{ include "edusharing_postgresql.name" . }}-env
         ports:
         - name: metrics
           containerPort: 9114

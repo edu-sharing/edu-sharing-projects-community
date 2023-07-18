@@ -1,7 +1,9 @@
 ---
 lowercaseOutputLabelNames: true
 lowercaseOutputName: true
-blacklistObjectNames: ["org.apache.logging.log4j2:*"]
+blacklistObjectNames:
+  - "org.apache.logging.log4j2:*"
+  - "*:id=org.apache.solr.handler.ReplicationHandler,*"
 rules:
   - pattern: 'solr/(.+)<type=(.+), id=(.+)Cache><>cumulative_evictions:'
     name: solr_cache_eviction_total

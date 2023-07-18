@@ -11,6 +11,8 @@ whitelist=(
   "wss4j-1.5.12.jar:edu-lib" # axis-1.4
   "xmlsec-1.5.8.jar:alf-lib" # axis-1.4
   "xmlsec-1.4.5.jar:edu-lib" # axis-1.4
+  "bsh-1.3.0.jar:alf-lib" # diff groupId
+  "bsh-2.0b6.jar:alf-lib" # diff groupId
 )
 
 files=()
