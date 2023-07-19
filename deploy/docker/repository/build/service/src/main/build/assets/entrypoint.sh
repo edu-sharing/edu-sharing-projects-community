@@ -166,6 +166,15 @@ xmlstarlet ed -L \
 	${catSConf}
 
 xmlstarlet ed -L \
+	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/Valve[@className="org.apache.catalina.valves.ErrorReportValve"]' \
+  -s '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]' -t elem -n 'Valve' -v '' \
+  --var valve '$prev' \
+  -i '$valve' -t attr -n "className" -v "org.apache.catalina.valves.ErrorReportValve" \
+  -i '$valve' -t attr -n "showReport" -v "false" \
+  -i '$valve' -t attr -n "showServerInfo" -v "false" \
+  ${catSConf}
+
+xmlstarlet ed -L \
 	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/Valve[@className="org.apache.catalina.valves.AccessLogValve"]' \
 	${catSConf}
 
