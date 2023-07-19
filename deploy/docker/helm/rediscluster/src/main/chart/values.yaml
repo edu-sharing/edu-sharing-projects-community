@@ -4,6 +4,8 @@
 
 global:
 
+  annotations: {}
+
   cluster:
 
     istio:
@@ -33,6 +35,8 @@ global:
       timeout: 10s
     servicemonitor:
       enabled: false
+
+  security: {}
 
 ########################################################################################################################
 # LOCAL
@@ -66,7 +70,7 @@ config:
     wait: 30
 
   extra: {}
-#   save: ""
+#   save: '""'
 
 ########################################################################################################################
 
@@ -92,7 +96,6 @@ podAnnotations: {}
 
 podSecurityContext:
 
-  runAsUser: 1001
   fsGroup: 1001
   fsGroupChangePolicy: OnRootMismatch
 
@@ -102,6 +105,7 @@ securityContext:
   capabilities:
     drop:
     - ALL
+  runAsUser: 1001
 
 ########################################################################################################################
 
@@ -184,6 +188,8 @@ sidecar:
 
     enabled: true
 
+    relabelings: []
+
     resources:
 
       limits:
@@ -199,5 +205,6 @@ sidecar:
       capabilities:
         drop:
           - ALL
+      runAsUser: 1001
 
 ########################################################################################################################
