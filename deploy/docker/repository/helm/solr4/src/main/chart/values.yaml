@@ -51,12 +51,6 @@ image:
 
 replicaCount: 1
 
-autoscaling:
-  enabled: false
-  minReplicas: 2
-  maxReplicas: 3
-  targetCPU: 80
-
 ########################################################################################################################
 
 service:
@@ -79,6 +73,8 @@ config:
     relabelings: []
 
   override:
+    application:
+      common: ""
     logging:
       application: ""
       server: ""
@@ -86,6 +82,25 @@ config:
   repository:
     host: edusharing-repository-service
     port: 8080
+
+########################################################################################################################
+
+multistage:
+
+  enabled: false
+
+  current: ""
+
+  stages: []
+#    - name: blue
+#      spec:
+#        config:
+#          override:
+#            application:
+#              common: ""
+#    - name: green
+#      config: 
+#        common: ""
 
 ########################################################################################################################
 

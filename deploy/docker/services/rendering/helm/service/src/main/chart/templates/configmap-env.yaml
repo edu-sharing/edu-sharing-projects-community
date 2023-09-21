@@ -10,6 +10,7 @@ data:
   CACHE_PORT: {{ .Values.config.cache.port | quote }}
   REPOSITORY_SERVICE_HOST: {{ .Values.config.repository.host | quote }}
   REPOSITORY_SERVICE_PORT: {{ .Values.config.repository.port | quote }}
+  SERVICES_RENDERING_AUDIO_FORMATS: {{ .Values.config.converter.audio.formats | quote }}
   SERVICES_RENDERING_DATABASE_DRIV: {{ .Values.config.database.driver | quote }}
   SERVICES_RENDERING_DATABASE_HOST: {{ .Values.config.database.host | quote }}
   SERVICES_RENDERING_DATABASE_NAME: {{ .Values.config.database.database | quote }}
@@ -43,3 +44,6 @@ data:
   SERVICES_RENDERING_RENDERMOODLE_URL: {{ .Values.config.rendermoodle.url | quote }}
   SERVICES_RENDERING_RENDERMOODLE_TOKEN: {{ .Values.config.rendermoodle.token | quote }}
   SERVICES_RENDERING_RENDERMOODLE_CATEGORY_ID: {{ .Values.config.rendermoodle.categoryId | quote }}
+  SERVICES_RENDERING_VIDEO_FORMATS: {{ .Values.config.converter.video.formats | quote }}
+  SERVICES_RENDERING_VIDEO_RESOLUTIONS: {{ .Values.config.converter.video.resolution.all | quote }}
+  SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION: {{ .Values.config.converter.video.resolution.default | quote }}

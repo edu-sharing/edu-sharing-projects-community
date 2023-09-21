@@ -54,6 +54,12 @@ data:
   {{- end }}
   REPOSITORY_SEARCH_SOLR4_HOST: {{ .Values.config.search.solr4.host | quote }}
   REPOSITORY_SEARCH_SOLR4_PORT: {{ .Values.config.search.solr4.port | quote }}
+  REPOSITORY_SERVICE_HAZELCAST_HEARTBEAT_FAILUREDETECTOR_TYPE: {{ .Values.config.hazelcast.heartbeat.failuredetector.type | quote }}
+  REPOSITORY_SERVICE_HAZELCAST_HEARTBEAT_INTERVAL_SECONDS: {{ .Values.config.hazelcast.heartbeat.interval.seconds | quote }}
+  REPOSITORY_SERVICE_HAZELCAST_MAX_NO_HEARTBEAT_SECONDS: {{ .Values.config.hazelcast.max.no.heartbeat.seconds | quote }}
+  REPOSITORY_SERVICE_HAZELCAST_PHIACCRUAL_FAILUREDETECTOR_THRESHOLD: {{ .Values.config.hazelcast.phiaccrual.failuredetector.threshold | quote }}
+  REPOSITORY_SERVICE_HAZELCAST_PHIACCRUAL_FAILUREDETECTOR_SAMPLE_SIZE: {{ .Values.config.hazelcast.phiaccrual.failuredetector.sample.size | quote }}
+  REPOSITORY_SERVICE_HAZELCAST_PHIACCRUAL_FAILUREDETECTOR_MIN_STD_DEV_MILLIS: {{ .Values.config.hazelcast.phiaccrual.failuredetector.min.std.dev.millis | quote }}
   REPOSITORY_SERVICE_HOME_APPID: {{ .Values.config.home.appid | quote }}
   REPOSITORY_SERVICE_HOME_AUTH: {{ if .Values.config.saml.enabled }}"shibboleth"{{ else }}""{{ end }}
   REPOSITORY_SERVICE_HOME_COOKIE_ATTRIBUTES: {{ .Values.config.home.cookieAttributes | quote }}
@@ -69,8 +75,12 @@ data:
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_CONNECT: {{ .Values.config.http.server.csp.connect | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_DEFAULT: {{ .Values.config.http.server.csp.default | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_FONT: {{ .Values.config.http.server.csp.font | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_FRAME: {{ .Values.config.http.server.csp.frame | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_IMG: {{ .Values.config.http.server.csp.img | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_MEDIA: {{ .Values.config.http.server.csp.media | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_OBJECT: {{ .Values.config.http.server.csp.object | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_SCRIPT: {{ .Values.config.http.server.csp.script | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_STYLE: {{ .Values.config.http.server.csp.style | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_SESSION_TIMEOUT: {{ .Values.config.http.server.session.timeout | quote }}
   REPOSITORY_SERVICE_MAIL_FROM: {{ .Values.config.mail.from | quote }}
   REPOSITORY_SERVICE_MAIL_ADDREPLYTO: {{ .Values.config.mail.addReplyTo | quote }}

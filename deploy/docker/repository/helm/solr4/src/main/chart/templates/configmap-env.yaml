@@ -20,6 +20,9 @@ data:
     -javaagent:/opt/alfresco/tomcat/agent/jmx_prometheus_javaagent.jar=9090:/opt/alfresco/tomcat/agent/jmx-exporter-config.yaml
     {{- end }}
   JPDA_ADDRESS: "0.0.0.0:5005"
+  {{- with .Values.config.override.application.common }}
+  REPOSITORY_SEARCH_SOLR4_CONFIG: | {{ . | nindent 4 }}
+  {{- end }}
   REPOSITORY_SEARCH_SOLR4_HOST: {{ include "edusharing_repository_search_solr4.name" . | quote }}
   REPOSITORY_SEARCH_SOLR4_PORT: {{ .Values.service.port.api | quote }}
   REPOSITORY_SERVICE_HOST: {{ .Values.config.repository.host | quote }}
