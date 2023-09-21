@@ -22,8 +22,7 @@ spec:
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
-{{- end }}
-{{- if .Values.sidecar.proxyMetrics.enabled }}
+{{- if .Values.proxy.enabled }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -46,6 +45,7 @@ spec:
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

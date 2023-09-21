@@ -5,20 +5,16 @@ metadata:
   labels: {{ include "edusharing_repository_service.labels.app" . | nindent 4 }}
 data:
 {{- with .Values.config.override.config.application.client }}
-  config-application-client: |
-    {{ . | nindent 4 }}
+  config-application-client: | {{ . | nindent 4 }}
 {{- end }}
-{{- with .Values.config.override.config.application.server }}
-  config-application-server: |
-    {{ . | nindent 4 }}
+{{- with .Values.config.override.config.application.mds }}
+  config-application-mds: | {{ . | nindent 4 }}
 {{- end }}
 {{- with .Values.config.override.logging.application }}
-  logging-application: |
-    {{ . | nindent 4 }}
+  logging-application: | {{ . | nindent 4 }}
 {{- end }}
 {{- with .Values.config.override.logging.server }}
-  logging-server: |
-    {{ . | nindent 4 }}
+  logging-server: | {{ . | nindent 4 }}
 {{- end }}
 {{- if .Values.proxy.enabled }}
   proxy-config: |
@@ -58,7 +54,7 @@ data:
         set req.hash_always_miss = true;
       }
 
-      if (req.url ~ "(\.css|\.eot|\.gif|\.ico|\.jpg|\.js|\.json|\.map|\.md|\.mjs|\.otf|\.png|\.scss|\.svg|\.svg|\.ts|\.ttf|\.txt|\.woff|\.woff2)") {
+      if (req.url ~ "(\.css|\.eot|\.gif|\.ico|\.jpg|\.js|\.map|\.md|\.mjs|\.otf|\.png|\.scss|\.svg|\.svg|\.ts|\.ttf|\.txt|\.woff|\.woff2)") {
         return (hash);
       }
     }
@@ -79,7 +75,7 @@ data:
         set beresp.do_gzip = false;
       }
       {{- end }}
-      if (bereq.url ~ "(\.css|\.eot|\.gif|\.ico|\.jpg|\.js|\.json|\.map|\.md|\.mjs|\.otf|\.png|\.scss|\.svg|\.svg|\.ts|\.ttf|\.txt|\.woff|\.woff2)") {
+      if (bereq.url ~ "(\.css|\.eot|\.gif|\.ico|\.jpg|\.js|\.map|\.md|\.mjs|\.otf|\.png|\.scss|\.svg|\.svg|\.ts|\.ttf|\.txt|\.woff|\.woff2)") {
         unset beresp.http.set-cookie;
         set beresp.ttl = {{ .Values.proxy.config.cache.ttl }}s;
         {{- if .Values.proxy.config.cache.control }}
@@ -87,5 +83,9 @@ data:
         {{- end }}
         return (deliver);
       }
+    }
+
+    sub vcl_deliver {
+      unset resp.http.Via;
     }
 {{- end }}

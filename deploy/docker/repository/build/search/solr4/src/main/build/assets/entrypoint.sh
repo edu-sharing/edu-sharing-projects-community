@@ -9,6 +9,8 @@ my_bind="${REPOSITORY_SEARCH_SOLR4_BIND:-"0.0.0.0"}"
 my_host="${REPOSITORY_SEARCH_SOLR4_HOST:-repository-search-solr4}"
 my_port="${REPOSITORY_SEARCH_SOLR4_PORT:-8080}"
 
+my_config="${REPOSITORY_SEARCH_SOLR4_CONFIG:-}"
+
 repository_service_host="${REPOSITORY_SERVICE_HOST:-repository-service}"
 repository_service_port="${REPOSITORY_SERVICE_PORT:-8080}"
 
@@ -49,6 +51,7 @@ xmlstarlet ed -L \
   -i '$internal' -t attr -n "proxyPort"          -v "${my_port}" \
   -i '$internal' -t attr -n "protocol"           -v "HTTP/1.1" \
   -i '$internal' -t attr -n "connectionTimeout"  -v "20000" \
+  -i '$internal' -t attr -n "maxHttpHeaderSize"  -v "65536" \
   ${catSConf}
 
 ### Alfresco solr4 #####################################################################################################
@@ -62,6 +65,13 @@ grep -q   '^[#]*\s*alfresco\.port=' "${solr4Wor}" || echo "alfresco.port=${repos
 sed -i -r 's|^[#]*\s*alfresco\.secureComms=.*|alfresco.secureComms=none|' "${solr4Wor}"
 grep -q   '^[#]*\s*alfresco\.secureComms=' "${solr4Wor}" || echo "alfresco.secureComms=none" >> "${solr4Wor}"
 
+sed -i -r 's|^[#]*\s*solr\.suggester\.enabled=.*|solr.suggester.enabled=false|' "${solr4Wor}"
+grep -q   '^[#]*\s*solr\.suggester\.enabled=' "${solr4Wor}" || echo "solr.suggester.enabled=false" >> "${solr4Wor}"
+
+if [[ -n $my_config ]] ; then
+  echo "\n${my_config}" >> "${solr4Wor}"
+fi
+
 sed -i -r 's|^[#]*\s*alfresco\.host=.*|alfresco.host='"${repository_service_host}"'|' "${solr4Arc}"
 grep -q   '^[#]*\s*alfresco\.host=' "${solr4Arc}" || echo "alfresco.host=${repository_service_host}" >> "${solr4Arc}"
 
@@ -70,6 +80,10 @@ grep -q   '^[#]*\s*alfresco\.port=' "${solr4Arc}" || echo "alfresco.port=${repos
 
 sed -i -r 's|^[#]*\s*alfresco\.secureComms=.*|alfresco.secureComms=none|' "${solr4Arc}"
 grep -q   '^[#]*\s*alfresco\.secureComms=' "${solr4Arc}" || echo "alfresco.secureComms=none" >> "${solr4Arc}"
+
+if [[ -n $my_config ]] ; then
+  echo "\n${my_config}" >> "${solr4Arc}"
+fi
 
 ########################################################################################################################
 

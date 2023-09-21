@@ -195,75 +195,7 @@ backup() {
     $COMPOSE_EXEC pause repository-search-elastic-tracker repository-service || true
   fi
 
-  if [[ -n $repodb ]] ; then
-    echo "backup postgres"
-
-    if [[ -n $compressed ]] ; then
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres | gzip" >"$backupDir/repository-db.gz" || {
-        rm -rf "$backupDir"
-        echo "ERROR on creating postgres dump"
-        exit 1
-      }
-    else
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres" > "$backupDir/repository-db.sql" || {
-        rm -rf "$backupDir"
-        echo "ERROR on creating postgres dump"
-        exit 1
-      }
-    fi
-
-    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
-      echo "backup mongo"
-
-      if [[ -n $compressed ]] ; then
-        $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" >"$backupDir/repository-mongo.gz" || {
-          rm -rf "$backupDir"
-          echo "ERROR on creating mongodb dump"
-          exit 1
-        }
-      else
-         $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" >"$backupDir/repository-mongo.dump" || {
-           rm -rf "$backupDir"
-           echo "ERROR on creating mongodb dump"
-           exit 1
-         }
-      fi
-    fi
-  fi
-
-  if [[ -n $repobinaries ]] ; then
-    echo "backup binaries"
-    if [[ -n $compressed ]] ; then
-      docker run \
-        --rm \
-        --volumes-from "$(docker compose ps repository-service -q -a)" \
-        -v "$backupDir":/backup \
-        bitnami/minideb:bullseye \
-        bash -c '
-          cd /opt/alfresco/alf_data \
-          && tar cvf /backup/binaries.tar .
-        ' || {
-          rm -rf "$backupDir"
-          echo "ERROR on copying binaries"
-          exit 1
-        }
-    else
-       docker run \
-         --rm \
-         --volumes-from "$(docker compose ps repository-service -q -a)" \
-         -v "$backupDir":/backup \
-         bitnami/minideb:bullseye \
-         bash -c '
-           cp -R /opt/alfresco/alf_data /backup/
-         ' || {
-           rm -rf "$backupDir"
-           echo "ERROR on copying binaries"
-           exit 1
-         }
-    fi
-  fi
-
-  if [[ -n $solr ]] ; then
+ if [[ -n $solr ]] ; then
     echo "### backup solr4"
     if [[ -n $compressed ]] ; then
       docker run \
@@ -399,6 +331,75 @@ backup() {
             exit 1
           }
       fi
+  fi
+
+  if [[ -n $repodb ]] ; then
+    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
+       echo "backup mongo"
+
+       if [[ -n $compressed ]] ; then
+         $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.gz" || {
+           rm -rf "$backupDir"
+           echo "ERROR on creating mongodb dump"
+           exit 1
+         }
+       else
+          $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.dump" || {
+            rm -rf "$backupDir"
+            echo "ERROR on creating mongodb dump"
+            exit 1
+          }
+       fi
+    fi
+
+    echo "backup postgres"
+    if [[ -n $compressed ]] ; then
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres | gzip" >"$backupDir/repository-db.gz" || {
+        rm -rf "$backupDir"
+        echo "ERROR on creating postgres dump"
+        exit 1
+      }
+    else
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres" > "$backupDir/repository-db.sql" || {
+        rm -rf "$backupDir"
+        echo "ERROR on creating postgres dump"
+        exit 1
+      }
+    fi
+
+
+  fi
+
+  if [[ -n $repobinaries ]] ; then
+    echo "backup binaries"
+    if [[ -n $compressed ]] ; then
+      docker run \
+        --rm \
+        --volumes-from "$(docker compose ps repository-service -q -a)" \
+        -v "$backupDir":/backup \
+        bitnami/minideb:bullseye \
+        bash -c '
+          cd /opt/alfresco/alf_data \
+          && tar cvf /backup/binaries.tar .
+        ' || {
+          rm -rf "$backupDir"
+          echo "ERROR on copying binaries"
+          exit 1
+        }
+    else
+       docker run \
+         --rm \
+         --volumes-from "$(docker compose ps repository-service -q -a)" \
+         -v "$backupDir":/backup \
+         bitnami/minideb:bullseye \
+         bash -c '
+           cp -R /opt/alfresco/alf_data /backup/
+         ' || {
+           rm -rf "$backupDir"
+           echo "ERROR on copying binaries"
+           exit 1
+         }
+    fi
   fi
 
 

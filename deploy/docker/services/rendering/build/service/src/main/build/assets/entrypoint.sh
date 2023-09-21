@@ -59,6 +59,11 @@ rendering_rendermoodle_category_id="${SERVICES_RENDERING_RENDERMOODLE_CATEGORY_I
 
 repository_service_base="http://${repository_service_host}:${repository_service_port}/edu-sharing"
 
+rendering_audio_formats="${SERVICES_RENDERING_AUDIO_FORMATS:-"mp3"}"
+rendering_video_formats="${SERVICES_RENDERING_VIDEO_FORMATS:-"mp4,webm"}"
+rendering_video_resolutions="${SERVICES_RENDERING_VIDEO_RESOLUTIONS:-"240,720,1080"}"
+rendering_video_default_resolution="${SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION:-"720"}"
+
 ### Wait ###############################################################################################################
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
@@ -111,6 +116,10 @@ sed -i 's|^Listen \([0-9]+\)|Listen '"${my_bind}"':\1|g' /etc/apache2/ports.conf
 
 sed -i 's|^\(\s*\)[#]*ServerName.*|\1ServerName '"${my_host_external}"'|' /etc/apache2/sites-available/external.conf
 sed -i 's|^\(\s*\)[#]*ServerName.*|\1ServerName '"${my_host_internal}"'|' /etc/apache2/sites-available/internal.conf
+
+sed -i 's|^expose_php.*|expose_php = Off|' "${PHP_INI_DIR}/php.ini"
+
+########################################################################################################################
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
 
@@ -247,8 +256,9 @@ sed -i -r 's|\$MC_URL = ['"'"'"].*|\$MC_URL = "'"${my_base_external}"'";|' "${sy
 sed -i -r 's|\$MC_DOCROOT.*|\$MC_DOCROOT = "'"${RS_ROOT}"'";|' "${systemConf}"
 sed -i -r 's|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = "'"${RS_CACHE}/data"'";|' "${systemConf}"
 
-sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules//,/\",\"}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
-grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [\"${my_gdpr_modules//,/\",\"}\"], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
+[[ -n $my_gdpr_modules ]] && my_gdpr_modules="'${my_gdpr_modules//,/','}'"
+sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
+grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [${my_gdpr_modules}], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
 
 sed -i -r 's|DEFINE\("ENABLE_VIEWER_JS".*|DEFINE\("ENABLE_VIEWER_JS", '"${my_viewer_enabled}"'\);|' "${systemConf}"
 grep -q 'ENABLE_VIEWER_JS' "${systemConf}" || echo "DEFINE(\"ENABLE_VIEWER_JS\", ${my_viewer_enabled});" >> "${systemConf}"
@@ -295,6 +305,19 @@ xmlstarlet ed -L \
 	-u '/properties/entry[@key="port"]' -v "${my_port_internal}" \
 	-u '/properties/entry[@key="appid"]' -v "${my_home_appid}" \
 	"${homeApp}"
+
+
+# audio video config
+videoConfFile="${RS_ROOT}/conf/audio-video.conf.php"
+[[ -n $rendering_audio_formats ]] && rendering_audio_formats="'${rendering_audio_formats//,/\',\'}'"
+[[ -n $rendering_video_formats ]] && rendering_video_formats="'${rendering_video_formats//,/\',\'}'"
+[[ -n $rendering_video_resolutions ]] && rendering_video_resolutions="'${rendering_video_resolutions//,/\',\'}'"
+
+sed -i 's|const AUDIO_FORMATS.*|const AUDIO_FORMATS = ['"${rendering_audio_formats}"'];|' "${videoConfFile}"
+sed -i 's|const VIDEO_FORMATS.*|const VIDEO_FORMATS = ['"${rendering_video_formats}"'];|' "${videoConfFile}"
+sed -i 's|const VIDEO_RESOLUTIONS.*|const VIDEO_RESOLUTIONS = ['"${rendering_video_resolutions}"'];|' "${videoConfFile}"
+sed -i 's|const VIDEO_DEFAULT_RESOLUTION.*|const VIDEO_DEFAULT_RESOLUTION = '\""${rendering_video_default_resolution}"\"';|' "${videoConfFile}"
+
 
 ########################################################################################################################
 
