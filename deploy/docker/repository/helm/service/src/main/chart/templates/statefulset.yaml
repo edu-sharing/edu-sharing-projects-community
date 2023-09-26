@@ -111,17 +111,17 @@ spec:
           mountPath: /opt/alfresco/alf_data
         {{- with .Values.config.override.config.application.client }}
         - name: file
-          mountPath: /opt/bitnami/tomcat/shared/classes/config/defaults/client.config.xml
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/defaults/client.config.override.xml
           subPath: config-application-client
         {{- end }}
-        {{- with .Values.config.override.config.application.server }}
+        {{- with .Values.config.override.config.application.mds }}
         - name: file
-          mountPath: /opt/bitnami/tomcat/shared/classes/config/cluster/edu-sharing.override.conf
-          subPath: config-application-server
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/default/metadatasets/xml/mds_override.xml
+          subPath: config-application-mds
         {{- end }}
         {{- with .Values.config.override.logging.application }}
         - name: file
-          mountPath: /opt/bitnami/tomcat/webapps/alfresco/WEB-INF/classes/log4j2.xml
+          mountPath: /opt/bitnami/tomcat/webapps/alfresco/WEB-INF/log4j2-alfresco.xml
           subPath: logging-application
         {{- end }}
         {{- with .Values.config.override.logging.server }}
@@ -303,8 +303,7 @@ spec:
         {{- with .Values.sidecar.proxyCache.securityContext }}
         securityContext: {{ toYaml . | nindent 10 }}
         {{- end }}
-      {{- end }}
-      {{- if and .Values.proxy.enabled .Values.sidecar.proxyMetrics.enabled }}
+      {{- if .Values.config.metrics.enabled }}
       - name: {{ include "edusharing_repository_service.name" . }}-proxy-metrics
         image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-build-varnish_exporter:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
@@ -323,6 +322,7 @@ spec:
         {{- with .Values.sidecar.proxyMetrics.securityContext }}
         securityContext: {{ toYaml . | nindent 10 }}
         {{- end }}
+      {{- end }}
       {{- end }}
       {{- with .Values.global.image.pullSecrets }}
       imagePullSecrets: {{ toYaml . | nindent 8 }}
