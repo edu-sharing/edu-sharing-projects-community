@@ -21,8 +21,8 @@ spec:
         prometheus.io/scrape: {{ .Values.sidecar.metrics.enabled | quote }}
         {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- with merge .Values.podAnnotations .Values.global.annotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       initContainers:
@@ -35,10 +35,10 @@ spec:
         - "-ec"
         - |
           if [[ ! "$(ls -A /var/cache/esrender/config)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /var/cache/esrender/config
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /var/cache/esrender/config
           fi
           if [[ ! "$(ls -A /var/cache/esrender/data)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /var/cache/esrender/data
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /var/cache/esrender/data
           fi
         volumeMounts:
           - name: share-config
@@ -130,7 +130,7 @@ spec:
         - --telemetry.address=:9117
         - --telemetry.endpoint=/metrics
         ports:
-        - name: metrics
+        - name: metrics-api
           containerPort: 9117
         {{- with .Values.sidecar.metrics.resources }}
         resources: {{ toYaml . | nindent 10 }}
@@ -139,10 +139,92 @@ spec:
         securityContext: {{ toYaml . | nindent 10 }}
         {{- end }}
       {{- end }}
+      {{ if .Values.proxy.enabled }}
+      - name: {{ include "edusharing_services_rendering.name" . }}-proxy
+        image: {{ include "edusharing_services_rendering.image" . }}{{ .Values.image.prefix }}-deploy-docker-build-varnish:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        args:
+          - '-F'
+          - '-f'
+          - /etc/varnish/default.vcl
+          - '-T'
+          - 127.0.0.1:6082
+          - '-a'
+          - 0.0.0.0:6081
+        ports:
+          - name: api-proxy
+            containerPort: 6081
+        volumeMounts:
+          - name: file
+            mountPath: /etc/varnish/default.vcl
+            subPath: proxy-config
+          - name: temp-proxy
+            mountPath: /var/lib/varnish
+        {{- with .Values.sidecar.proxyCache.startupProbe }}
+        startupProbe:
+          httpGet:
+            path: /health/ready
+            port: api-proxy
+          failureThreshold: {{ .failureThreshold }}
+          initialDelaySeconds: {{ .initialDelaySeconds }}
+          periodSeconds: {{ .periodSeconds }}
+          successThreshold: {{ .successThreshold }}
+          timeoutSeconds: {{ .timeoutSeconds }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.livenessProbe }}
+        livenessProbe:
+          exec:
+            command:
+              - /usr/bin/varnishadm
+              - ping
+          failureThreshold: {{ .failureThreshold }}
+          initialDelaySeconds: {{ .initialDelaySeconds }}
+          periodSeconds: {{ .periodSeconds }}
+          successThreshold: 1
+          timeoutSeconds: {{ .timeoutSeconds }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.readinessProbe }}
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: api-proxy
+          failureThreshold: {{ .failureThreshold }}
+          initialDelaySeconds: {{ .initialDelaySeconds }}
+          periodSeconds: {{ .periodSeconds }}
+          successThreshold: {{ .successThreshold }}
+          timeoutSeconds: {{ .timeoutSeconds }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.resources }}
+        resources: {{ toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.securityContext }}
+        securityContext: {{ toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{ if and .Values.proxy.enabled .Values.sidecar.proxyMetrics.enabled }}
+      - name: {{ include "edusharing_services_rendering.name" . }}-proxy-metrics
+        image: {{ include "edusharing_services_rendering.image" . }}{{ .Values.image.prefix }}-deploy-docker-build-varnish_exporter:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        ports:
+          - name: metrics-proxy
+            containerPort: 9131
+        volumeMounts:
+          - name: file
+            mountPath: /etc/varnish/default.vcl
+            subPath: proxy-config
+          - name: temp-proxy
+            mountPath: /var/lib/varnish
+        {{- with .Values.sidecar.proxyMetrics.resources }}
+        resources: {{ toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyMetrics.securityContext }}
+        securityContext: {{ toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
       {{- with .Values.global.image.pullSecrets }}
       imagePullSecrets: {{ toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.podSecurityContext }}
+      {{- with merge .Values.podSecurityContext .Values.global.security }}
       securityContext: {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
@@ -183,3 +265,7 @@ spec:
       - name: share-data
         persistentVolumeClaim:
           claimName: {{ include "edusharing_services_rendering.pvc.share.data" . }}
+      {{- if .Values.proxy.enabled }}
+      - name: temp-proxy
+        emptyDir: { }
+      {{- end }}

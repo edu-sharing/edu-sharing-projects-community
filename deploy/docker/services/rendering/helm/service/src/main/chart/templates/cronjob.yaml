@@ -20,8 +20,8 @@ spec:
         metadata:
           annotations:
             sidecar.istio.io/inject: "false"
-            {{- if .Values.job.cachecleaner.podAnnotations }}
-            {{- toYaml .Values.job.cachecleaner.podAnnotations | nindent 12 }}
+            {{- with merge .Values.job.cachecleaner.podAnnotations .Values.global.annotations }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
         spec:
           restartPolicy: OnFailure
@@ -58,7 +58,7 @@ spec:
           {{- with .Values.global.image.pullSecrets }}
           imagePullSecrets: {{ toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.podSecurityContext }}
+          {{- with merge .Values.podSecurityContext .Values.global.security }}
           securityContext: {{ toYaml . | nindent 12 }}
           {{- end }}
           {{- with .Values.tolerations }}

@@ -12,6 +12,7 @@ services:
       POSTGRESQL_USER: "${SERVICES_RENDERING_DATABASE_USER:-rendering}"
     expose:
       - "5432"
+    shm_size: 256m
     volumes:
       - "services-rendering-database-volume-data:/bitnami/postgresql"
 
@@ -45,6 +46,13 @@ services:
       SERVICES_RENDERING_SERVICE_PROXY_USER: "${PROXY_USER:-}"
       SERVICES_RENDERING_SERVICE_PROXY_PASS: "${PROXY_PASS:-}"
       SERVICES_RENDERING_SERVICE_VIEWER_ENABLED: "${SERVICES_RENDERING_SERVICE_VIEWER_ENABLED:-true}"
+      SERVICES_RENDERING_RENDERMOODLE_URL: "${SERVICES_RENDERING_RENDERMOODLE_URL:-}"
+      SERVICES_RENDERING_RENDERMOODLE_TOKEN: "${SERVICES_RENDERING_RENDERMOODLE_TOKEN:-}"
+      SERVICES_RENDERING_RENDERMOODLE_CATEGORY_ID: "${SERVICES_RENDERING_RENDERMOODLE_CATEGORY_ID:-1}"
+      SERVICES_RENDERING_ADUIO_FORMATS: "${SERVICES_RENDERING_ADUIO_FORMATS:-mp3}"
+      SERVICES_RENDERING_VIDEO_FORMATS: "${SERVICES_RENDERING_VIDEO_FORMATS:-mp4,webm}"
+      SERVICES_RENDERING_VIDEO_RESOLUTIONS: "${SERVICES_RENDERING_VIDEO_RESOLUTIONS:-240,720,1080}"
+      SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION: "${SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION:-720}"
       REPOSITORY_SERVICE_HOST: repository-service
       REPOSITORY_SERVICE_PORT: "8080"
     expose:
@@ -67,6 +75,25 @@ services:
       REPOSITORY_SERVICE_HOST: repository-service
       REPOSITORY_SERVICE_PORT: "8080"
       REPOSITORY_SERVICE_ADMIN_PASS: "${REPOSITORY_SERVICE_ADMIN_PASS:-admin}"
+    depends_on:
+      - services-rendering-service
+
+
+  services-rendering-service-cache-cleaner:
+    image: "${docker.repository}/${docker.prefix}-deploy-docker-services-rendering-build-service:${docker.tag}"
+    container_name: "services-rendering-service-cache-cleaner_${COMPOSE_PROJECT_NAME}"
+    command: [ "cron.sh" ]
+    environment:
+      SERVICES_RENDERING_DATABASE_DRIV: pgsql
+      SERVICES_RENDERING_DATABASE_HOST: services-rendering-database
+      SERVICES_RENDERING_DATABASE_NAME: "${SERVICES_RENDERING_DATABASE_NAME:-rendering}"
+      SERVICES_RENDERING_DATABASE_PASS: "${SERVICES_RENDERING_DATABASE_PASS:-rendering}"
+      SERVICES_RENDERING_DATABASE_PORT: "5432"
+      SERVICES_RENDERING_DATABASE_USER: "${SERVICES_RENDERING_DATABASE_USER:-rendering}"
+      SERVICES_RENDERING_SERVICE_CACHE_CLEANER_SCHEDULE: "${SERVICES_RENDERING_SERVICE_CACHE_CLEANER_SCHEDULE:-0 0 * * 0}"
+    volumes:
+      - "services-rendering-service-volume-config:/var/cache/esrender/config"
+      - "services-rendering-service-volume-data:/var/cache/esrender/data"
     depends_on:
       - services-rendering-service
 

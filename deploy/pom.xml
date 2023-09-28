@@ -23,7 +23,7 @@
 
     <php.version.major>8</php.version.major>
     <php.version.minor>1</php.version.minor>
-    <php.version.patch>12</php.version.patch>
+    <php.version.patch>19</php.version.patch>
     <php.version>${php.version.major}.${php.version.minor}.${php.version.patch}</php.version>
 
     <postgresql.version.major>13</postgresql.version.major>
@@ -35,7 +35,7 @@
   </properties>
   <profiles>
     <profile>
-      <id>customer.deploy</id>
+      <id>deploy.deploy.customer</id>
       <activation>
         <activeByDefault>false</activeByDefault>
         <file>

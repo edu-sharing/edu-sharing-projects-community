@@ -28,7 +28,7 @@ data:
     -Dhazelcast.shutdownhook.policy=GRACEFUL
     -Dhazelcast.graceful.shutdown.max.wait={{ .Values.terminationGracePeriod }}
     {{- end }}
-    {{- if .Values.config.metrics }}
+    {{- if .Values.config.metrics.enabled }}
     -javaagent:/opt/alfresco/tomcat/agent/jmx_prometheus_javaagent.jar=9090:/opt/alfresco/tomcat/agent/jmx-exporter-config.yaml
     {{- end }}
   JPDA_ADDRESS: "0.0.0.0:5005"
@@ -56,6 +56,7 @@ data:
   REPOSITORY_SEARCH_SOLR4_PORT: {{ .Values.config.search.solr4.port | quote }}
   REPOSITORY_SERVICE_HOME_APPID: {{ .Values.config.home.appid | quote }}
   REPOSITORY_SERVICE_HOME_AUTH: {{ if .Values.config.saml.enabled }}"shibboleth"{{ else }}""{{ end }}
+  REPOSITORY_SERVICE_HOME_COOKIE_ATTRIBUTES: {{ .Values.config.home.cookieAttributes | quote }}
   REPOSITORY_SERVICE_ALLOW_ORIGIN: "{{- join "," .Values.config.http.server.allowOrigin}}"
   REPOSITORY_SERVICE_HOST_EXTERNAL: {{ .Values.ingress.hosts | first | quote }}
   REPOSITORY_SERVICE_HOST_INTERNAL: {{ printf "%s.%s.svc.%s" (include "edusharing_repository_service.name" .) .Release.Namespace .Values.global.cluster.domain | quote }}
@@ -69,8 +70,12 @@ data:
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_CONNECT: {{ .Values.config.http.server.csp.connect | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_DEFAULT: {{ .Values.config.http.server.csp.default | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_FONT: {{ .Values.config.http.server.csp.font | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_FRAME: {{ .Values.config.http.server.csp.frame | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_IMG: {{ .Values.config.http.server.csp.img | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_MEDIA: {{ .Values.config.http.server.csp.media | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_OBJECT: {{ .Values.config.http.server.csp.object | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_CSP_SCRIPT: {{ .Values.config.http.server.csp.script | quote }}
+  REPOSITORY_SERVICE_HTTP_SERVER_CSP_STYLE: {{ .Values.config.http.server.csp.style | quote }}
   REPOSITORY_SERVICE_HTTP_SERVER_SESSION_TIMEOUT: {{ .Values.config.http.server.session.timeout | quote }}
   REPOSITORY_SERVICE_MAIL_FROM: {{ .Values.config.mail.from | quote }}
   REPOSITORY_SERVICE_MAIL_ADDREPLYTO: {{ .Values.config.mail.addReplyTo | quote }}

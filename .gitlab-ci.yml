@@ -1,7 +1,7 @@
 variables:
   COMMON_BIND_HOST: "0.0.0.0"
   DEPLOY_DOCKER_HELM: "true"
-  DEPLOY_TIMESTAMP: "false"
+  DEPLOY_TIMESTAMP: "$DEPLOY_TIMESTAMP"
   DOCKER_DRIVER: "$DIND_DRIVER"
   DOCKER_HOST: "$DIND_HOST"
   DOCKER_TLS_CERTDIR: "$DIND_TLS_CERTDIR"
@@ -14,6 +14,7 @@ variables:
   REPOSITORY_MONGO_ENABLED: "true"
   REPOSITORY_REMOTE_ENABLED: "false"
   REPOSITORY_TRANSFORM_ENABLED: "false"
+  SERVICE_CONNECTOR_ENABLED: "false"
 
 default:
   image: maven:3.8.4-jdk-8
@@ -58,46 +59,11 @@ test docker:
     - . deploy.sh stop
     - cmp -s openapi.json repository/build/service/target/build/rest-api/openapi.json || exit 1
     - popd
-  only:
-    - pipelines
-    - triggers
-    - schedules
-    - tags
-
-#test installer:
-#  stage: test
-#  artifacts:
-#    paths:
-#      - deploy/installer/openapi.json
-#      - deploy/installer/repository/distribution/target/dist/rest-api/openapi.json
-#    when: always
-#  before_script:
-#    - apt-get update -y
-#    - apt-get install -y ca-certificates curl gnupg jq lsb-release wait-for-it
-#    - mkdir -p /etc/apt/keyrings
-#    - curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-#    - echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-#    - apt-get update -y
-#    - apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin docker-compose
-#    - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip
-#    - docker info
-#    - docker version
-#    - docker login $DOCKER_REGISTRY -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-#  script:
-#    - mkdir -p "$MAVEN_HOME"
-#    - mvn $MAVEN_CLI -s .mvn/settings.xml install
-#    - pushd deploy/installer
-#    - . deploy.sh ci
-#    - "until wait-for-it docker:8100 -t 3; do sleep 1; done"
-#    - "until [[ $(curl -sSf -w '%{http_code}\n' -o /dev/null -H 'Accept: application/json' http://docker:8100/edu-sharing/rest/_about/status/SERVICE?timeoutSeconds=3) -eq 200 ]]; do sleep 1; done"
-#    - "curl -m 300 -H 'Accept: application/json' --user 'admin:admin' http://docker:8100/edu-sharing/rest/openapi.json | jq -S . > openapi.json"
-#    - . deploy.sh stop
-#    - cmp -s openapi.json repository/distribution/target/dist/rest-api/openapi.json || exit 1
-#    - popd
-#  only:
-#    - schedules
-#    - tags
-#    - web
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^maven\/release\/.*/ && $CI_PIPELINE_SOURCE == "pipeline"
+    - if: $CI_COMMIT_BRANCH !~ /^maven\/release\/.*/ && $CI_COMMIT_TAG == null && ($CI_PIPELINE_SOURCE == "pipeline" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "schedule")
+    - if: $CI_COMMIT_TAG
+      when: never
 
 e2e:
   stage: test
@@ -140,6 +106,10 @@ e2e:
 
 deploy:
   stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /^maven\/release\/.*/ && $CI_PIPELINE_SOURCE == "pipeline"
+    - if: $CI_COMMIT_TAG && $CI_PIPELINE_SOURCE == "pipeline"
+    - if: $CI_COMMIT_BRANCH !~ /^maven\/release\/.*/ && $CI_COMMIT_TAG == null
   before_script:
     - apt-get update -y
     - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip

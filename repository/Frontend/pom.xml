@@ -57,7 +57,7 @@
                   <directory>src/generated/ng/projects</directory>
                 </fileset>
                 <fileset>
-                  <directory>src/generated/ng/src</directory>
+                  <directory>src/generated/ng</directory>
                 </fileset>
               </filesets>
             </configuration>

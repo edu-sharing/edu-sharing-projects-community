@@ -24,7 +24,7 @@ spec:
   ports:
   - name: http-api
     port: {{ .Values.service.port.api }}
-{{- if and .Values.global.metrics.servicemonitor.enabled .Values.config.metrics }}
+{{- if and .Values.global.metrics.servicemonitor.enabled .Values.config.metrics.enabled }}
 ---
 apiVersion: v1
 kind: Service

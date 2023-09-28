@@ -299,7 +299,7 @@ logs() {
 
 	$COMPOSE_EXEC \
 		$COMPOSE_LIST \
-		logs -f || exit
+		logs -f $@  || exit
 }
 
 ps() {
@@ -425,7 +425,7 @@ ldev() {
 }
 
 stop() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -438,9 +438,13 @@ remove() {
 	read -p "Are you sure you want to continue? [y/N] " answer
 	case ${answer:0:1} in
 	y | Y)
-		COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug)"
+		COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
 
 		echo "Use compose set: $COMPOSE_LIST"
+
+		$COMPOSE_EXEC \
+			$COMPOSE_LIST \
+			kill || exit
 
 		$COMPOSE_EXEC \
 			$COMPOSE_LIST \
