@@ -47,8 +47,7 @@ spec:
     - name: http-metrics-api
       port: {{ .Values.service.port.metrics.api }}
       targetPort: metrics-api
-{{- end }}
-{{- if .Values.sidecar.proxyMetrics.enabled }}
+{{- if .Values.proxy.enabled }}
 ---
 apiVersion: v1
 kind: Service
@@ -63,5 +62,6 @@ spec:
     - name: http-metrics-proxy
       port: {{ .Values.service.port.metrics.proxy }}
       targetPort: metrics-proxy
+{{- end }}
 {{- end }}
 {{- end }}

@@ -188,6 +188,26 @@ config:
     username: ""
     password: ""
 
+  hazelcast:
+    heartbeat:
+      failuredetector:
+        type: deadline
+      interval:
+        seconds: 5
+    max:
+      "no":
+        heartbeat:
+          seconds: 15
+    phiaccrual:
+      failuredetector:
+        min:
+          std:
+            dev:
+              millis: 100
+        threshold: 10
+        sample:
+          size: 200
+
   home:
     appid: local
     cookieAttributes: ""
@@ -218,8 +238,12 @@ config:
         connect: ""
         default: ""
         font: ""
+        frame: ""
         img: ""
+        media: ""
+        object: ""
         script: ""
+        style: ""
       session:
         timeout: 60
 
@@ -250,7 +274,7 @@ config:
     config:
       application:
         client: ""
-        server: ""
+        mds: ""
     logging:
       application: ""
       server: ""
@@ -440,8 +464,6 @@ sidecar:
       runAsUser: 101
 
   proxyMetrics:
-
-    enabled: true
 
     relabelings: []
 

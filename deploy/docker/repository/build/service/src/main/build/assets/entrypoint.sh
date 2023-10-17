@@ -26,7 +26,9 @@ my_home_appid="${REPOSITORY_SERVICE_HOME_APPID:-local}"
 my_home_auth="${REPOSITORY_SERVICE_HOME_AUTH:-}"
 my_home_auth_external="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL:-false}"
 my_home_auth_external_login="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN:-$my_path_external/shibboleth}"
-my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-/logout}"
+my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-}"
+my_home_auth_external_login_providers_url="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN_PROVIDERS_URL:-}"
+my_home_auth_external_login_provider_target_url="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN_PROVIDER_TARGET_URL:-}"
 my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
 my_home_cookie_attr="${REPOSITORY_SERVICE_HOME_COOKIE_ATTRIBUTES:-}"
 my_allow_origin="${REPOSITORY_SERVICE_ALLOW_ORIGIN:-}"
@@ -60,13 +62,19 @@ my_http_client_proxy_proxyuser="${REPOSITORY_SERVICE_HTTP_CLIENT_PROXY_PROXYUSER
 my_http_server_csp_connect="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_CONNECT:-}"
 my_http_server_csp_default="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_DEFAULT:-}"
 my_http_server_csp_font="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_FONT:-}"
+my_http_server_csp_frame="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_FRAME:-}"
 my_http_server_csp_img="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_IMG:-}"
+my_http_server_csp_media="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_MEDIA:-}"
+my_http_server_csp_object="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_OBJECT:-}"
 my_http_server_csp_script="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_SCRIPT:-}"
+my_http_server_csp_style="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_STYLE:-}"
 
 my_http_server_session_timeout="${REPOSITORY_SERVICE_HTTP_SERVER_SESSION_TIMEOUT:-60}"
 
 my_http_accesslog_enabled="${REPOSITORY_SERVICE_HTTP_ACCESSLOG_ENABLED:-}"
 my_http_jvmroute="${REPOSITORY_SERVICE_HTTP_JVMROUTE:-}"
+
+my_jobs_primary_hostname="${REPOSITORY_SERVICE_JOBS_PRIMARY_HOSTNAME:-}"
 
 cache_cluster="${CACHE_CLUSTER:-false}"
 cache_database="${CACHE_DATABASE:-0}"
@@ -88,6 +96,7 @@ repository_database_jdbc="jdbc:${repository_database_prot}://${repository_databa
 repository_search_solr4_host="${REPOSITORY_SEARCH_SOLR4_HOST:-repository-search-solr4}"
 repository_search_solr4_port="${REPOSITORY_SEARCH_SOLR4_PORT:-8080}"
 
+repository_transform_enabled="${REPOSITORY_TRANSFORM_ENABLED:-"true"}"
 repository_transform_host="${REPOSITORY_TRANSFORM_HOST:-}"
 repository_transform_port="${REPOSITORY_TRANSFORM_PORT:-}"
 
@@ -96,6 +105,7 @@ catCConf="tomcat/conf/Catalina/localhost/edu-sharing.xml"
 catWConf="tomcat/webapps/edu-sharing/WEB-INF/web.xml"
 
 eduCConf="tomcat/shared/classes/config/defaults/client.config.xml"
+eduCConfX="tomcat/shared/classes/config/defaults/client.config.override.xml"
 
 alfProps="tomcat/shared/classes/config/cluster/alfresco-global.properties"
 eduSConf="tomcat/shared/classes/config/cluster/edu-sharing.deployment.conf"
@@ -130,7 +140,11 @@ done
 
 ### config #############################################################################################################
 
-configs=(defaults plugins cluster node)
+[[ -f "${eduCConfX}" ]] && {
+  cp "${eduCConfX}" "${eduCConf}"
+}
+
+configs=(cluster node)
 
 for config in "${configs[@]}"; do
 	if [[ ! -f tomcat/shared/classes/config/$config/version.json ]]; then
@@ -168,6 +182,15 @@ xmlstarlet ed -L \
 	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/@hostConfigClass' \
 	-i '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]' -t attr -n 'hostConfigClass' -v 'org.edu_sharing.catalina.startup.OrderedHostConfig' \
 	${catSConf}
+
+xmlstarlet ed -L \
+	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/Valve[@className="org.apache.catalina.valves.ErrorReportValve"]' \
+  -s '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]' -t elem -n 'Valve' -v '' \
+  --var valve '$prev' \
+  -i '$valve' -t attr -n "className" -v "org.apache.catalina.valves.ErrorReportValve" \
+  -i '$valve' -t attr -n "showReport" -v "false" \
+  -i '$valve' -t attr -n "showServerInfo" -v "false" \
+  ${catSConf}
 
 xmlstarlet ed -L \
 	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/Valve[@className="org.apache.catalina.valves.AccessLogValve"]' \
@@ -323,8 +346,8 @@ grep -q '^[#]*\s*alfresco-pdf-renderer\.root=' "${alfProps}" || echo "alfresco-p
 sed -i -r 's|^[#]*\s*alfresco-pdf-renderer\.exe=.*|alfresco-pdf-renderer.exe=${alfresco-pdf-renderer.root}/alfresco-pdf-renderer|' "${alfProps}"
 grep -q '^[#]*\s*alfresco-pdf-renderer\.exe=' "${alfProps}" || echo 'alfresco-pdf-renderer.exe=${alfresco-pdf-renderer.root}/alfresco-pdf-renderer' >>"${alfProps}"
 
-sed -i -r 's|^[#]*\s*ooo\.enabled=.*|ooo.enabled=true|' "${alfProps}"
-grep -q '^[#]*\s*ooo\.enabled=' "${alfProps}" || echo "ooo.enabled=true" >>"${alfProps}"
+sed -i -r 's|^[#]*\s*ooo\.enabled=.*|ooo.enabled='"${repository_transform_enabled}"'|' "${alfProps}"
+grep -q '^[#]*\s*ooo\.enabled=' "${alfProps}" || echo "ooo.enabled=${repository_transform_enabled}" >>"${alfProps}"
 
 sed -i -r 's|^[#]*\s*ooo\.exe=.*|ooo.exe=|' "${alfProps}"
 grep -q '^[#]*\s*ooo\.exe=' "${alfProps}" || echo "ooo.exe=" >>"${alfProps}"
@@ -420,19 +443,30 @@ xmlstarlet ed -L \
 		${homeProp}
 
 	if [[ "${my_home_auth_external}" == "true" ]] ; then
-    xmlstarlet ed -L \
-      -s '/config/values' -t elem -n 'loginUrl' -v '' \
-      -d '/config/values/loginUrl[position() != 1]' \
-			-u '/config/values/loginUrl' -v "${my_home_auth_external_login}" \
-      -s '/config/values' -t elem -n 'logout' -v '' \
-      -d '/config/values/logout[position() != 1]' \
-      -s '/config/values/logout' -t elem -n 'url' -v '' \
-      -d '/config/values/logout/url[position() != 1]' \
-      -u '/config/values/logout/url' -v "${my_home_auth_external_logout}" \
-      -s '/config/values/logout' -t elem -n 'destroySession' -v '' \
-      -d '/config/values/logout/destroySession[position() != 1]' \
-      -u '/config/values/logout/destroySession' -v 'false' \
-      ${eduCConf}
+     xmlstarlet ed -L \
+          -s '/config/values' -t elem -n 'loginUrl' -v '' \
+          -d '/config/values/loginUrl[position() != 1]' \
+    			-u '/config/values/loginUrl' -v "${my_home_auth_external_login}" \
+          -s '/config/values' -t elem -n 'loginProvidersUrl' -v '' \
+          -d '/config/values/loginProvidersUrl[position() != 1]' \
+    			-u '/config/values/loginProvidersUrl' -v "${my_home_auth_external_login_providers_url}" \
+          -s '/config/values' -t elem -n 'loginProviderTargetUrl' -v '' \
+          -d '/config/values/loginProviderTargetUrl[position() != 1]' \
+    			-u '/config/values/loginProviderTargetUrl' -v "${my_home_auth_external_login_provider_target_url}" \
+          ${eduCConf}
+
+          if [[ -n "${my_home_auth_external_logout}" ]] ; then
+             xmlstarlet ed -L \
+                  -s '/config/values' -t elem -n 'logout' -v '' \
+                  -d '/config/values/logout[position() != 1]' \
+                  -s '/config/values/logout' -t elem -n 'url' -v '' \
+                  -d '/config/values/logout/url[position() != 1]' \
+                  -u '/config/values/logout/url' -v "${my_home_auth_external_logout}" \
+                  -s '/config/values/logout' -t elem -n 'destroySession' -v '' \
+                  -d '/config/values/logout/destroySession[position() != 1]' \
+                  -u '/config/values/logout/destroySession' -v 'false' \
+                  ${eduCConf}
+          fi
   else
 		sed -i -r 's|<!--\s*SAML||g' tomcat/webapps/edu-sharing/WEB-INF/web.xml
 		sed -i -r 's|SAML\s*-->||g'  tomcat/webapps/edu-sharing/WEB-INF/web.xml
@@ -485,11 +519,11 @@ xmlstarlet ed -L \
 	hocon -f ${eduSConf} set "repository.mail.register.receiver" '"'"${my_mail_register_receiver}"'"'
 }
 
-[[ $(hocon -f ${eduSConf} get "repository.mail.report.receiver" 2>/dev/null) ]] && {
-  hocon -f ${eduSConf} unset "repository.mail.report.receiver"
+[[ $(hocon -f ${eduSConf} get "repository.mail.report.receivers" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "repository.mail.report.receivers"
 }
 [[ -n "${my_mail_report_receiver}" ]] && {
-	hocon -f ${eduSConf} set "repository.mail.report.receiver" '"'"${my_mail_report_receiver}"'"'
+	hocon -f ${eduSConf} set "repository.mail.report.receivers" "[\"${my_mail_report_receiver//,/\",\"}\"]"
 }
 
 [[ $(hocon -f ${eduSConf} get "repository.mail.server.smtp.host" 2>/dev/null) ]] && {
@@ -636,6 +670,44 @@ xmlstarlet ed -L \
 	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.font-src" '"'"${my_http_server_csp_font}"'"'
 }
 
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.frame-ancestors" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.frame-ancestors"
+}
+[[ -n "${my_http_server_csp_frame}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.frame-ancestors" '"'"${my_http_server_csp_frame}"'"'
+}
+
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.media-src" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.media-src"
+}
+[[ -n "${my_http_server_csp_media}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.media-src" '"'"${my_http_server_csp_media}"'"'
+}
+
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.object-src" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.object-src"
+}
+[[ -n "${my_http_server_csp_object}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.object-src" '"'"${my_http_server_csp_object}"'"'
+}
+
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.style-src" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.style-src"
+}
+[[ -n "${my_http_server_csp_style}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.style-src" '"'"${my_http_server_csp_style}"'"'
+}
+
+[[ $(hocon -f ${eduSConf} get "jobs.primaryHostname" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "jobs.primaryHostname"
+}
+[[ -n "${my_jobs_primary_hostname}" ]] && {
+	hocon -f ${eduSConf} set "jobs.primaryHostname" '"'"${my_jobs_primary_hostname}"'"'
+}
+
+# clean up empty lines in config after hocon commands
+sed -i '/^[[:space:]]*$/d' ${eduSConf}
+
 xmlstarlet ed -L \
   -N x="http://java.sun.com/xml/ns/javaee" \
 	-u '/x:web-app/x:session-config/x:session-timeout' -v "${my_http_server_session_timeout}" \
@@ -652,11 +724,4 @@ done
 
 ########################################################################################################################
 
-# Load libraries
-. /opt/bitnami/scripts/libtomcat.sh
-. /opt/bitnami/scripts/liblog.sh
-
-# Load Tomcat environment variables
-. /opt/bitnami/scripts/tomcat-env.sh
-
-exec "$@"
+exec /opt/bitnami/scripts/tomcat/entrypoint.sh "$@"

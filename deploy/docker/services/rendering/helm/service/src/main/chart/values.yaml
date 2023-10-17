@@ -134,6 +134,15 @@ config:
     host: edusharing-rediscluster
     port: 6379
 
+  converter:
+    audio:
+      formats: "mp3"
+    video:
+      formats: "mp4,webm"
+      resolution:
+        all: "240,720,1080"
+        default: "720"
+
   database:
     driver: pgsql
     host: edusharing-rendering-postgresql
@@ -401,8 +410,6 @@ sidecar:
       runAsUser: 101
 
   proxyMetrics:
-
-    enabled: true
 
     relabelings: []
 
