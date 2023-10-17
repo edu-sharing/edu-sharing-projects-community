@@ -1,0 +1,76 @@
+{{- if .Capabilities.APIVersions.Has "batch/v1/CronJob" }}
+apiVersion: batch/v1
+{{- else }}
+apiVersion: batch/v1beta1
+{{- end }}
+kind: CronJob
+metadata:
+  name: {{ include "edusharing_postgresql.name" . }}-dump
+  labels: {{ include "edusharing_postgresql.labels.app" . | nindent 4 }}
+    app.kubernetes.io/component: dump
+spec:
+  concurrencyPolicy: Forbid
+  schedule: {{ .Values.job.dump.schedule | quote }}
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      completions: 1
+      parallelism: 1
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+            {{- with merge .Values.job.dump.podAnnotations .Values.global.annotations }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: {{ include "edusharing_postgresql.name" . }}-job-dump
+            image: {{ include "edusharing_postgresql.image" . }}{{ .Values.image.prefix }}-deploy-docker-build-postgresql:{{ .Values.image.tag }}
+            imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+            args:
+            - "/bin/bash"
+            - "-ec"
+            - |
+              pg_dump -U ${POSTGRESQL_USERNAME} -h {{ include "edusharing_postgresql.name" . }} --format custom --no-owner --no-privileges ${POSTGRESQL_DATABASE} > /bitnami/postgresql/dump-$(date +'%H%M').sql
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "edusharing_postgresql.name" . }}-env
+                  key: POSTGRESQL_PASSWORD
+            envFrom:
+            - configMapRef:
+                name: {{ include "edusharing_postgresql.name" . }}-env
+            - secretRef:
+                name: {{ include "edusharing_postgresql.name" . }}-env
+            volumeMounts:
+            - name: share-data
+              mountPath: /bitnami/postgresql
+            {{- with .Values.job.dump.resources }}
+            resources: {{ toYaml . | nindent 14 }}
+            {{- end }}
+            {{- with .Values.job.dump.securityContext }}
+            securityContext: {{ toYaml . | nindent 14 }}
+            {{- end }}
+          {{- with .Values.global.image.pullSecrets }}
+          imagePullSecrets: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with merge .Values.podSecurityContext .Values.global.security }}
+          securityContext: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations: {{ toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.terminationGracePeriod }}
+          terminationGracePeriodSeconds: {{ . }}
+          {{- end }}
+          {{- with .Values.nodeAffinity }}
+          affinity:
+            nodeAffinity: {{ toYaml . | nindent 14 }}
+          {{- end }}
+          volumes:
+          - name: share-data
+            persistentVolumeClaim:
+              claimName: {{ include "edusharing_postgresql.pvc.share.data" . }}
