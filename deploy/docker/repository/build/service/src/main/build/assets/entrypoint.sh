@@ -94,6 +94,7 @@ repository_database_jdbc="jdbc:${repository_database_prot}://${repository_databa
 repository_search_solr4_host="${REPOSITORY_SEARCH_SOLR4_HOST:-repository-search-solr4}"
 repository_search_solr4_port="${REPOSITORY_SEARCH_SOLR4_PORT:-8080}"
 
+repository_transform_enabled="${REPOSITORY_TRANSFORM_ENABLED:-"true"}"
 repository_transform_host="${REPOSITORY_TRANSFORM_HOST:-}"
 repository_transform_port="${REPOSITORY_TRANSFORM_PORT:-}"
 
@@ -343,8 +344,8 @@ grep -q '^[#]*\s*alfresco-pdf-renderer\.root=' "${alfProps}" || echo "alfresco-p
 sed -i -r 's|^[#]*\s*alfresco-pdf-renderer\.exe=.*|alfresco-pdf-renderer.exe=${alfresco-pdf-renderer.root}/alfresco-pdf-renderer|' "${alfProps}"
 grep -q '^[#]*\s*alfresco-pdf-renderer\.exe=' "${alfProps}" || echo 'alfresco-pdf-renderer.exe=${alfresco-pdf-renderer.root}/alfresco-pdf-renderer' >>"${alfProps}"
 
-sed -i -r 's|^[#]*\s*ooo\.enabled=.*|ooo.enabled=true|' "${alfProps}"
-grep -q '^[#]*\s*ooo\.enabled=' "${alfProps}" || echo "ooo.enabled=true" >>"${alfProps}"
+sed -i -r 's|^[#]*\s*ooo\.enabled=.*|ooo.enabled='"${repository_transform_enabled}"'|' "${alfProps}"
+grep -q '^[#]*\s*ooo\.enabled=' "${alfProps}" || echo "ooo.enabled=${repository_transform_enabled}" >>"${alfProps}"
 
 sed -i -r 's|^[#]*\s*ooo\.exe=.*|ooo.exe=|' "${alfProps}"
 grep -q '^[#]*\s*ooo\.exe=' "${alfProps}" || echo "ooo.exe=" >>"${alfProps}"
@@ -695,6 +696,9 @@ xmlstarlet ed -L \
 	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.style-src" '"'"${my_http_server_csp_style}"'"'
 }
 
+# clean up empty lines in config after hocon commands
+sed -i '/^[[:space:]]*$/d' ${eduSConf}
+
 xmlstarlet ed -L \
   -N x="http://java.sun.com/xml/ns/javaee" \
 	-u '/x:web-app/x:session-config/x:session-timeout' -v "${my_http_server_session_timeout}" \
@@ -711,11 +715,4 @@ done
 
 ########################################################################################################################
 
-# Load libraries
-. /opt/bitnami/scripts/libtomcat.sh
-. /opt/bitnami/scripts/liblog.sh
-
-# Load Tomcat environment variables
-. /opt/bitnami/scripts/tomcat-env.sh
-
-exec "$@"
+exec /opt/bitnami/scripts/tomcat/entrypoint.sh "$@"
