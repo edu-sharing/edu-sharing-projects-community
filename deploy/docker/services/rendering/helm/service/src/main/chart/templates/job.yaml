@@ -15,8 +15,8 @@ spec:
     metadata:
       annotations:
         sidecar.istio.io/inject: "false"
-        {{- if .Values.job.init.podAnnotations }}
-        {{- toYaml .Values.job.init.podAnnotations | nindent 8 }}
+        {{- with merge .Values.job.init.podAnnotations .Values.global.annotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       restartPolicy: OnFailure
