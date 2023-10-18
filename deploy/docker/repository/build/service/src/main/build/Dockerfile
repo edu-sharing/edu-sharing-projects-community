@@ -114,10 +114,7 @@ RUN set -eux \
     && mv alf_data/keystore .
 
 RUN set -eux \
-    && xmlstarlet ed -L \
-      -i '/Context' -t attr -n 'unloadDelay' -v "15000" \
-      -d '/Context/Loader' \
-      tomcat/conf/Catalina/localhost/alfresco.xml
+    && xmlstarlet ed -L -d '/Context/Loader' tomcat/conf/Catalina/localhost/alfresco.xml
 
 COPY --chown=worker:worker artifacts/alfresco-content-services-share-distribution-${org.alfresco:alfresco-content-services-share-distribution:zip.version}.zip \
     /tmp/alfresco-content-services-share-distribution.zip
@@ -138,10 +135,7 @@ RUN set -eux \
     && rm -f tomcat/webapps/share.war
 
 RUN set -eux \
-    && xmlstarlet ed -L \
-      -i '/Context' -t attr -n 'unloadDelay' -v "15000" \
-      -d '/Context/Loader' \
-      tomcat/conf/Catalina/localhost/share.xml
+    && xmlstarlet ed -L -d '/Context/Loader' tomcat/conf/Catalina/localhost/share.xml
 
 COPY --chown=worker:worker assets/share/log4j.properties tomcat/webapps/share/WEB-INF/classes/log4j.properties
 
@@ -166,7 +160,7 @@ RUN set -eux \
 
 COPY --chown=worker:worker amps amps/
 
-COPY --chown=worker:worker shared tomcat/shared/
+COPY --chown=worker:worker config tomcat/shared/assets/
 
 RUN set -eux \
     && chown -RL worker:worker alf_data \
@@ -198,14 +192,17 @@ COPY --chown=worker:worker assets/profiler profiler/
 
 USER worker
 
+STOPSIGNAL SIGWINCH
+
 EXPOSE 8009 8080 8081
 
 ENTRYPOINT ["entrypoint.sh"]
-CMD [ "/opt/bitnami/scripts/tomcat/run.sh" ]
+CMD ["catalina.sh", "run"]
 
 VOLUME [ "/opt/alfresco/alf_data", "/opt/bitnami/tomcat/shared/classes/config/cluster", "/opt/bitnami/tomcat/shared/classes/config/node" ]
 
 ########################################################################################################################
+
 
 LABEL git.branch=${git.branch}
 LABEL git.closest.tag.name=${git.closest.tag.fixed}

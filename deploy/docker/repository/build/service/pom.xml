@@ -69,21 +69,21 @@
               <includeArtifactIds>
                 edu_sharing-projects-community-repository-config-cluster
               </includeArtifactIds>
-              <outputDirectory>${project.build.directory}/build/shared/assets/cluster</outputDirectory>
+              <outputDirectory>${project.build.directory}/build/config/cluster</outputDirectory>
             </configuration>
           </execution>
 
           <execution>
             <id>config-defaults</id>
             <goals>
-              <goal>unpack-dependencies</goal>
+              <goal>copy-dependencies</goal>
             </goals>
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
                 edu_sharing-projects-community-repository-config-defaults
               </includeArtifactIds>
-              <outputDirectory>${project.build.directory}/build/shared/classes/config/defaults</outputDirectory>
+              <outputDirectory>${project.build.directory}/build/config/defaults</outputDirectory>
             </configuration>
           </execution>
 
@@ -97,7 +97,7 @@
               <includeArtifactIds>
                 edu_sharing-projects-community-repository-config-node
               </includeArtifactIds>
-              <outputDirectory>${project.build.directory}/build/shared/assets/node</outputDirectory>
+              <outputDirectory>${project.build.directory}/build/config/node</outputDirectory>
             </configuration>
           </execution>
 
@@ -170,7 +170,7 @@
           <execution>
             <id>plugin-config</id>
             <goals>
-              <goal>unpack-dependencies</goal>
+              <goal>copy-dependencies</goal>
             </goals>
             <phase>package</phase>
             <configuration>
@@ -182,7 +182,7 @@
                 edu_sharing-enterprise-repository-plugin-remote-config-defaults,
                 edu_sharing-enterprise-repository-plugin-transform-config-defaults
               </includeArtifactIds>
-              <outputDirectory>${project.build.directory}/build/shared/classes/config/plugins</outputDirectory>
+              <outputDirectory>${project.build.directory}/build/config/plugins</outputDirectory>
             </configuration>
           </execution>
 
