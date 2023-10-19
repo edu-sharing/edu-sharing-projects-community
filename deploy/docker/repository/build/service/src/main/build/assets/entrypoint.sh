@@ -28,6 +28,7 @@ my_home_auth_external="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL:-false}"
 my_home_auth_external_login="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN:-$my_path_external/shibboleth}"
 my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-/logout}"
 my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
+my_home_cookie_attr="${REPOSITORY_SERVICE_HOME_COOKIE_ATTRIBUTES:-}"
 
 my_host_internal="${REPOSITORY_SERVICE_HOST_INTERNAL:-repository-service}"
 my_port_internal="${REPOSITORY_SERVICE_PORT_INTERNAL:-8080}"
@@ -55,8 +56,12 @@ my_http_client_proxy_proxyuser="${REPOSITORY_SERVICE_HTTP_CLIENT_PROXY_PROXYUSER
 my_http_server_csp_connect="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_CONNECT:-}"
 my_http_server_csp_default="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_DEFAULT:-}"
 my_http_server_csp_font="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_FONT:-}"
+my_http_server_csp_frame="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_FRAME:-}"
 my_http_server_csp_img="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_IMG:-}"
+my_http_server_csp_media="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_MEDIA:-}"
+my_http_server_csp_object="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_OBJECT:-}"
 my_http_server_csp_script="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_SCRIPT:-}"
+my_http_server_csp_style="${REPOSITORY_SERVICE_HTTP_SERVER_CSP_STYLE:-}"
 
 my_http_server_session_timeout="${REPOSITORY_SERVICE_HTTP_SERVER_SESSION_TIMEOUT:-60}"
 
@@ -91,6 +96,7 @@ catCConf="tomcat/conf/Catalina/localhost/edu-sharing.xml"
 catWConf="tomcat/webapps/edu-sharing/WEB-INF/web.xml"
 
 eduCConf="tomcat/shared/classes/config/defaults/client.config.xml"
+eduCConfX="tomcat/shared/classes/config/defaults/client.config.override.xml"
 
 alfProps="tomcat/shared/classes/config/cluster/alfresco-global.properties"
 eduSConf="tomcat/shared/classes/config/cluster/edu-sharing.deployment.conf"
@@ -125,7 +131,11 @@ done
 
 ### config #############################################################################################################
 
-configs=(defaults plugins cluster node)
+[[ -f "${eduCConfX}" ]] && {
+  cp "${eduCConfX}" "${eduCConf}"
+}
+
+configs=(cluster node)
 
 for config in "${configs[@]}"; do
 	if [[ ! -f tomcat/shared/classes/config/$config/version.json ]]; then
@@ -163,6 +173,15 @@ xmlstarlet ed -L \
 	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/@hostConfigClass' \
 	-i '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]' -t attr -n 'hostConfigClass' -v 'org.edu_sharing.catalina.startup.OrderedHostConfig' \
 	${catSConf}
+
+xmlstarlet ed -L \
+	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/Valve[@className="org.apache.catalina.valves.ErrorReportValve"]' \
+  -s '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]' -t elem -n 'Valve' -v '' \
+  --var valve '$prev' \
+  -i '$valve' -t attr -n "className" -v "org.apache.catalina.valves.ErrorReportValve" \
+  -i '$valve' -t attr -n "showReport" -v "false" \
+  -i '$valve' -t attr -n "showServerInfo" -v "false" \
+  ${catSConf}
 
 xmlstarlet ed -L \
 	-d '/Server/Service[@name="Catalina"]/Engine[@name="Catalina"]/Host[@name="localhost"]/Valve[@className="org.apache.catalina.valves.AccessLogValve"]' \
@@ -366,6 +385,18 @@ xmlstarlet ed -L \
 	-u '/properties/entry[@key="port"]' -v "${my_port_internal}" \
 	-u '/properties/entry[@key="allow_origin"]' -v "${my_origin},http://localhost:54361" \
 	${homeProp}
+
+xmlstarlet ed -L \
+  -d '/properties/entry[@key="cookie_attributes"]' \
+  ${homeProp}
+
+[[ -n "${my_home_cookie_attr}" ]] && {
+	xmlstarlet ed -L \
+		-s '/properties' -t elem -n "entry" -v "${my_home_cookie_attr}" \
+		--var entry '$prev' \
+		-i '$entry' -t attr -n "key" -v "cookie_attributes" \
+		${homeProp}
+}
 
 xmlstarlet ed -L \
   -d '/properties/entry[@key="guest_username"]' \
@@ -619,6 +650,37 @@ xmlstarlet ed -L \
 	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.font-src" '"'"${my_http_server_csp_font}"'"'
 }
 
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.frame-ancestors" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.frame-ancestors"
+}
+[[ -n "${my_http_server_csp_frame}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.frame-ancestors" '"'"${my_http_server_csp_frame}"'"'
+}
+
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.media-src" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.media-src"
+}
+[[ -n "${my_http_server_csp_media}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.media-src" '"'"${my_http_server_csp_media}"'"'
+}
+
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.object-src" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.object-src"
+}
+[[ -n "${my_http_server_csp_object}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.object-src" '"'"${my_http_server_csp_object}"'"'
+}
+
+[[ $(hocon -f ${eduSConf} get "angular.headers.Content-Security-Policy.style-src" 2>/dev/null) ]] && {
+  hocon -f ${eduSConf} unset "angular.headers.Content-Security-Policy.style-src"
+}
+[[ -n "${my_http_server_csp_style}" ]] && {
+	hocon -f ${eduSConf} set "angular.headers.Content-Security-Policy.style-src" '"'"${my_http_server_csp_style}"'"'
+}
+
+# clean up empty lines in config after hocon commands
+sed -i '/^[[:space:]]*$/d' ${eduSConf}
+
 xmlstarlet ed -L \
   -N x="http://java.sun.com/xml/ns/javaee" \
 	-u '/x:web-app/x:session-config/x:session-timeout' -v "${my_http_server_session_timeout}" \
@@ -635,11 +697,4 @@ done
 
 ########################################################################################################################
 
-# Load libraries
-. /opt/bitnami/scripts/libtomcat.sh
-. /opt/bitnami/scripts/liblog.sh
-
-# Load Tomcat environment variables
-. /opt/bitnami/scripts/tomcat-env.sh
-
-exec "$@"
+exec /opt/bitnami/scripts/tomcat/entrypoint.sh "$@"

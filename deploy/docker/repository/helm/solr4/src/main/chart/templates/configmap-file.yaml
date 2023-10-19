@@ -5,10 +5,8 @@ metadata:
   labels: {{ include "edusharing_repository_search_solr4.labels.app" . | nindent 4 }}
 data:
 {{- with .Values.config.override.logging.application }}
-  logging-application: |
-    {{ . | nindent 4 }}
+  logging-application: | {{ . | nindent 4 }}
 {{- end }}
 {{- with .Values.config.override.logging.server }}
-  logging-server: |
-    {{ . | nindent 4 }}
+  logging-server: | {{ . | nindent 4 }}
 {{- end }}
