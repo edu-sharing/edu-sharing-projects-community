@@ -4,8 +4,6 @@
 
 global:
 
-  annotations: {}
-
   cluster:
 
     cert:
@@ -80,9 +78,7 @@ service:
     api:
       internal: 8080
       external: 8081
-    metrics:
-      api: 9117
-      proxy: 9118
+    metrics: 9117
 
 ########################################################################################################################
 
@@ -92,7 +88,7 @@ ingress:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/affinity: cookie
     nginx.ingress.kubernetes.io/proxy-body-size: "5g"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
 
@@ -106,23 +102,6 @@ ingress:
 
   paths:
   - /esrender
-
-########################################################################################################################
-
-proxy:
-
-  enabled: false
-  config:
-    backend:
-      connectTimeout: 60
-      firstByteTimeout: 180
-      betweenBytesTimeout: 180
-      maxConnections: 200
-    cache:
-      control: public
-      ttl: 3600
-    deliver:
-      gzip: false
 
 ########################################################################################################################
 
@@ -217,6 +196,7 @@ podAnnotations: {}
 
 podSecurityContext:
 
+  runAsUser: 1000
   fsGroup: 1000
   fsGroupChangePolicy: OnRootMismatch
 
@@ -226,7 +206,6 @@ securityContext:
   capabilities:
     drop:
       - ALL
-  runAsUser: 1000
 
 ########################################################################################################################
 
@@ -308,7 +287,6 @@ job:
       capabilities:
         drop:
           - ALL
-      runAsUser: 1000
 
   cachecleaner:
 
@@ -331,7 +309,6 @@ job:
       capabilities:
         drop:
           - ALL
-      runAsUser: 1000
 
 ########################################################################################################################
 
@@ -341,8 +318,6 @@ sidecar:
 
     enabled: true
 
-    relabelings: []
-
     resources:
       limits:
         cpu: 125m
@@ -356,69 +331,5 @@ sidecar:
       capabilities:
         drop:
           - ALL
-      runAsUser: 1000
-
-  proxyCache:
-
-    startupProbe:
-
-      failureThreshold: 30
-      initialDelaySeconds: 0
-      periodSeconds: 20
-      successThreshold: 1
-      timeoutSeconds: 10
-
-    livenessProbe:
-
-      failureThreshold: 3
-      initialDelaySeconds: 30
-      periodSeconds: 30
-      timeoutSeconds: 10
-
-    readinessProbe:
-
-      failureThreshold: 1
-      initialDelaySeconds: 10
-      periodSeconds: 10
-      successThreshold: 1
-      timeoutSeconds: 10
-
-    resources:
-
-      limits:
-        cpu: 500m
-        memory: 2Gi
-      requests:
-        cpu: 500m
-        memory: 2Gi
-
-    securityContext:
-
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop:
-          - ALL
-      runAsUser: 101
-
-  proxyMetrics:
-
-    relabelings: []
-
-    resources:
-
-      limits:
-        cpu: 250m
-        memory: 1Gi
-      requests:
-        cpu: 250m
-        memory: 1Gi
-
-    securityContext:
-
-      allowPrivilegeEscalation: false
-      capabilities:
-        drop:
-          - ALL
-      runAsUser: 101
 
 ########################################################################################################################
