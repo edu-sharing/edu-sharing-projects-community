@@ -327,7 +327,6 @@ getComposeFilesFromRemote() {
   	-Dtransitive=false
 
   mvn -q -llr dependency:copy \
-     	-Dmdep.useBaseVersion=true \
      	-Dartifact="org.edu_sharing:${artifactId}:${version}:tar.gz:bin" \
     	-DoutputDirectory=./target/compose
 

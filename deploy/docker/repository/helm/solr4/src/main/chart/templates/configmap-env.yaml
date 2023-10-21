@@ -16,15 +16,10 @@ data:
     -Dcom.sun.management.jmxremote.authenticate=false
     -Dcom.sun.management.jmxremote.port=7199
     -Dcom.sun.management.jmxremote.ssl=false
-    {{- if .Values.config.metrics.enabled }}
+    {{- if .Values.config.metrics }}
     -javaagent:/opt/alfresco/tomcat/agent/jmx_prometheus_javaagent.jar=9090:/opt/alfresco/tomcat/agent/jmx-exporter-config.yaml
     {{- end }}
-    {{- if default .Values.global.debug .Values.debug }}
-    -agentlib:jdwp=transport=dt_socket,address=0.0.0.0:5005,server=y,suspend=n
-    {{- end }}
-  {{- with .Values.config.override.application.common }}
-  REPOSITORY_SEARCH_SOLR4_CONFIG: | {{ . | nindent 4 }}
-  {{- end }}
+  JPDA_ADDRESS: "0.0.0.0:5005"
   REPOSITORY_SEARCH_SOLR4_HOST: {{ include "edusharing_repository_search_solr4.name" . | quote }}
   REPOSITORY_SEARCH_SOLR4_PORT: {{ .Values.service.port.api | quote }}
   REPOSITORY_SERVICE_HOST: {{ .Values.config.repository.host | quote }}
