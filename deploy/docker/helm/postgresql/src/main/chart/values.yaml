@@ -4,6 +4,8 @@
 
 global:
 
+  annotations: {}
+
   cluster:
 
     istio:
@@ -13,8 +15,10 @@ global:
       enabled: false
 
     storage:
-
       data:
+        permission: false
+        spec: {}
+      share:
         permission: false
         spec: {}
 
@@ -94,6 +98,14 @@ persistence:
       resources:
         requests:
           storage: 5Gi
+  share:
+    data:
+      create: true
+      spec:
+        accessModes: [ "ReadWriteMany" ]
+        resources:
+          requests:
+            storage: 5Gi
 
 ########################################################################################################################
 
@@ -101,7 +113,6 @@ podAnnotations: {}
 
 podSecurityContext:
 
-  runAsUser: 1001
   fsGroup: 1001
   fsGroupChangePolicy: OnRootMismatch
 
@@ -111,6 +122,7 @@ securityContext:
   capabilities:
     drop:
     - ALL
+  runAsUser: 1001
 
 ########################################################################################################################
 
@@ -166,7 +178,35 @@ init:
         memory: 512Mi
 
     securityContext:
+
       runAsUser: 0
+
+########################################################################################################################
+
+job:
+
+  dump:
+
+    podAnnotations: {}
+
+    resources:
+
+      limits:
+        cpu: 500m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+
+    schedule: "0 * * * *"
+
+    securityContext:
+
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      runAsUser: 1001
 
 ########################################################################################################################
 
@@ -175,6 +215,8 @@ sidecar:
   metrics:
 
     enabled: true
+
+    relabelings: []
 
     resources:
 
@@ -191,5 +233,6 @@ sidecar:
       capabilities:
         drop:
           - ALL
+      runAsUser: 1001
 
 ########################################################################################################################
