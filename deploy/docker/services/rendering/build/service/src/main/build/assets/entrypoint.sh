@@ -4,7 +4,8 @@ set -eu
 
 ########################################################################################################################
 
-$(chmod g+w "$RS_CACHE/config" "$RS_CACHE/data") || echo "set group permission for shared volumes skipped."
+$(chmod -R g+w "$RS_CACHE/config") || echo "set group permission for $RS_CACHE/config."
+$(chmod    g+w "$RS_CACHE/data"  ) || echo "set group permission for $RS_CACHE/data."
 
 ########################################################################################################################
 
