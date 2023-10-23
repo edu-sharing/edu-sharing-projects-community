@@ -1,5 +1,6 @@
-{{- if and .Values.global.metrics.servicemonitor.enabled .Values.sidecar.metrics.enabled }}
 {{- if .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" }}
+{{- if .Values.global.metrics.servicemonitor.enabled }}
+{{- if .Values.sidecar.metrics.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -12,11 +13,15 @@ spec:
     port: http-metrics
     interval: {{ .Values.global.metrics.scrape.interval }}
     scrapeTimeout: {{ .Values.global.metrics.scrape.timeout }}
+    {{- with .Values.sidecar.metrics.relabelings }}
+    metricRelabelings: {{ toYaml . | nindent 6 }}
+    {{- end }}
   selector:
     matchLabels: {{ include "edusharing_rediscluster.labels.app" . | nindent 6 }}
       app.kubernetes.io/component: "metrics"
   namespaceSelector:
     matchNames:
     - {{ .Release.Namespace }}
+{{- end }}
 {{- end }}
 {{- end }}
