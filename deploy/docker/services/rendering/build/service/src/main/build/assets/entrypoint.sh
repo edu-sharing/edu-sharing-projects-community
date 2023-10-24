@@ -4,7 +4,8 @@ set -eu
 
 ########################################################################################################################
 
-$(chmod -R g+w "$RS_CACHE/config" "$RS_CACHE/data") || echo "set group permission for shared volumes skipped."
+$(chmod -R g+w "$RS_CACHE/config") || echo "set group permission for $RS_CACHE/config."
+$(chmod    g+w "$RS_CACHE/data"  ) || echo "set group permission for $RS_CACHE/data."
 
 ########################################################################################################################
 
@@ -111,6 +112,10 @@ sed -i 's|^Listen \([0-9]+\)|Listen '"${my_bind}"':\1|g' /etc/apache2/ports.conf
 
 sed -i 's|^\(\s*\)[#]*ServerName.*|\1ServerName '"${my_host_external}"'|' /etc/apache2/sites-available/external.conf
 sed -i 's|^\(\s*\)[#]*ServerName.*|\1ServerName '"${my_host_internal}"'|' /etc/apache2/sites-available/internal.conf
+
+sed -i 's|^expose_php.*|expose_php = Off|' "${PHP_INI_DIR}/php.ini"
+
+########################################################################################################################
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
 

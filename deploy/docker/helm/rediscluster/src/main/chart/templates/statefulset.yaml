@@ -22,8 +22,8 @@ spec:
         prometheus.io/scrape: {{ .Values.sidecar.metrics.enabled | quote }}
         {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- with merge .Values.podAnnotations .Values.global.annotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       initContainers:
@@ -36,7 +36,7 @@ spec:
         - "-ec"
         - |
           if [[ ! "$(ls -A /bitnami/redis)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /bitnami/redis
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /bitnami/redis
           fi
         volumeMounts:
         - name: data
