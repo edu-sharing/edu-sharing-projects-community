@@ -19,7 +19,9 @@ data:
     {{- if .Values.config.metrics.enabled }}
     -javaagent:/opt/alfresco/tomcat/agent/jmx_prometheus_javaagent.jar=9090:/opt/alfresco/tomcat/agent/jmx-exporter-config.yaml
     {{- end }}
-  JPDA_ADDRESS: "0.0.0.0:5005"
+    {{- if default .Values.global.debug .Values.debug }}
+    -agentlib:jdwp=transport=dt_socket,address=0.0.0.0:5005,server=y,suspend=n
+    {{- end }}
   {{- with .Values.config.override.application.common }}
   REPOSITORY_SEARCH_SOLR4_CONFIG: | {{ . | nindent 4 }}
   {{- end }}
