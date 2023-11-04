@@ -122,7 +122,7 @@ USER worker
 EXPOSE 8080
 
 ENTRYPOINT ["entrypoint.sh"]
-CMD [ "/opt/bitnami/scripts/tomcat/run.sh" ]
+CMD ["catalina.sh", "run"]
 
 VOLUME [ "/opt/alfresco/alf_data" ]
 
