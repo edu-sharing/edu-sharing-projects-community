@@ -18,7 +18,7 @@ RUN set -eux \
     && rm -r /var/lib/apt/lists/*
 
 RUN set -eux \
-    && echo "deb http://deb.debian.org/debian stretch main" >> /etc/apt/sources.list \
+    && echo "deb http://deb.debian.org/debian sid main" >> /etc/apt/sources.list \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends \
         openjdk-8-dbg \
@@ -122,7 +122,7 @@ USER worker
 EXPOSE 8080
 
 ENTRYPOINT ["entrypoint.sh"]
-CMD ["catalina.sh", "run"]
+CMD [ "/opt/bitnami/scripts/tomcat/run.sh" ]
 
 VOLUME [ "/opt/alfresco/alf_data" ]
 

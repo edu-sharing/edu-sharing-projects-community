@@ -299,7 +299,7 @@ logs() {
 
 	$COMPOSE_EXEC \
 		$COMPOSE_LIST \
-		logs -f || exit
+		logs -f $@  || exit
 }
 
 ps() {
@@ -327,6 +327,7 @@ getComposeFilesFromRemote() {
   	-Dtransitive=false
 
   mvn -q -llr dependency:copy \
+     	-Dmdep.useBaseVersion=true \
      	-Dartifact="org.edu_sharing:${artifactId}:${version}:tar.gz:bin" \
     	-DoutputDirectory=./target/compose
 
@@ -425,7 +426,7 @@ ldev() {
 }
 
 stop() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -438,9 +439,13 @@ remove() {
 	read -p "Are you sure you want to continue? [y/N] " answer
 	case ${answer:0:1} in
 	y | Y)
-		COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug)"
+		COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
 
 		echo "Use compose set: $COMPOSE_LIST"
+
+		$COMPOSE_EXEC \
+			$COMPOSE_LIST \
+			kill || exit
 
 		$COMPOSE_EXEC \
 			$COMPOSE_LIST \

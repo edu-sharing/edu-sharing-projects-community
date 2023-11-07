@@ -27,11 +27,11 @@ spec:
         {{- if not .Values.global.metrics.servicemonitor.enabled }}
         prometheus.io/path: "/metrics"
         prometheus.io/port: "9090"
-        prometheus.io/scrape: {{ .Values.config.metrics | quote }}
+        prometheus.io/scrape: {{ .Values.config.metrics.enabled | quote }}
         {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- with merge .Values.podAnnotations .Values.global.annotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       initContainers:
@@ -44,13 +44,13 @@ spec:
         - "-ec"
         - |
           if [[ ! "$(ls -A /opt/bitnami/tomcat/shared/classes/config/cluster)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/bitnami/tomcat/shared/classes/config/cluster
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/bitnami/tomcat/shared/classes/config/cluster
           fi
           if [[ ! "$(ls -A /opt/bitnami/tomcat/shared/classes/config/node)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/bitnami/tomcat/shared/classes/config/node
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/bitnami/tomcat/shared/classes/config/node
           fi
           if [[ ! "$(ls -A /opt/alfresco/alf_data)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
           fi
         volumeMounts:
         - name: data
@@ -70,18 +70,17 @@ spec:
       - name: {{ include "edusharing_repository_service.name" . }}-server
         image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-repository-build-service:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
-        {{- if default .Values.global.debug .Values.debug }}
-        args: [ "catalina.sh", "jpda", "run" ]
-        {{- end }}
-        {{- $patroni := merge .Values.config.database.patroni .Values.global.patroni }}
-        {{- if $patroni.enabled }}
         env:
+          - name: REPOSITORY_SERVICE_JOBS_PRIMARY_HOSTNAME
+            value: {{ include "edusharing_repository_service.name" . }}-0
+          {{- $patroni := merge .Values.config.database.patroni .Values.global.patroni }}
+          {{- if $patroni.enabled }}
           - name: REPOSITORY_DATABASE_PASS
             valueFrom:
               secretKeyRef:
                 name: {{ .Values.config.database.username }}.{{ $patroni.name }}.{{ $patroni.secrets }}
                 key: password
-        {{- end }}
+          {{- end }}
         envFrom:
         - configMapRef:
             name: {{ include "edusharing_repository_service.name" . }}-env
@@ -94,8 +93,8 @@ spec:
           containerPort: 8081
         - name: gossip
           containerPort: 5701
-        {{- if .Values.config.metrics }}
-        - name: metrics
+        {{- if .Values.config.metrics.enabled }}
+        - name: metrics-api
           containerPort: 9090
         {{- end }}
         {{- if default .Values.global.debug .Values.debug }}
@@ -111,17 +110,17 @@ spec:
           mountPath: /opt/alfresco/alf_data
         {{- with .Values.config.override.config.application.client }}
         - name: file
-          mountPath: /opt/bitnami/tomcat/shared/classes/config/defaults/client.config.xml
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/defaults/client.config.override.xml
           subPath: config-application-client
         {{- end }}
-        {{- with .Values.config.override.config.application.server }}
+        {{- with .Values.config.override.config.application.mds }}
         - name: file
-          mountPath: /opt/bitnami/tomcat/shared/classes/config/cluster/edu-sharing.override.conf
-          subPath: config-application-server
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/default/metadatasets/xml/mds_override.xml
+          subPath: config-application-mds
         {{- end }}
         {{- with .Values.config.override.logging.application }}
         - name: file
-          mountPath: /opt/bitnami/tomcat/webapps/alfresco/WEB-INF/classes/log4j2.xml
+          mountPath: /opt/bitnami/tomcat/webapps/alfresco/WEB-INF/log4j2-alfresco.xml
           subPath: logging-application
         {{- end }}
         {{- with .Values.config.override.logging.server }}
@@ -242,10 +241,92 @@ spec:
         securityContext: {{ toYaml . | nindent 10 }}
         {{- end }}
       {{- end }}
+      {{ if .Values.proxy.enabled }}
+      - name: {{ include "edusharing_repository_service.name" . }}-proxy
+        image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-build-varnish:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        args:
+          - '-F'
+          - '-f'
+          - /etc/varnish/default.vcl
+          - '-T'
+          - 127.0.0.1:6082
+          - '-a'
+          - 0.0.0.0:6081
+        ports:
+        - name: api-proxy
+          containerPort: 6081
+        volumeMounts:
+        - name: file
+          mountPath: /etc/varnish/default.vcl
+          subPath: proxy-config
+        - name: temp-proxy
+          mountPath: /var/lib/varnish
+        {{- with .Values.sidecar.proxyCache.startupProbe }}
+        startupProbe:
+          httpGet:
+            path: /health/ready
+            port: api-proxy
+          failureThreshold: {{ .failureThreshold }}
+          initialDelaySeconds: {{ .initialDelaySeconds }}
+          periodSeconds: {{ .periodSeconds }}
+          successThreshold: {{ .successThreshold }}
+          timeoutSeconds: {{ .timeoutSeconds }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.livenessProbe }}
+        livenessProbe:
+          exec:
+            command:
+              - /usr/bin/varnishadm
+              - ping
+          failureThreshold: {{ .failureThreshold }}
+          initialDelaySeconds: {{ .initialDelaySeconds }}
+          periodSeconds: {{ .periodSeconds }}
+          successThreshold: 1
+          timeoutSeconds: {{ .timeoutSeconds }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.readinessProbe }}
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: api-proxy
+          failureThreshold: {{ .failureThreshold }}
+          initialDelaySeconds: {{ .initialDelaySeconds }}
+          periodSeconds: {{ .periodSeconds }}
+          successThreshold: {{ .successThreshold }}
+          timeoutSeconds: {{ .timeoutSeconds }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.resources }}
+        resources: {{ toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyCache.securityContext }}
+        securityContext: {{ toYaml . | nindent 10 }}
+        {{- end }}
+      {{- if .Values.config.metrics.enabled }}
+      - name: {{ include "edusharing_repository_service.name" . }}-proxy-metrics
+        image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-build-varnish_exporter:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.global.image.pullPolicy }}
+        ports:
+        - name: metrics-proxy
+          containerPort: 9131
+        volumeMounts:
+          - name: file
+            mountPath: /etc/varnish/default.vcl
+            subPath: proxy-config
+          - name: temp-proxy
+            mountPath: /var/lib/varnish
+        {{- with .Values.sidecar.proxyMetrics.resources }}
+        resources: {{ toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.sidecar.proxyMetrics.securityContext }}
+        securityContext: {{ toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
       {{- with .Values.global.image.pullSecrets }}
       imagePullSecrets: {{ toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.podSecurityContext }}
+      {{- with merge .Values.podSecurityContext .Values.global.security }}
       securityContext: {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
@@ -297,6 +378,10 @@ spec:
         configMap:
           name: {{ include "edusharing_repository_service.name" $ }}-saml-files
       {{- end }}
+      {{- end }}
+      {{- if .Values.proxy.enabled }}
+      - name: temp-proxy
+        emptyDir: { }
       {{- end }}
   volumeClaimTemplates:
   - metadata:

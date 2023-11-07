@@ -23,8 +23,8 @@ spec:
         prometheus.io/scrape: {{ .Values.sidecar.metrics.enabled | quote }}
         {{- end }}
         sidecar.istio.io/inject: {{ .Values.global.cluster.istio.enabled | quote }}
-        {{- if .Values.podAnnotations }}
-        {{- toYaml .Values.podAnnotations | nindent 8 }}
+        {{- with merge .Values.podAnnotations .Values.global.annotations }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       initContainers:
@@ -37,7 +37,7 @@ spec:
         - "-ec"
         - |
           if [[ ! "$(ls -A /bitnami/postgresql)" ]]; then
-            chown -R {{ .Values.podSecurityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /bitnami/postgresql
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /bitnami/postgresql
           fi
         volumeMounts:
         - name: data
@@ -67,6 +67,10 @@ spec:
         - name: file
           mountPath: /bitnami/postgresql/conf/conf.d/extended.conf
           subPath: extended.conf
+        {{- if .Values.config.shmVolume.enabled }}
+        - name: dshm
+          mountPath: /dev/shm
+        {{- end }}
         {{- with .Values.startupProbe }}
         startupProbe:
           exec:
@@ -122,9 +126,9 @@ spec:
         - --disable-settings-metrics
         - --web.listen-address=:9114
         - --web.telemetry-path=/metrics
-        env:
-        - name: DATA_SOURCE_NAME
-          value: postgresql://{{ .Values.config.username }}:{{ .Values.config.password }}@127.0.0.1:5432/{{ .Values.config.database }}?sslmode=disable
+        envFrom:
+        - secretRef:
+            name: {{ include "edusharing_postgresql.name" . }}-env
         ports:
         - name: metrics
           containerPort: 9114
@@ -138,7 +142,7 @@ spec:
       {{- with .Values.global.image.pullSecrets }}
       imagePullSecrets: {{ toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.podSecurityContext }}
+      {{- with merge .Values.podSecurityContext .Values.global.security }}
       securityContext: {{ toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
@@ -155,6 +159,14 @@ spec:
       - name: file
         configMap:
           name: {{ include "edusharing_postgresql.name" . }}-file
+      {{- if .Values.config.shmVolume.enabled }}
+      - name: dshm
+        emptyDir:
+          medium: Memory
+          {{- with .Values.config.shmVolume.sizeLimit }}
+          sizeLimit: {{ . }}
+          {{- end }}
+      {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: data

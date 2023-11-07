@@ -4,6 +4,8 @@
 
 global:
 
+  annotations: {}
+
   cluster:
 
     istio:
@@ -33,6 +35,8 @@ global:
     servicemonitor:
       enabled: false
 
+  security: {}
+
 ########################################################################################################################
 # LOCAL
 ########################################################################################################################
@@ -46,12 +50,6 @@ image:
 ########################################################################################################################
 
 replicaCount: 1
-
-autoscaling:
-  enabled: false
-  minReplicas: 2
-  maxReplicas: 3
-  targetCPU: 80
 
 ########################################################################################################################
 
@@ -70,9 +68,13 @@ config:
       minPercentage: "75.0"
       maxPercentage: "75.0"
 
-  metrics: true
+  metrics:
+    enabled: true
+    relabelings: []
 
   override:
+    application:
+      common: ""
     logging:
       application: ""
       server: ""
@@ -80,6 +82,25 @@ config:
   repository:
     host: edusharing-repository-service
     port: 8080
+
+########################################################################################################################
+
+multistage:
+
+  enabled: false
+
+  current: ""
+
+  stages: []
+#    - name: blue
+#      spec:
+#        config:
+#          override:
+#            application:
+#              common: ""
+#    - name: green
+#      config: 
+#        common: ""
 
 ########################################################################################################################
 
@@ -110,7 +131,6 @@ podAnnotations: {}
 
 podSecurityContext:
 
-  runAsUser: 1000
   fsGroup: 1000
   fsGroupChangePolicy: OnRootMismatch
 
@@ -120,6 +140,7 @@ securityContext:
   capabilities:
     drop:
     - ALL
+  runAsUser: 1000
 
 ########################################################################################################################
 

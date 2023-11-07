@@ -26,7 +26,7 @@ RUN set -eux \
     && rm -r /var/lib/apt/lists/*
 
 RUN set -eux \
-    && echo "deb http://deb.debian.org/debian stretch main" >> /etc/apt/sources.list \
+    && echo "deb http://deb.debian.org/debian sid main" >> /etc/apt/sources.list \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends \
         openjdk-8-dbg \
@@ -116,7 +116,10 @@ RUN set -eux \
     && mv alf_data/keystore .
 
 RUN set -eux \
-    && xmlstarlet ed -L -d '/Context/Loader' tomcat/conf/Catalina/localhost/alfresco.xml
+    && xmlstarlet ed -L \
+      -i '/Context' -t attr -n 'unloadDelay' -v "15000" \
+      -d '/Context/Loader' \
+      tomcat/conf/Catalina/localhost/alfresco.xml
 
 COPY --chown=worker:worker artifacts/alfresco-content-services-share-distribution-${org.alfresco:alfresco-content-services-share-distribution:zip.version}.zip \
     /tmp/alfresco-content-services-share-distribution.zip
@@ -137,7 +140,10 @@ RUN set -eux \
     && rm -f tomcat/webapps/share.war
 
 RUN set -eux \
-    && xmlstarlet ed -L -d '/Context/Loader' tomcat/conf/Catalina/localhost/share.xml
+    && xmlstarlet ed -L \
+      -i '/Context' -t attr -n 'unloadDelay' -v "15000" \
+      -d '/Context/Loader' \
+      tomcat/conf/Catalina/localhost/share.xml
 
 COPY --chown=worker:worker assets/share/log4j.properties tomcat/webapps/share/WEB-INF/classes/log4j.properties
 
@@ -162,7 +168,7 @@ RUN set -eux \
 
 COPY --chown=worker:worker amps amps/
 
-COPY --chown=worker:worker config tomcat/shared/assets/
+COPY --chown=worker:worker shared tomcat/shared/
 
 RUN set -eux \
     && chown -RL worker:worker alf_data \
@@ -194,17 +200,14 @@ COPY --chown=worker:worker assets/profiler profiler/
 
 USER worker
 
-STOPSIGNAL SIGWINCH
-
 EXPOSE 8009 8080 8081
 
 ENTRYPOINT ["entrypoint.sh"]
-CMD ["catalina.sh", "run"]
+CMD [ "/opt/bitnami/scripts/tomcat/run.sh" ]
 
 VOLUME [ "/opt/alfresco/alf_data", "/opt/bitnami/tomcat/shared/classes/config/cluster", "/opt/bitnami/tomcat/shared/classes/config/node" ]
 
 ########################################################################################################################
-
 
 LABEL git.branch=${git.branch}
 LABEL git.closest.tag.name=${git.closest.tag.fixed}

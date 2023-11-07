@@ -53,7 +53,22 @@ rendering_database_user="${SERVICES_RENDERING_DATABASE_USER:-rendering}"
 repository_service_host="${REPOSITORY_SERVICE_HOST:-repository-service}"
 repository_service_port="${REPOSITORY_SERVICE_PORT:-8080}"
 
+rendering_rendermoodle_url="${SERVICES_RENDERING_RENDERMOODLE_URL:-}"
+rendering_rendermoodle_token="${SERVICES_RENDERING_RENDERMOODLE_TOKEN:-}"
+rendering_rendermoodle_category_id="${SERVICES_RENDERING_RENDERMOODLE_CATEGORY_ID:-1}"
+rendering_rendermoodle_timeout="${SERVICES_RENDERING_RENDERMOODLE_TIMEOUT:-90}"
+
 repository_service_base="http://${repository_service_host}:${repository_service_port}/edu-sharing"
+
+rendering_audio_formats="${SERVICES_RENDERING_AUDIO_FORMATS:-"mp3"}"
+rendering_video_formats="${SERVICES_RENDERING_VIDEO_FORMATS:-"mp4,webm"}"
+rendering_video_resolutions="${SERVICES_RENDERING_VIDEO_RESOLUTIONS:-"240,720,1080"}"
+rendering_video_default_resolution="${SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION:-"720"}"
+rendering_video_timeout="${SERVICES_RENDERING_VIDEO_TIMEOUT:-"3600"}"
+rendering_video_threads="${SERVICES_RENDERING_VIDEO_THREADS:-"1"}"
+
+
+
 
 ### Wait ###############################################################################################################
 
@@ -107,6 +122,10 @@ sed -i 's|^Listen \([0-9]+\)|Listen '"${my_bind}"':\1|g' /etc/apache2/ports.conf
 
 sed -i 's|^\(\s*\)[#]*ServerName.*|\1ServerName '"${my_host_external}"'|' /etc/apache2/sites-available/external.conf
 sed -i 's|^\(\s*\)[#]*ServerName.*|\1ServerName '"${my_host_internal}"'|' /etc/apache2/sites-available/internal.conf
+
+sed -i 's|^expose_php.*|expose_php = Off|' "${PHP_INI_DIR}/php.ini"
+
+########################################################################################################################
 
 [[ -n "${cache_host}" && -n "${cache_port}" ]] && {
 
@@ -171,7 +190,7 @@ if [[ ! -f "${RS_CACHE}/config/version.json" ]]; then
 
 	find -L . -type d -exec mkdir -p "${RS_CACHE}/config/{}" \;
 	find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
-	find "${RS_CACHE}/config" -type d -empty -delete
+	find "${RS_CACHE}/config" -type d -empty -delete || true
 
 	cp "${RS_ROOT}/version.json" "${RS_CACHE}/config/version.json"
   cp "${RS_CACHE}/config/version.json" "${RS_CACHE}/config/version.json.$(date +%d-%m-%Y_%H-%M-%S )"
@@ -199,6 +218,38 @@ fi
 
 ########################################################################################################################
 
+# rendermoodle config
+moodleConfFile="${RS_ROOT}/modules/moodle/config.php"
+scormConfFile="${RS_ROOT}/modules/scorm/config.php"
+rm -f "${moodleConfFile}"
+rm -f "${scormConfFile}"
+if [[ -n "${rendering_rendermoodle_url}" ]]; then
+  cp "${RS_ROOT}/modules/moodle/config.php.dist" "${moodleConfFile}"
+  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${moodleConfFile}"
+  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${moodleConfFile}"
+  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${moodleConfFile}"
+
+  sed -i "s|define('MOODLE_TIMEOUT', .*|define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});|" "${moodleConfFile}"
+  grep -q "define('MOODLE_TIMEOUT'" "${moodleConfFile}" || echo "define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});" >> "${moodleConfFile}"
+
+
+
+  cp "${RS_ROOT}/modules/scorm/config.php.dist" "${scormConfFile}"
+  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${scormConfFile}"
+  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${scormConfFile}"
+  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${scormConfFile}"
+
+  sed -i "s|define('MOODLE_TIMEOUT', .*|define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});|" "${scormConfFile}"
+  grep -q "define('MOODLE_TIMEOUT'" "${scormConfFile}" || echo "define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});" >> "${scormConfFile}"
+
+
+  echo "configured rendering moodle at url ${rendering_rendermoodle_url}"
+else
+  echo "disabled rendering moodle"
+fi
+
+########################################################################################################################
+
 before="$(mktemp)"
 
 yes | php admin/cli/update.php
@@ -207,7 +258,7 @@ echo "config saving."
 
 find -L . -type d -exec mkdir -p "${RS_CACHE}/config/{}" \;
 find -L . -type f -newer "${before}" -exec cp {} "${RS_CACHE}/config/{}" \;
-find "${RS_CACHE}/config" -type d -empty -delete
+find "${RS_CACHE}/config" -type d -empty -delete || true
 
 echo "config saved."
 
@@ -223,8 +274,9 @@ sed -i -r 's|\$MC_URL = ['"'"'"].*|\$MC_URL = "'"${my_base_external}"'";|' "${sy
 sed -i -r 's|\$MC_DOCROOT.*|\$MC_DOCROOT = "'"${RS_ROOT}"'";|' "${systemConf}"
 sed -i -r 's|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = "'"${RS_CACHE}/data"'";|' "${systemConf}"
 
-sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules//,/\",\"}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
-grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [\"${my_gdpr_modules//,/\",\"}\"], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
+[[ -n $my_gdpr_modules ]] && my_gdpr_modules="'${my_gdpr_modules//,/','}'"
+sed -i -r 's|\$DATAPROTECTIONREGULATION_CONFIG.*|\$DATAPROTECTIONREGULATION_CONFIG = ["enabled" => '"${my_gdpr_enabled}"', "modules" => ['"${my_gdpr_modules}"'], "urls" => ['"${my_gdpr_urls}"']];|' "${systemConf}"
+grep -q '\$DATAPROTECTIONREGULATION_CONFIG' "${systemConf}" || echo "\$DATAPROTECTIONREGULATION_CONFIG = [\"enabled\" => ${my_gdpr_enabled}, \"modules\" => [${my_gdpr_modules}], \"urls\" => [${my_gdpr_urls}]];" >> "${systemConf}"
 
 sed -i -r 's|DEFINE\("ENABLE_VIEWER_JS".*|DEFINE\("ENABLE_VIEWER_JS", '"${my_viewer_enabled}"'\);|' "${systemConf}"
 grep -q 'ENABLE_VIEWER_JS' "${systemConf}" || echo "DEFINE(\"ENABLE_VIEWER_JS\", ${my_viewer_enabled});" >> "${systemConf}"
@@ -271,6 +323,24 @@ xmlstarlet ed -L \
 	-u '/properties/entry[@key="port"]' -v "${my_port_internal}" \
 	-u '/properties/entry[@key="appid"]' -v "${my_home_appid}" \
 	"${homeApp}"
+
+
+# audio video config
+videoConfFile="${RS_ROOT}/conf/audio-video.conf.php"
+[[ -n $rendering_audio_formats ]] && rendering_audio_formats="'${rendering_audio_formats//,/\',\'}'"
+[[ -n $rendering_video_formats ]] && rendering_video_formats="'${rendering_video_formats//,/\',\'}'"
+[[ -n $rendering_video_resolutions ]] && rendering_video_resolutions="'${rendering_video_resolutions//,/\',\'}'"
+
+sed -i 's|const AUDIO_FORMATS.*|const AUDIO_FORMATS = ['"${rendering_audio_formats}"'];|' "${videoConfFile}"
+sed -i 's|const VIDEO_FORMATS.*|const VIDEO_FORMATS = ['"${rendering_video_formats}"'];|' "${videoConfFile}"
+sed -i 's|const VIDEO_RESOLUTIONS.*|const VIDEO_RESOLUTIONS = ['"${rendering_video_resolutions}"'];|' "${videoConfFile}"
+sed -i 's|const VIDEO_DEFAULT_RESOLUTION.*|const VIDEO_DEFAULT_RESOLUTION = '\""${rendering_video_default_resolution}"\"';|' "${videoConfFile}"
+
+sed -i "s|define('FFMPEG_EXEC_TIMEOUT', .*|define('FFMPEG_EXEC_TIMEOUT', '${rendering_video_timeout}');|" "${videoConfFile}"
+grep -q "define('FFMPEG_EXEC_TIMEOUT'" "${videoConfFile}" || echo "define('FFMPEG_EXEC_TIMEOUT', ${rendering_video_timeout});" >> "${videoConfFile}"
+
+sed -i "s|define('FFMPEG_THREADS', .*|define('FFMPEG_THREADS', ${rendering_video_threads});|" "${videoConfFile}"
+grep -q "define('FFMPEG_THREADS'" "${videoConfFile}" || echo "define('FFMPEG_THREADS', ${rendering_video_threads});" >> "${videoConfFile}"
 
 ########################################################################################################################
 

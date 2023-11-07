@@ -5,6 +5,7 @@ FROM ${docker.from.apache.server}
 RUN set -eux \
 	&& apt-get update -y \
 	&& apt-get install -y --no-install-recommends \
+        cron \
         ca-certificates \
         curl \
         exiftool \
@@ -76,6 +77,7 @@ RUN set -eux \
 
 COPY assets/entrypoint.sh /usr/local/bin/
 COPY assets/init.sh /usr/local/bin/
+COPY assets/cron.sh /usr/local/bin/
 
 RUN set -eux \
 	&& find /usr/local/bin -type f -name '*.sh' -exec chmod +x {} \;
@@ -91,6 +93,9 @@ RUN set -eux \
     && mkdir -p $RS_CACHE/config \
     && mkdir -p $RS_CACHE/data \
 	&& chown -R appuser:appuser /etc/apache2 $RS_ROOT $RS_CACHE $PHP_INI_DIR
+
+RUN set -eux \
+    && chmod u+s /usr/sbin/cron
 
 USER appuser
 
