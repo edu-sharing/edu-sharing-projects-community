@@ -41,6 +41,10 @@ data:
         return (synth(200, "OK"));
       }
 
+      if (req.method == "POST" || req.method == "PUT" || req.method == "DELETE") {
+        return (pass);
+      }
+
       if (req.restarts > 0) {
         set req.hash_always_miss = true;
       }

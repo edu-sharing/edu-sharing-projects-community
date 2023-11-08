@@ -87,11 +87,4 @@ fi
 
 ########################################################################################################################
 
-# Load libraries
-. /opt/bitnami/scripts/libtomcat.sh
-. /opt/bitnami/scripts/liblog.sh
-
-# Load Tomcat environment variables
-. /opt/bitnami/scripts/tomcat-env.sh
-
-exec "$@"
+exec /opt/bitnami/scripts/tomcat/entrypoint.sh "$@"
