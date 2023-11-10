@@ -4,8 +4,7 @@ set -eu
 
 ########################################################################################################################
 
-$(chmod -R g+w "$RS_CACHE/config") || echo "set group permission for $RS_CACHE/config."
-$(chmod    g+w "$RS_CACHE/data"  ) || echo "set group permission for $RS_CACHE/data."
+$(chmod g+w "$RS_CACHE/config" "$RS_CACHE/data") || echo "set group permission for shared volumes skipped."
 
 ########################################################################################################################
 
@@ -57,7 +56,6 @@ repository_service_port="${REPOSITORY_SERVICE_PORT:-8080}"
 rendering_rendermoodle_url="${SERVICES_RENDERING_RENDERMOODLE_URL:-}"
 rendering_rendermoodle_token="${SERVICES_RENDERING_RENDERMOODLE_TOKEN:-}"
 rendering_rendermoodle_category_id="${SERVICES_RENDERING_RENDERMOODLE_CATEGORY_ID:-1}"
-rendering_rendermoodle_timeout="${SERVICES_RENDERING_RENDERMOODLE_TIMEOUT:-90}"
 
 repository_service_base="http://${repository_service_host}:${repository_service_port}/edu-sharing"
 
@@ -65,11 +63,6 @@ rendering_audio_formats="${SERVICES_RENDERING_AUDIO_FORMATS:-"mp3"}"
 rendering_video_formats="${SERVICES_RENDERING_VIDEO_FORMATS:-"mp4,webm"}"
 rendering_video_resolutions="${SERVICES_RENDERING_VIDEO_RESOLUTIONS:-"240,720,1080"}"
 rendering_video_default_resolution="${SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION:-"720"}"
-rendering_video_timeout="${SERVICES_RENDERING_VIDEO_TIMEOUT:-"3600"}"
-rendering_video_threads="${SERVICES_RENDERING_VIDEO_THREADS:-"1"}"
-
-
-
 
 ### Wait ###############################################################################################################
 
@@ -220,30 +213,18 @@ fi
 ########################################################################################################################
 
 # rendermoodle config
-moodleConfFile="${RS_ROOT}/modules/moodle/config.php"
-scormConfFile="${RS_ROOT}/modules/scorm/config.php"
-rm -f "${moodleConfFile}"
-rm -f "${scormConfFile}"
+rm -f "${RS_ROOT}/modules/moodle/config.php"
+rm -f "${RS_ROOT}/modules/scorm/config.php"
 if [[ -n "${rendering_rendermoodle_url}" ]]; then
-  cp "${RS_ROOT}/modules/moodle/config.php.dist" "${moodleConfFile}"
-  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${moodleConfFile}"
-  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${moodleConfFile}"
-  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${moodleConfFile}"
+  cp "${RS_ROOT}/modules/moodle/config.php.dist" "${RS_ROOT}/modules/moodle/config.php"
+  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${RS_ROOT}/modules/moodle/config.php"
+  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${RS_ROOT}/modules/moodle/config.php"
+  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${RS_ROOT}/modules/moodle/config.php"
 
-  sed -i "s|define('MOODLE_TIMEOUT', .*|define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});|" "${moodleConfFile}"
-  grep -q "define('MOODLE_TIMEOUT'" "${moodleConfFile}" || echo "define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});" >> "${moodleConfFile}"
-
-
-
-  cp "${RS_ROOT}/modules/scorm/config.php.dist" "${scormConfFile}"
-  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${scormConfFile}"
-  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${scormConfFile}"
-  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${scormConfFile}"
-
-  sed -i "s|define('MOODLE_TIMEOUT', .*|define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});|" "${scormConfFile}"
-  grep -q "define('MOODLE_TIMEOUT'" "${scormConfFile}" || echo "define('MOODLE_TIMEOUT', ${rendering_rendermoodle_timeout});" >> "${scormConfFile}"
-
-
+  cp "${RS_ROOT}/modules/scorm/config.php.dist" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_BASE_DIR', '');.*|define('MOODLE_BASE_DIR', '${rendering_rendermoodle_url}');|" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_TOKEN', '');.*|define('MOODLE_TOKEN', '${rendering_rendermoodle_token}');|" "${RS_ROOT}/modules/scorm/config.php"
+  sed -i "s|define('MOODLE_CATEGORY_ID', '1');.*|define('MOODLE_CATEGORY_ID', '${rendering_rendermoodle_category_id}');|" "${RS_ROOT}/modules/scorm/config.php"
   echo "configured rendering moodle at url ${rendering_rendermoodle_url}"
 else
   echo "disabled rendering moodle"
@@ -337,11 +318,6 @@ sed -i 's|const VIDEO_FORMATS.*|const VIDEO_FORMATS = ['"${rendering_video_forma
 sed -i 's|const VIDEO_RESOLUTIONS.*|const VIDEO_RESOLUTIONS = ['"${rendering_video_resolutions}"'];|' "${videoConfFile}"
 sed -i 's|const VIDEO_DEFAULT_RESOLUTION.*|const VIDEO_DEFAULT_RESOLUTION = '\""${rendering_video_default_resolution}"\"';|' "${videoConfFile}"
 
-sed -i "s|define('FFMPEG_EXEC_TIMEOUT', .*|define('FFMPEG_EXEC_TIMEOUT', '${rendering_video_timeout}');|" "${videoConfFile}"
-grep -q "define('FFMPEG_EXEC_TIMEOUT'" "${videoConfFile}" || echo "define('FFMPEG_EXEC_TIMEOUT', ${rendering_video_timeout});" >> "${videoConfFile}"
-
-sed -i "s|define('FFMPEG_THREADS', .*|define('FFMPEG_THREADS', ${rendering_video_threads});|" "${videoConfFile}"
-grep -q "define('FFMPEG_THREADS'" "${videoConfFile}" || echo "define('FFMPEG_THREADS', ${rendering_video_threads});" >> "${videoConfFile}"
 
 ########################################################################################################################
 
