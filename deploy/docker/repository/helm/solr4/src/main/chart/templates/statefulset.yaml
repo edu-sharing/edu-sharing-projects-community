@@ -60,9 +60,6 @@ spec:
       - name: {{ include "edusharing_repository_search_solr4.name" . }}
         image: {{ include "edusharing_repository_search_solr4.image" . }}{{ .Values.image.prefix }}-deploy-docker-repository-build-search-solr4:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
-        {{- if default .Values.global.debug .Values.debug }}
-        args: [ "catalina.sh", "jpda", "run" ]
-        {{- end }}
         envFrom:
         - configMapRef:
             name: {{ include "edusharing_repository_search_solr4.name" . }}-env
