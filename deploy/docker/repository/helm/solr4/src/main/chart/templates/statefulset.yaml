@@ -232,9 +232,6 @@ spec:
       - name: {{ include "edusharing_repository_search_solr4.name" $ }}
         image: {{ include "edusharing_repository_search_solr4.image" $ }}{{ $.Values.image.prefix }}-deploy-docker-repository-build-search-solr4:{{ $.Values.image.tag }}
         imagePullPolicy: {{ $.Values.global.image.pullPolicy }}
-        {{- if default $.Values.global.debug $.Values.debug }}
-        args: [ "catalina.sh", "jpda", "run" ]
-        {{- end }}
         env:
         - name: REPOSITORY_SEARCH_SOLR4_CONFIG
           value: | {{ .spec.config.override.application.common | nindent 12 }}
