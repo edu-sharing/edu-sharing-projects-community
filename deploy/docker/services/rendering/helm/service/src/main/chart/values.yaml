@@ -142,6 +142,8 @@ config:
       resolution:
         all: "240,720,1080"
         default: "720"
+      threads: 1
+      timeout: 3600
 
   database:
     driver: pgsql

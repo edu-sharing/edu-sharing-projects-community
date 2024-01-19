@@ -47,3 +47,5 @@ data:
   SERVICES_RENDERING_VIDEO_FORMATS: {{ .Values.config.converter.video.formats | quote }}
   SERVICES_RENDERING_VIDEO_RESOLUTIONS: {{ .Values.config.converter.video.resolution.all | quote }}
   SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION: {{ .Values.config.converter.video.resolution.default | quote }}
+  SERVICES_RENDERING_VIDEO_THREADS: {{ .Values.config.converter.video.threads | quote }}
+  SERVICES_RENDERING_VIDEO_TIMEOUT: {{ .Values.config.converter.video.timeout | quote }}
