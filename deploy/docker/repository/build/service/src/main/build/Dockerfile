@@ -26,7 +26,8 @@ RUN set -eux \
     && rm -r /var/lib/apt/lists/*
 
 RUN set -eux \
-    && echo "deb https://snapshot.debian.org/archive/debian/20240130T212554Z/ sid main" >> /etc/apt/sources.list \
+    && apt-get install ca-certificates \
+    && echo "deb [check-valid-until=no] https://snapshot.debian.org/archive/debian/20231231T085820Z/ sid main" >> /etc/apt/sources.list \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends \
         openjdk-8-dbg \
