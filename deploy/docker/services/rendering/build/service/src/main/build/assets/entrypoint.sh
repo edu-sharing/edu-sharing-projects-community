@@ -78,7 +78,7 @@ rendering_video_resolutions="${SERVICES_RENDERING_VIDEO_RESOLUTIONS:-"240,720,10
 rendering_video_default_resolution="${SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION:-"720"}"
 rendering_video_timeout="${SERVICES_RENDERING_VIDEO_TIMEOUT:-"3600"}"
 rendering_video_threads="${SERVICES_RENDERING_VIDEO_THREADS:-"1"}"
-
+rendering_h5p_disable_cache_delay="${SERVICES_RENDERING_H5P_DISABLE_CACHE_DELAY:-0}"
 
 
 ### Wait ###############################################################################################################
@@ -281,13 +281,12 @@ sed -i -r 's|\$dbuser.*|\$dbuser = "'"${rendering_database_user}"'";|' "${dbConf
 sed -i -r 's|\$pwd.*|\$pwd = "'"${rendering_database_pass}"'";|' "${dbConf}"
 
 systemConf="${RS_ROOT}/conf/system.conf.php"
+sed -i -r 's|\$H5P_DISABLE_CACHE_DELAY = .*|\$H5P_DISABLE_CACHE_DELAY = '"${rendering_h5p_disable_cache_delay}"';|' "${systemConf}"
 sed -i -r 's|\$MC_URL = ['"'"'"].*|\$MC_URL = '"'${my_external_url}'"';|' "${systemConf}"
 sed -i -r 's|\$MC_DOCROOT.*|\$MC_DOCROOT = "'"${RS_ROOT}"'";|' "${systemConf}"
 sed -i -r 's|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = "'"${RS_CACHE}/data"'";|' "${systemConf}"
 sed -i -r 's|\$CUSTOM_CONTENT_URL =.*|\$CUSTOM_CONTENT_URL = '"'${rendering_service_custom_content_url}'"';|' "${systemConf}"
 grep -q '$CUSTOM_CONTENT_URL' "${systemConf}" || echo '$CUSTOM_CONTENT_URL = '"'${rendering_service_custom_content_url}'"';' >> "${systemConf}"
-
-
 
 
 [[ -n $my_gdpr_modules ]] && my_gdpr_modules="'${my_gdpr_modules//,/','}'"
