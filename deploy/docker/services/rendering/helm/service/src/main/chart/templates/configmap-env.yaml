@@ -49,3 +49,4 @@ data:
   SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION: {{ .Values.config.converter.video.resolution.default | quote }}
   SERVICES_RENDERING_VIDEO_THREADS: {{ .Values.config.converter.video.threads | quote }}
   SERVICES_RENDERING_VIDEO_TIMEOUT: {{ .Values.config.converter.video.timeout | quote }}
+  SERVICES_RENDERING_H5P_DISABLE_CACHE_DELAY: {{ .Values.config.h5p.disableCacheDelay | quote }}
