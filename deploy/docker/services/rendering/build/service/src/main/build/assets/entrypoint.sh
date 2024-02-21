@@ -283,6 +283,8 @@ sed -i -r 's|\$pwd.*|\$pwd = "'"${rendering_database_pass}"'";|' "${dbConf}"
 
 systemConf="${RS_ROOT}/conf/system.conf.php"
 sed -i -r 's|\$H5P_DISABLE_CACHE_DELAY = .*|\$H5P_DISABLE_CACHE_DELAY = '"${rendering_h5p_disable_cache_delay}"';|' "${systemConf}"
+grep -q  '$H5P_DISABLE_CACHE_DELAY' || echo '$H5P_DISABLE_CACHE_DELAY = '"${rendering_h5p_disable_cache_delay}"';' >> "${systemConf}"
+
 sed -i -r 's|\$MC_URL = ['"'"'"].*|\$MC_URL = '"'${my_external_url}'"';|' "${systemConf}"
 sed -i -r 's|\$MC_DOCROOT.*|\$MC_DOCROOT = "'"${RS_ROOT}"'";|' "${systemConf}"
 sed -i -r 's|\$CC_RENDER_PATH.*|\$CC_RENDER_PATH = "'"${RS_CACHE}/data"'";|' "${systemConf}"
