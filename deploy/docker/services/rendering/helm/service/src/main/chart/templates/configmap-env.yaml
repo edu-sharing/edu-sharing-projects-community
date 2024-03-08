@@ -32,6 +32,8 @@ data:
   {{- end }}
   SERVICES_RENDERING_SERVICE_PORT_EXTERNAL: {{ if .Values.ingress.tls }}"443"{{ else }}"80"{{ end }}
   SERVICES_RENDERING_SERVICE_PORT_INTERNAL: {{ .Values.service.port.api.internal | quote }}
+  SERVICES_RENDERING_SERVICE_DYNAMIC_URL: {{ .Values.service.url.dynamic | quote }}
+  SERVICES_RENDERING_SERVICE_CUSTOM_CONTENT_URL: {{ .Values.service.url.content | quote }}
   SERVICES_RENDERING_SERVICE_PROT_EXTERNAL: {{ if .Values.ingress.tls }}"https"{{ else }}"http"{{ end }}
   {{- with .Values.config.http.client.proxy.nonproxyhosts }}
   SERVICES_RENDERING_SERVICE_PROXY_NONPROXYHOSTS: '{{- join "," . }}'
