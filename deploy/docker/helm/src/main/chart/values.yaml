@@ -1,0 +1,122 @@
+########################################################################################################################
+# GLOBAL
+########################################################################################################################
+
+global:
+
+  cluster:
+
+    istio:
+      enabled: false
+
+  metrics:
+    prometheus:
+      enabled: false
+      retention: 1w
+    scrape:
+      interval: 10s
+      timeout: 10s
+    servicemonitor:
+      enabled: false
+
+########################################################################################################################
+# LOCAL
+########################################################################################################################
+
+nameOverride: edusharing
+
+image:
+  pullSecrets: []
+#  - name: registry
+#    server: docker.edu-sharing.com
+#    username: someone
+#    password: secret
+
+########################################################################################################################
+# DEPENDENCY
+########################################################################################################################
+
+edusharing_rediscluster:
+
+  enabled: true
+
+  nameOverride: &redisclusterNameOverride edusharing-rediscluster
+
+  image:
+    name: ${docker.edu_sharing.community.common.redis-cluster.name}
+    tag: ${docker.edu_sharing.community.common.redis-cluster.tag}
+
+  service:
+    port:
+      api: &redisclusterServicePortApi 6379
+
+  init:
+
+    permission:
+
+      image:
+        name: ${docker.edu_sharing.community.common.minideb.name}
+        tag: ${docker.edu_sharing.community.common.minideb.tag}
+
+    sysctl:
+
+      image:
+        name: ${docker.edu_sharing.community.common.minideb.name}
+        tag: ${docker.edu_sharing.community.common.minideb.tag}
+
+  sidecar:
+
+    metrics:
+
+      image:
+        name: ${docker.edu_sharing.community.common.redis.exporter.name}
+        tag: ${docker.edu_sharing.community.common.redis.exporter.tag}
+
+########################################################################################################################
+
+edusharing_repository:
+
+  enabled: true
+
+  edusharing_repository_rediscluster:
+
+    enabled: false
+
+  edusharing_repository_service:
+
+    nameOverride: &repositoryNameOverride edusharing-repository-service
+
+    service:
+      port:
+        api:
+          internal: &repositoryServicePostApiInternal 8080
+
+    config:
+
+      cache:
+        host: *redisclusterNameOverride
+        port: *redisclusterServicePortApi
+
+########################################################################################################################
+
+edusharing_services_rendering:
+
+  enabled: true
+
+  edusharing_services_rendering_rediscluster:
+
+    enabled: false
+
+  edusharing_services_rendering_service:
+
+    config:
+
+      cache:
+        host: *redisclusterNameOverride
+        port: *redisclusterServicePortApi
+
+      repository:
+        host: *repositoryNameOverride
+        port: *repositoryServicePostApiInternal
+
+########################################################################################################################

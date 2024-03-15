@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-community</artifactId>
+    <artifactId>edu_sharing-projects-community-repository</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-community-deploy</artifactId>
+  <artifactId>edu_sharing-projects-community-repository-deploy</artifactId>
   <packaging>pom</packaging>
 
-  <name>edu_sharing-projects-community-deploy</name>
+  <name>edu_sharing-projects-community-repository-deploy</name>
 
   <properties>
 
@@ -23,20 +23,6 @@
 
   </properties>
 
-  <profiles>
-    <profile>
-      <id>deploy.deploy.customer</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <file>
-          <exists>customer/pom.xml</exists>
-        </file>
-      </activation>
-      <modules>
-        <module>customer</module>
-      </modules>
-    </profile>
-  </profiles>
 <modules>  <module>docker</module>
   </modules>
 </project>

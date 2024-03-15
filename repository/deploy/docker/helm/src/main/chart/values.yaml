@@ -1,0 +1,294 @@
+########################################################################################################################
+# GLOBAL
+########################################################################################################################
+
+global:
+
+  patroni:
+    name: &postgresqlNameOverride edusharing-repository-postgresql
+
+########################################################################################################################
+# LOCAL
+########################################################################################################################
+
+nameOverride: edusharing-repository
+
+########################################################################################################################
+# DEPENDENCY
+########################################################################################################################
+
+edusharing_repository_antivirus:
+
+  enabled: ${helm.edusharing_repository_antivirus.enabled}
+
+  nameOverride: &antivirusNameOverride edusharing-repository-antivirus
+
+  service:
+
+    port:
+      api: &antivirusServicePortApi 1344
+
+########################################################################################################################
+
+edusharing_repository_postgresql:
+
+  enabled: true
+
+  nameOverride: *postgresqlNameOverride
+
+  image:
+    name: ${docker.edu_sharing.community.common.postgresql.name}
+    tag: ${docker.edu_sharing.community.common.postgresql.tag}
+
+  service:
+
+    port:
+      api: &postgresqlServicePortApi 5432
+
+  config:
+
+    database: &postgresqlConfigDatabase repository
+    username: &postgresqlConfigUsername repository
+
+  init:
+
+    permission:
+
+      image:
+        name: ${docker.edu_sharing.community.common.minideb.name}
+        tag: ${docker.edu_sharing.community.common.minideb.tag}
+
+  job:
+
+    dump:
+
+      image:
+        name: ${docker.edu_sharing.community.common.postgresql.name}
+        tag: ${docker.edu_sharing.community.common.postgresql.tag}
+
+  sidecar:
+
+    metrics:
+
+      image:
+        name: ${docker.edu_sharing.community.common.postgresql.exporter.name}
+        tag: ${docker.edu_sharing.community.common.postgresql.exporter.tag}
+
+########################################################################################################################
+
+edusharing_repository_rediscluster:
+
+  enabled: true
+
+  nameOverride: &redisclusterNameOverride edusharing-repository-rediscluster
+
+  image:
+    name: ${docker.edu_sharing.community.common.redis-cluster.name}
+    tag: ${docker.edu_sharing.community.common.redis-cluster.tag}
+
+  service:
+
+    port:
+      api: &redisclusterServicePortApi 6379
+
+  init:
+
+    permission:
+
+      image:
+        name: ${docker.edu_sharing.community.common.minideb.name}
+        tag: ${docker.edu_sharing.community.common.minideb.tag}
+
+    sysctl:
+
+      image:
+        name: ${docker.edu_sharing.community.common.minideb.name}
+        tag: ${docker.edu_sharing.community.common.minideb.tag}
+
+  sidecar:
+
+    metrics:
+
+      image:
+        name: ${docker.edu_sharing.community.common.redis.exporter.name}
+        tag: ${docker.edu_sharing.community.common.redis.exporter.tag}
+
+########################################################################################################################
+
+edusharing_repository_mongo:
+
+  enabled: ${helm.edusharing_repository_mongo.enabled}
+
+  nameOverride: &mongoNameOverride edusharing-repository-mongo
+
+  service:
+
+    port:
+      api: &mongoServicePortApi 27017
+
+  config:
+
+    database: &mongoConfigDatabase repository
+    username: &mongoConfigUsername repository
+
+########################################################################################################################
+
+edusharing_repository_search_elastic_index:
+
+  enabled: ${helm.edusharing_repository_search_elastic_index.enabled}
+
+  nameOverride: &searchElasticNameOverride edusharing-repository-search-elastic-index
+
+  service:
+
+    port:
+      api: &searchElasticServicePortApi 9200
+
+########################################################################################################################
+
+edusharing_repository_search_solr:
+
+  enabled: true
+
+  nameOverride: &searchSolrNameOverride edusharing-repository-search-solr
+
+  service:
+
+    port:
+      api: &searchSolrServicePortApi 9200
+
+  config:
+
+    repository:
+      host: &serviceNameOverride edusharing-repository-service
+      port: &serviceServicePortApiInternal 8080
+
+########################################################################################################################
+
+edusharing_repository_transform:
+
+  enabled: ${helm.edusharing_repository_transform.enabled}
+
+  nameOverride: &transformNameOverride edusharing-repository-transform
+
+  service:
+
+    port:
+      api: &transformServicePortApi 8080
+
+########################################################################################################################
+
+edusharing_repository_transform_aio:
+
+  enabled: true
+
+  nameOverride: &transformAIONameOverride edusharing-repository-transform-aio
+
+  service:
+
+    port:
+      api: &transformAIOServicePortApi 8090
+
+########################################################################################################################
+
+edusharing_repository_transform_es:
+
+  enabled: true
+
+  nameOverride: &transformESNameOverride edusharing-repository-transform-es
+
+  service:
+
+    port:
+      api: &transformESServicePortApi 8091
+
+########################################################################################################################
+
+edusharing_repository_service:
+
+  enabled: true
+
+  nameOverride: *serviceNameOverride
+
+  image:
+    repository: ${docker.repository}
+    name: ${docker.prefix}-deploy-docker-build-repository-service
+    tag: ${docker.tag}
+
+  service:
+
+    port:
+      api:
+        internal: *serviceServicePortApiInternal
+
+  config:
+
+    antivirus:
+      enabled: ${helm.edusharing_repository_antivirus.enabled}
+      host: *antivirusNameOverride
+      port: *antivirusServicePortApi
+
+    cache:
+      host: *redisclusterNameOverride
+      port: *redisclusterServicePortApi
+
+    cluster:
+      enabled: ${helm.edusharing_repository_cluster.enabled}
+
+    database:
+      host: *postgresqlNameOverride
+      port: *postgresqlServicePortApi
+      database: *postgresqlConfigDatabase
+      username: *postgresqlConfigUsername
+
+    mongo:
+      enabled: ${helm.edusharing_repository_mongo.enabled}
+      host: *mongoNameOverride
+      port: *mongoServicePortApi
+      database: *mongoConfigDatabase
+      username: *mongoConfigUsername
+
+    search:
+
+      elastic:
+        enabled: ${helm.edusharing_repository_search_elastic_index.enabled}
+        host: *searchElasticNameOverride
+        port: *searchElasticServicePortApi
+
+      solr:
+        host: *searchSolrNameOverride
+        port: *searchSolrServicePortApi
+
+    transform:
+
+      aio:
+        host: *transformAIONameOverride
+        port: *transformAIOServicePortApi
+
+      es:
+        host: *transformESNameOverride
+        port: *transformESServicePortApi
+
+      server:
+        enabled: ${helm.edusharing_repository_transform.enabled}
+        host: *transformNameOverride
+        port: *transformServicePortApi
+
+########################################################################################################################
+
+edusharing_repository_search_elastic_tracker:
+
+  enabled: ${helm.edusharing_repository_search_elastic_tracker.enabled}
+
+  config:
+
+    repository:
+      host: *serviceNameOverride
+      port: *serviceServicePortApiInternal
+
+    search:
+      elastic:
+        host: *searchElasticNameOverride
+        port: *searchElasticServicePortApi
+
+########################################################################################################################

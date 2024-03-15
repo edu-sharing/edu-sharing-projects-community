@@ -196,19 +196,19 @@ backup() {
   fi
 
   if [[ -n $solr ]] ; then
-    echo "### backup solr4"
+    echo "### backup solr"
     if [[ -n $compressed ]] ; then
       docker run \
         --rm \
-        --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q)" \
+        --volumes-from "$($COMPOSE_EXEC ps repository-search-solr -q)" \
         -v "$backupDir":/backup \
-        --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-solr4 -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-solr -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         bitnami/minideb:bullseye \
         bash -c '
           check_Backup_status() {
             store="$1"
             while true; do
-              status=$(curl -s "http://repository-search-solr4:8080/solr4/$store/replication?command=details" | xmlstarlet sel -t -v "//lst[@name='backup']/str[@name='status']")
+              status=$(curl -s "http://repository-search-solr:8080/solr/$store/replication?command=details" | xmlstarlet sel -t -v "//lst[@name='backup']/str[@name='status']")
               if [ -z "$status" ]; then
                   echo "backup not found."
                   break
@@ -223,33 +223,33 @@ backup() {
 
           apt update \
           && apt install -y wget curl xmlstarlet \
-          && wget -qo- "http://repository-search-solr4:8080/solr4/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
-          && wget -qo- "http://repository-search-solr4:8080/solr4/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
+          && wget -qo- "http://repository-search-solr:8080/solr/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
+          && wget -qo- "http://repository-search-solr:8080/solr/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
           && check_Backup_status alfresco \
           && check_Backup_status archive \
           && echo "compress backup:" \
           && cd /opt/alfresco/alf_data/backup \
-          && tar cvf /backup/solr4.tar . \
+          && tar cvf /backup/solr.tar . \
           && echo "cleanup backup folder:" \
           && cd .. \
           && rm -rf backup
         ' || {
           rm -rf "$backupDir"
-          echo "ERROR on creating solr4 dump"
+          echo "ERROR on creating solr dump"
           exit 1
         }
       else
         docker run \
           --rm \
-          --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q)" \
+          --volumes-from "$($COMPOSE_EXEC ps repository-search-solr -q)" \
           -v "$backupDir":/backup/ \
-          --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-solr4 -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+          --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-solr -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
           bitnami/minideb:bullseye \
           bash -c '
             check_Backup_status() {
               store="$1"
               while true; do
-                status=$(curl -s "http://repository-search-solr4:8080/solr4/$store/replication?command=details" | xmlstarlet sel -t -v "//lst[@name='backup']/str[@name='status']")
+                status=$(curl -s "http://repository-search-solr:8080/solr/$store/replication?command=details" | xmlstarlet sel -t -v "//lst[@name='backup']/str[@name='status']")
                 if [ -z "$status" ]; then
                     echo "backup not found."
                     break
@@ -264,15 +264,15 @@ backup() {
 
             apt update \
             && apt install -y wget curl xmlstarlet \
-            && wget -qo- "http://repository-search-solr4:8080/solr4/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
-            && wget -qo- "http://repository-search-solr4:8080/solr4/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
+            && wget -qo- "http://repository-search-solr:8080/solr/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
+            && wget -qo- "http://repository-search-solr:8080/solr/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
             && check_Backup_status alfresco \
             && check_Backup_status archive \
             && echo "move backup:" \
             && mv /opt/alfresco/alf_data/backup/ /backup/solr
           ' || {
             rm -rf "$backupDir"
-            echo "ERROR on creating solr4 dump"
+            echo "ERROR on creating solr dump"
             exit 1
           }
       fi
@@ -310,7 +310,7 @@ backup() {
         docker run \
           --rm \
           -ti \
-          -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+          -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
           elasticdump/elasticsearch-dump \
           --input=http://repository-search-elastic-index:9200/workspace \
           --output=/tmp/elastic_workspace.json || {
@@ -338,13 +338,13 @@ backup() {
     echo "backup postgres"
 
     if [[ -n $compressed ]] ; then
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --username ${REPOSITORY_DATABASE_USER:-repository} --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository} | gzip" >"$backupDir/repository-db.gz" || {
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository} | gzip" >"$backupDir/repository-db.gz" || {
         rm -rf "$backupDir"
         echo "ERROR on creating postgres dump"
         exit 1
       }
     else
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --username ${REPOSITORY_DATABASE_USER:-repository} --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository}" > "$backupDir/repository-db.sql" || {
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository}" > "$backupDir/repository-db.sql" || {
         rm -rf "$backupDir"
         echo "ERROR on creating postgres dump"
         exit 1
@@ -416,9 +416,9 @@ restore() {
     container="$container  repository-service"
   fi
 
-  if [[ -f "$backupDir/solr4.tar" ]] || [[ -d "$backupDir/solr" ]]  ; then
+  if [[ -f "$backupDir/solr.tar" ]] || [[ -d "$backupDir/solr" ]]  ; then
     solr=true
-    container="repository-search-solr4 $container"
+    container="repository-search-solr $container"
   fi
 
   if [[ -f "$backupDir/elastic_workspace.gz" ]] || [[ -f "$backupDir/elastic_transactions.gz" ]] ||  [[ -f "$backupDir/elastic_workspace.json" ]] || [[ -f "$backupDir/elastic_transactions.json" ]]; then
@@ -472,15 +472,15 @@ restore() {
         $COMPOSE_EXEC exec -T repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_restore --username ${REPOSITORY_DATABASE_USER:-repository} --dbname ${REPOSITORY_DATABASE_NAME:-repository} --no-owner --no-privileges" < "$backupDir/repository-db.sql"
       fi
 
-      echo "### reset solr4"
+      echo "### reset solr"
       docker run \
               --rm \
-              --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q -a)" \
+              --volumes-from "$($COMPOSE_EXEC ps repository-search-solr -q -a)" \
               bitnami/minideb:bullseye \
               bash -c '
-                rm -rf /opt/alfresco/alf_data/solr4/index || true
-                rm -rf /opt/alfresco/alf_data/solr4/content || true
-                rm -rf /opt/alfresco/alf_data/solr4/model || true
+                rm -rf /opt/alfresco/alf_data/solr/index || true
+                rm -rf /opt/alfresco/alf_data/solr/content || true
+                rm -rf /opt/alfresco/alf_data/solr/model || true
               '
 
       echo "### reset elastic"
@@ -499,22 +499,22 @@ restore() {
   fi
 
   if [[ -n $solr ]] ; then
-    echo "### restore solr4"
+    echo "### restore solr"
     docker run \
       --rm \
-      --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q -a)" \
+      --volumes-from "$($COMPOSE_EXEC ps repository-search-solr -q -a)" \
       -v "$backupDir":/backup \
       bitnami/minideb:bullseye \
       bash -c '
-        rm -rf /opt/alfresco/alf_data/solr4/index || true
-        rm -rf /opt/alfresco/alf_data/solr4/content || true
-        rm -rf /opt/alfresco/alf_data/solr4/model || true
+        rm -rf /opt/alfresco/alf_data/solr/index || true
+        rm -rf /opt/alfresco/alf_data/solr/content || true
+        rm -rf /opt/alfresco/alf_data/solr/model || true
 
-        mkdir -p /opt/alfresco/alf_data/solr4/index
-        cd /opt/alfresco/alf_data/solr4/index
+        mkdir -p /opt/alfresco/alf_data/solr/index
+        cd /opt/alfresco/alf_data/solr/index
 
-        if [[ -f /backup/solr4.tar ]] ; then
-             tar xvf /backup/solr4.tar \
+        if [[ -f /backup/solr.tar ]] ; then
+             tar xvf /backup/solr.tar \
           && mv snapshot.alfresco alfresco \
           && mv snapshot.archive archive \
           && chown -R 1000:1000 ./

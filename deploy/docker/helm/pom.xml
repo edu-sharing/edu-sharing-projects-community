@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
@@ -11,9 +12,19 @@
   </parent>
 
   <artifactId>edu_sharing-projects-community-deploy-docker-helm</artifactId>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <name>edu_sharing-projects-community-deploy-docker-helm</name>
+
+  <properties>
+
+    <helm.edusharing_services_rendering.line2>
+      <!--suppress UnresolvedMavenProperty -->
+      version:
+      ${org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.range}
+    </helm.edusharing_services_rendering.line2>
+
+  </properties>
 
   <build>
 
@@ -38,6 +49,141 @@
       </resource>
 
     </resources>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>edusharing_services_rendering</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-services-rendering-deploy-docker-helm-bundle
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/edu_sharing-community-services-rendering
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-projects-community-repository-deploy-docker-helm
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/${helm.prefix}-repository</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>io.kokuwa.maven</groupId>
+        <artifactId>helm-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>init</id>
+            <goals>
+              <goal>init</goal>
+            </goals>
+            <phase>initialize</phase>
+          </execution>
+          <execution>
+            <id>dependency-build</id>
+            <goals>
+              <goal>dependency-build</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+          <execution>
+            <id>lint</id>
+            <goals>
+              <goal>lint</goal>
+            </goals>
+            <phase>test</phase>
+          </execution>
+          <execution>
+            <id>package</id>
+            <goals>
+              <goal>package</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+          <execution>
+            <id>upload</id>
+            <goals>
+              <goal>upload</goal>
+            </goals>
+            <phase>deploy</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>assembly</id>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>services_rendering</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <scripts>
+                <!--suppress UnresolvedMavenProperty -->
+                <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.range', semver)
+                    ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
 
     <pluginManagement>
 
@@ -67,8 +213,22 @@
 
   </build>
 
-<modules>  <module>bundle</module>
-    <module>postgresql</module>
-    <module>rediscluster</module>
-  </modules>
+  <dependencies>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>edu_sharing-community-services-rendering-deploy-docker-helm-bundle</artifactId>
+      <type>tar.gz</type>
+      <classifier>bin</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>edu_sharing-projects-community-repository-deploy-docker-helm</artifactId>
+      <type>tar.gz</type>
+      <classifier>bin</classifier>
+    </dependency>
+
+  </dependencies>
+
 </project>

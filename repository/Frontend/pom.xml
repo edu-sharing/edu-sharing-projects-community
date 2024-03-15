@@ -24,13 +24,38 @@
   <profiles>
 
     <profile>
+      <id>frontend.default</id>
+
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <failOnMissingWebXml>false</failOnMissingWebXml>
+            </configuration>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+    </profile>
+
+    <profile>
 
       <id>frontend.overlay</id>
 
       <activation>
         <activeByDefault>false</activeByDefault>
         <file>
-          <missing>package.json</missing>
+          <exists>src/main/ng</exists>
         </file>
       </activation>
 
@@ -43,19 +68,6 @@
             <artifactId>maven-clean-plugin</artifactId>
             <configuration>
               <filesets>
-                <fileset>
-                  <directory>src/generated/ng/dist</directory>
-                </fileset>
-                <fileset>
-                  <directory>src/generated/ng/node_modules/@angular/compiler-cli/ngcc</directory>
-                  <includes>
-                    <include>**/ngcc_lock_file</include>
-                    <include>**/__ngcc_lock_file__</include>
-                  </includes>
-                </fileset>
-                <fileset>
-                  <directory>src/generated/ng/projects</directory>
-                </fileset>
                 <fileset>
                   <directory>src/generated/ng</directory>
                 </fileset>
@@ -74,6 +86,7 @@
                 <phase>generate-sources</phase>
                 <configuration>
                   <includeArtifactIds>edu_sharing-community-repository-frontend</includeArtifactIds>
+                  <classifier>sources</classifier>
                   <outputDirectory>src/generated/ng</outputDirectory>
                 </configuration>
               </execution>
@@ -125,7 +138,7 @@
                 <goals>
                   <goal>npm</goal>
                 </goals>
-                <phase>process-sources</phase>
+                <phase>compile</phase>
                 <configuration>
                   <arguments>${npm.args.install}</arguments>
                 </configuration>
@@ -213,6 +226,7 @@
                 <phase>generate-sources</phase>
                 <configuration>
                   <includeArtifactIds>edu_sharing-community-repository-frontend</includeArtifactIds>
+                  <classifier>sources</classifier>
                   <outputDirectory>src/app/edu-sharing/Frontend</outputDirectory>
                 </configuration>
               </execution>
@@ -337,6 +351,12 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>edu_sharing-community-repository-frontend</artifactId>
       <classifier>sources</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>edu_sharing-community-repository-frontend</artifactId>
+      <type>war</type>
     </dependency>
 
   </dependencies>

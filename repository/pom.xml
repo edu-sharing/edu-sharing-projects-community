@@ -17,7 +17,7 @@
 
   <properties>
 
-    <alfresco.sdk.version>3.1.0</alfresco.sdk.version>
+    <alfresco.sdk.version>4.7.0</alfresco.sdk.version>
 
   </properties>
 
@@ -47,6 +47,14 @@
           </dependencies>
         </plugin>
 
+        <plugin>
+          <groupId>io.kokuwa.maven</groupId>
+          <artifactId>helm-maven-plugin</artifactId>
+          <configuration>
+            <helmVersion>${helm.version}</helmVersion>
+          </configuration>
+        </plugin>
+
       </plugins>
 
     </pluginManagement>
@@ -55,6 +63,7 @@
 
 <modules>  <module>Backend</module>
     <module>config</module>
+    <module>deploy</module>
     <module>Frontend</module>
     <module>webapp</module>
   </modules>

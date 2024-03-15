@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-community-deploy</artifactId>
+    <artifactId>edu_sharing-projects-community-repository-deploy</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-community-deploy-docker</artifactId>
+  <artifactId>edu_sharing-projects-community-repository-deploy-docker</artifactId>
   <packaging>pom</packaging>
 
-  <name>edu_sharing-projects-community-deploy-docker</name>
+  <name>edu_sharing-projects-community-repository-deploy-docker</name>
 
   <properties>
 
@@ -24,6 +24,22 @@
     <docker.edu_sharing.community.common.minideb.tag>
       11
     </docker.edu_sharing.community.common.minideb.tag>
+
+    <docker.edu_sharing.community.common.postgresql.name>
+      edu_sharing-community-common-docker-postgresql
+    </docker.edu_sharing.community.common.postgresql.name>
+
+    <docker.edu_sharing.community.common.postgresql.tag>
+      13.9.0
+    </docker.edu_sharing.community.common.postgresql.tag>
+
+    <docker.edu_sharing.community.common.postgresql.exporter.name>
+      edu_sharing-community-common-docker-postgresql-exporter
+    </docker.edu_sharing.community.common.postgresql.exporter.name>
+
+    <docker.edu_sharing.community.common.postgresql.exporter.tag>
+      0.11.1
+    </docker.edu_sharing.community.common.postgresql.exporter.tag>
 
     <docker.edu_sharing.community.common.redis.exporter.name>
       edu_sharing-community-common-docker-redis-export
@@ -46,23 +62,6 @@
 
   </properties>
 
-  <profiles>
-
-    <profile>
-      <id>deploy.deploy.docker.customer</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-        <file>
-          <exists>customer/pom.xml</exists>
-        </file>
-      </activation>
-      <modules>
-        <module>customer</module>
-      </modules>
-    </profile>
-
-  </profiles>
-
   <build>
 
     <pluginManagement>
@@ -83,7 +82,7 @@
 
   </build>
 
-<modules>  <module>compose</module>
+<modules>  <module>build</module>
     <module>helm</module>
   </modules>
 </project>

@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.edu_sharing</groupId>
+    <artifactId>edu_sharing-projects-community-repository-deploy-docker</artifactId>
+    <version>git</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>edu_sharing-projects-community-repository-deploy-docker-helm</artifactId>
+  <packaging>jar</packaging>
+
+  <name>edu_sharing-projects-community-repository-deploy-docker-helm</name>
+
+  <properties>
+
+    <helm.edusharing_repository_search_solr.line2>
+      <!--suppress UnresolvedMavenProperty -->
+      version:
+      ${org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-search-solr:tar.gz:bin.range}
+    </helm.edusharing_repository_search_solr.line2>
+
+    <helm.edusharing_repository_service.line2>
+      <!--suppress UnresolvedMavenProperty -->
+      version:
+      ${org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-service:tar.gz:bin.range}
+    </helm.edusharing_repository_service.line2>
+
+    <helm.edusharing_repository_transform_aio.line2>
+      <!--suppress UnresolvedMavenProperty -->
+      version:
+      ${org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-transform-aio:tar.gz:bin.range}
+    </helm.edusharing_repository_transform_aio.line2>
+
+    <helm.edusharing_repository_transform_es.line2>
+      <!--suppress UnresolvedMavenProperty -->
+      version:
+      ${org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-transform-es:tar.gz:bin.range}
+    </helm.edusharing_repository_transform_es.line2>
+
+    <helm.edusharing_repository_antivirus.enabled>
+      false
+    </helm.edusharing_repository_antivirus.enabled>
+    <helm.edusharing_repository_antivirus.line1/>
+    <helm.edusharing_repository_antivirus.line2/>
+    <helm.edusharing_repository_antivirus.line3/>
+    <helm.edusharing_repository_antivirus.line4/>
+
+    <helm.edusharing_repository_cluster.enabled>
+      false
+    </helm.edusharing_repository_cluster.enabled>
+
+    <helm.edusharing_repository_mongo.enabled>
+      false
+    </helm.edusharing_repository_mongo.enabled>
+    <helm.edusharing_repository_mongo.line1/>
+    <helm.edusharing_repository_mongo.line2/>
+    <helm.edusharing_repository_mongo.line3/>
+    <helm.edusharing_repository_mongo.line4/>
+
+    <helm.edusharing_repository_search_elastic_index.enabled>
+      false
+    </helm.edusharing_repository_search_elastic_index.enabled>
+    <helm.edusharing_repository_search_elastic_index.line1/>
+    <helm.edusharing_repository_search_elastic_index.line2/>
+    <helm.edusharing_repository_search_elastic_index.line3/>
+    <helm.edusharing_repository_search_elastic_index.line4/>
+
+    <helm.edusharing_repository_search_elastic_tracker.enabled>
+      false
+    </helm.edusharing_repository_search_elastic_tracker.enabled>
+    <helm.edusharing_repository_search_elastic_tracker.line1/>
+    <helm.edusharing_repository_search_elastic_tracker.line2/>
+    <helm.edusharing_repository_search_elastic_tracker.line3/>
+    <helm.edusharing_repository_search_elastic_tracker.line4/>
+
+    <helm.edusharing_repository_transform.enabled>
+      false
+    </helm.edusharing_repository_transform.enabled>
+    <helm.edusharing_repository_transform.line1/>
+    <helm.edusharing_repository_transform.line2/>
+    <helm.edusharing_repository_transform.line3/>
+    <helm.edusharing_repository_transform.line4/>
+
+  </properties>
+
+  <build>
+
+    <resources>
+
+      <resource>
+        <directory>src/main/chart</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>Chart.yaml</exclude>
+          <exclude>values.yaml</exclude>
+        </excludes>
+      </resource>
+
+      <resource>
+        <directory>src/main/chart</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>Chart.yaml</include>
+          <include>values.yaml</include>
+        </includes>
+      </resource>
+
+    </resources>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>edusharing_repository_antivirus</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-enterprise-repository-plugin-antivirus-deploy-docker-helm
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>
+                ${project.build.directory}/chart/charts/edu_sharing-enterprise-repository-plugin-antivirus
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_search_elastic_index</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-index
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>
+                ${project.build.directory}/chart/charts/edu_sharing-community-repository-plugin-elastic-index
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_search_elastic_tracker</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-tracker
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>
+                ${project.build.directory}/chart/charts/edu_sharing-community-repository-plugin-elastic-tracker
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_mongo</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-plugin-mongo-deploy-docker-helm
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>
+                ${project.build.directory}/chart/charts/edu_sharing-community-repository-plugin-mongo
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_search_solr</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-deploy-docker-helm-search-solr
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/edu_sharing-community-repository-search-solr
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_service</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-deploy-docker-helm-service
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/edu_sharing-community-repository-service
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_transform_aio</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-deploy-docker-helm-transform-aio
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/edu_sharing-community-repository-transform-aio
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_transform_es</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-repository-deploy-docker-helm-transform-es
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/edu_sharing-community-repository-transform-es
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>edusharing_repository_transform_server</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-enterprise-repository-plugin-transform-deploy-docker-helm
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>
+                ${project.build.directory}/chart/charts/edu_sharing-enterprise-repository-plugin-transform
+              </outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>io.kokuwa.maven</groupId>
+        <artifactId>helm-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>init</id>
+            <goals>
+              <goal>init</goal>
+            </goals>
+            <phase>initialize</phase>
+          </execution>
+          <execution>
+            <id>dependency-build</id>
+            <goals>
+              <goal>dependency-build</goal>
+            </goals>
+            <phase>compile</phase>
+          </execution>
+          <execution>
+            <id>lint</id>
+            <goals>
+              <goal>lint</goal>
+            </goals>
+            <phase>test</phase>
+          </execution>
+          <execution>
+            <id>package</id>
+            <goals>
+              <goal>package</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+          <execution>
+            <id>upload</id>
+            <goals>
+              <goal>upload</goal>
+            </goals>
+            <phase>deploy</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>assembly</id>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.gmavenplus</groupId>
+        <artifactId>gmavenplus-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>service</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <scripts>
+                <!--suppress UnresolvedMavenProperty -->
+                <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-service:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-service:tar.gz:bin.range', semver)
+                    ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+          <execution>
+            <id>solr</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <scripts>
+                <!--suppress UnresolvedMavenProperty -->
+                <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-search-solr:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-search-solr:tar.gz:bin.range', semver)
+                    ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+          <execution>
+            <id>transform-aio</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <scripts>
+                <!--suppress UnresolvedMavenProperty -->
+                <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-transform-aio:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-transform-aio:tar.gz:bin.range', semver)
+                    ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+          <execution>
+            <id>transform-es</id>
+            <goals>
+              <goal>execute</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <scripts>
+                <!--suppress UnresolvedMavenProperty -->
+                <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-transform-es:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-deploy-docker-helm-transform-es:tar.gz:bin.range', semver)
+                    ]]></script>
+              </scripts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+
+    <pluginManagement>
+
+      <plugins>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <configuration>
+            <outputDirectory>${project.build.directory}/chart</outputDirectory>
+          </configuration>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <configuration>
+            <descriptors>
+              <descriptor>src/main/assembly/bin.xml</descriptor>
+            </descriptors>
+          </configuration>
+        </plugin>
+
+      </plugins>
+
+    </pluginManagement>
+
+  </build>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>edu_sharing-community-repository-deploy-docker-helm-search-solr</artifactId>
+      <type>tar.gz</type>
+      <classifier>bin</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>edu_sharing-community-repository-deploy-docker-helm-service</artifactId>
+      <type>tar.gz</type>
+      <classifier>bin</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>edu_sharing-community-repository-deploy-docker-helm-transform-aio</artifactId>
+      <type>tar.gz</type>
+      <classifier>bin</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>edu_sharing-community-repository-deploy-docker-helm-transform-es</artifactId>
+      <type>tar.gz</type>
+      <classifier>bin</classifier>
+    </dependency>
+
+  </dependencies>
+
+  <profiles>
+
+    <profile>
+
+      <id>repository.antivirus</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.REPOSITORY_ANTIVIRUS_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>antivirus</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-enterprise-repository-plugin-antivirus-deploy-docker-helm:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-enterprise-repository-plugin-antivirus-deploy-docker-helm:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <properties>
+
+        <helm.edusharing_repository_antivirus.enabled>
+          true
+        </helm.edusharing_repository_antivirus.enabled>
+        <helm.edusharing_repository_antivirus.line1>
+          - name: edu_sharing-enterprise-repository-plugin-antivirus
+        </helm.edusharing_repository_antivirus.line1>
+        <helm.edusharing_repository_antivirus.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-enterprise-repository-plugin-antivirus-deploy-docker-helm:tar.gz:bin.range}
+        </helm.edusharing_repository_antivirus.line2>
+        <helm.edusharing_repository_antivirus.line3>
+          alias: edusharing_repository_antivirus
+        </helm.edusharing_repository_antivirus.line3>
+        <helm.edusharing_repository_antivirus.line4>
+          condition: edusharing_repository_antivirus.enabled
+        </helm.edusharing_repository_antivirus.line4>
+
+      </properties>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-enterprise-repository-plugin-antivirus-deploy-docker-helm</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+    <profile>
+
+      <id>repository.cluster</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.REPOSITORY_CLUSTER_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <properties>
+
+        <helm.edusharing_repository_cluster.enabled>
+          true
+        </helm.edusharing_repository_cluster.enabled>
+
+      </properties>
+
+    </profile>
+
+    <profile>
+
+      <id>repository.elastic</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.REPOSITORY_ELASTIC_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>elastic</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-index:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-index:tar.gz:bin.range', semver)
+                    ]]></script>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-tracker:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-tracker:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <properties>
+
+        <helm.edusharing_repository_search_elastic_index.enabled>
+          true
+        </helm.edusharing_repository_search_elastic_index.enabled>
+        <helm.edusharing_repository_search_elastic_index.line1>
+          - name: edu_sharing-community-repository-plugin-elastic-index
+        </helm.edusharing_repository_search_elastic_index.line1>
+        <helm.edusharing_repository_search_elastic_index.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-index:tar.gz:bin.range}
+        </helm.edusharing_repository_search_elastic_index.line2>
+        <helm.edusharing_repository_search_elastic_index.line3>
+          alias: edusharing_repository_search_elastic_index
+        </helm.edusharing_repository_search_elastic_index.line3>
+        <helm.edusharing_repository_search_elastic_index.line4>
+          condition: edusharing_repository_search_elastic.enabled
+        </helm.edusharing_repository_search_elastic_index.line4>
+
+        <helm.edusharing_repository_search_elastic_tracker.enabled>
+          true
+        </helm.edusharing_repository_search_elastic_tracker.enabled>
+        <helm.edusharing_repository_search_elastic_tracker.line1>
+          - name: edu_sharing-community-repository-plugin-elastic-tracker
+        </helm.edusharing_repository_search_elastic_tracker.line1>
+        <helm.edusharing_repository_search_elastic_tracker.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-tracker:tar.gz:bin.range}
+        </helm.edusharing_repository_search_elastic_tracker.line2>
+        <helm.edusharing_repository_search_elastic_tracker.line3>
+          alias: edusharing_repository_search_elastic_tracker
+        </helm.edusharing_repository_search_elastic_tracker.line3>
+        <helm.edusharing_repository_search_elastic_tracker.line4>
+          condition: edusharing_repository_search_elastic_tracker.enabled
+        </helm.edusharing_repository_search_elastic_tracker.line4>
+
+      </properties>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-index</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-repository-plugin-elastic-deploy-docker-helm-tracker</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+    <profile>
+
+      <id>repository.mongo</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.REPOSITORY_MONGO_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>mongo</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-repository-plugin-mongo-deploy-docker-helm:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-repository-plugin-mongo-deploy-docker-helm:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <properties>
+
+        <helm.edusharing_repository_mongo.enabled>
+          true
+        </helm.edusharing_repository_mongo.enabled>
+        <helm.edusharing_repository_mongo.line1>
+          - name: edu_sharing-community-repository-plugin-mongo
+        </helm.edusharing_repository_mongo.line1>
+        <helm.edusharing_repository_mongo.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-community-repository-plugin-mongo-deploy-docker-helm:tar.gz:bin.range}
+        </helm.edusharing_repository_mongo.line2>
+        <helm.edusharing_repository_mongo.line3>
+          alias: edusharing_repository_mongo
+        </helm.edusharing_repository_mongo.line3>
+        <helm.edusharing_repository_mongo.line4>
+          condition: edusharing_repository_mongo.enabled
+        </helm.edusharing_repository_mongo.line4>
+
+      </properties>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-repository-plugin-mongo-deploy-docker-helm</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+    <profile>
+
+      <id>repository.transform</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.REPOSITORY_TRANSFORM_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>transform</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-enterprise-repository-plugin-transform-deploy-docker-helm:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-enterprise-repository-plugin-transform-deploy-docker-helm:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <properties>
+
+        <helm.edusharing_repository_transform.enabled>true</helm.edusharing_repository_transform.enabled>
+        <helm.edusharing_repository_transform.line1>
+          - name: edu_sharing-enterprise-repository-plugin-transform
+        </helm.edusharing_repository_transform.line1>
+        <helm.edusharing_repository_transform.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-enterprise-repository-plugin-transform-deploy-docker-helm:tar.gz:bin.range}
+        </helm.edusharing_repository_transform.line2>
+        <helm.edusharing_repository_transform.line3>
+          alias: edusharing_repository_transform
+        </helm.edusharing_repository_transform.line3>
+        <helm.edusharing_repository_transform.line4>
+          condition: edusharing_repository_transform.enabled
+        </helm.edusharing_repository_transform.line4>
+
+      </properties>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-enterprise-repository-plugin-transform-deploy-docker-helm</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+  </profiles>
+
+</project>

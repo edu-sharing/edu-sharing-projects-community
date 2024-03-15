@@ -1,0 +1,73 @@
+apiVersion: v2
+
+name: ${helm.prefix}-repository
+description: ${helm.prefix}-repository
+
+icon: ${helm.chart.icon}
+
+version: ${helm.chart.version}
+appVersion: ${docker.tag}
+kubeVersion: "${helm.kube.version}"
+
+dependencies:
+
+  - name: edu_sharing-community-common-lib
+    repository: ${helm.deploy.url}
+    version: 1.x.x
+
+  - name: edu_sharing-community-common-postgresql
+    repository: ${helm.deploy.url}
+    version: 1.x.x
+    alias: edusharing_repository_postgresql
+    condition: edusharing_repository_postgresql.enabled
+
+  - name: edu_sharing-community-common-rediscluster
+    repository: ${helm.deploy.url}
+    version: 1.x.x
+    alias: edusharing_repository_rediscluster
+    condition: edusharing_repository_rediscluster.enabled
+
+  - name: edu_sharing-community-repository-search-solr
+    ${helm.edusharing_repository_search_solr.line2}
+    alias: edusharing_repository_search_solr
+    condition: edusharing_repository_search_solr.enabled
+
+  - name: edu_sharing-community-repository-service
+    ${helm.edusharing_repository_search_solr.line2}
+    alias: edusharing_repository_service
+    condition: edusharing_repository_service.enabled
+
+  - name: edu_sharing-community-repository-transform-aio
+    ${helm.edusharing_repository_transform_aio.line2}
+    alias: edusharing_repository_transform_aio
+    condition: edusharing_repository_transform_aio.enabled
+
+  - name: edu_sharing-community-repository-transform-es
+    ${helm.edusharing_repository_transform_es.line2}
+    alias: edusharing_repository_transform_es
+    condition: edusharing_repository_transform_es.enabled
+
+  ${helm.edusharing_repository_antivirus.line1}
+    ${helm.edusharing_repository_antivirus.line2}
+    ${helm.edusharing_repository_antivirus.line3}
+    ${helm.edusharing_repository_antivirus.line4}
+  
+  ${helm.edusharing_repository_mongo.line1}
+    ${helm.edusharing_repository_mongo.line2}
+    ${helm.edusharing_repository_mongo.line3}
+    ${helm.edusharing_repository_mongo.line4}
+
+  ${helm.edusharing_repository_search_elastic_index.line1}
+    ${helm.edusharing_repository_search_elastic_index.line2}
+    ${helm.edusharing_repository_search_elastic_index.line3}
+    ${helm.edusharing_repository_search_elastic_index.line4}
+  
+  ${helm.edusharing_repository_search_elastic_tracker.line1}
+    ${helm.edusharing_repository_search_elastic_tracker.line2}
+    ${helm.edusharing_repository_search_elastic_tracker.line3}
+    ${helm.edusharing_repository_search_elastic_tracker.line4}
+
+  ${helm.edusharing_repository_transform.line1}
+    ${helm.edusharing_repository_transform.line2}
+    ${helm.edusharing_repository_transform.line3}
+    ${helm.edusharing_repository_transform.line4}
