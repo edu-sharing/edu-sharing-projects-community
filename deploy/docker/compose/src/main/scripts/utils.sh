@@ -195,14 +195,14 @@ backup() {
     $COMPOSE_EXEC pause repository-search-elastic-tracker repository-service || true
   fi
 
- if [[ -n $solr ]] ; then
+  if [[ -n $solr ]] ; then
     echo "### backup solr4"
     if [[ -n $compressed ]] ; then
       docker run \
         --rm \
-        --volumes-from "$(docker compose ps repository-search-solr4 -q)" \
+        --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q)" \
         -v "$backupDir":/backup \
-        --network "$(docker inspect "$(docker compose ps repository-search-solr4 -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-solr4 -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         bitnami/minideb:bullseye \
         bash -c '
           check_Backup_status() {
@@ -241,9 +241,9 @@ backup() {
       else
         docker run \
           --rm \
-          --volumes-from "$(docker compose ps repository-search-solr4 -q)" \
+          --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q)" \
           -v "$backupDir":/backup/ \
-          --network "$(docker inspect "$(docker compose ps repository-search-solr4 -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+          --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-solr4 -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
           bitnami/minideb:bullseye \
           bash -c '
             check_Backup_status() {
@@ -284,7 +284,7 @@ backup() {
       docker run \
         --rm \
         -ti \
-        -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=http://repository-search-elastic-index:9200/workspace \
         --output=$ \
@@ -297,7 +297,7 @@ backup() {
       docker run \
         --rm \
         -ti \
-        -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=http://repository-search-elastic-index:9200/transactions \
         --output=$ \
@@ -310,7 +310,7 @@ backup() {
         docker run \
           --rm \
           -ti \
-          -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+          -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
           elasticdump/elasticsearch-dump \
           --input=http://repository-search-elastic-index:9200/workspace \
           --output=/tmp/elastic_workspace.json || {
@@ -322,7 +322,7 @@ backup() {
         docker run \
           --rm \
           -ti \
-          -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+          -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
           elasticdump/elasticsearch-dump \
           --input=http://repository-search-elastic-index:9200/transactions \
           --output=/tmp/elastic_transactions.json || {
@@ -333,41 +333,23 @@ backup() {
       fi
   fi
 
+
   if [[ -n $repodb ]] ; then
-    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
-       echo "backup mongo"
-
-       if [[ -n $compressed ]] ; then
-         $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.gz" || {
-           rm -rf "$backupDir"
-           echo "ERROR on creating mongodb dump"
-           exit 1
-         }
-       else
-          $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.dump" || {
-            rm -rf "$backupDir"
-            echo "ERROR on creating mongodb dump"
-            exit 1
-          }
-       fi
-    fi
-
     echo "backup postgres"
+
     if [[ -n $compressed ]] ; then
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres | gzip" >"$backupDir/repository-db.gz" || {
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --username ${REPOSITORY_DATABASE_USER:-repository} --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository} | gzip" >"$backupDir/repository-db.gz" || {
         rm -rf "$backupDir"
         echo "ERROR on creating postgres dump"
         exit 1
       }
     else
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dumpall --clean -U postgres" > "$backupDir/repository-db.sql" || {
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --username ${REPOSITORY_DATABASE_USER:-repository} --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository}" > "$backupDir/repository-db.sql" || {
         rm -rf "$backupDir"
         echo "ERROR on creating postgres dump"
         exit 1
       }
     fi
-
-
   fi
 
   if [[ -n $repobinaries ]] ; then
@@ -375,7 +357,7 @@ backup() {
     if [[ -n $compressed ]] ; then
       docker run \
         --rm \
-        --volumes-from "$(docker compose ps repository-service -q -a)" \
+        --volumes-from "$($COMPOSE_EXEC ps repository-service -q -a)" \
         -v "$backupDir":/backup \
         bitnami/minideb:bullseye \
         bash -c '
@@ -389,7 +371,7 @@ backup() {
     else
        docker run \
          --rm \
-         --volumes-from "$(docker compose ps repository-service -q -a)" \
+         --volumes-from "$($COMPOSE_EXEC ps repository-service -q -a)" \
          -v "$backupDir":/backup \
          bitnami/minideb:bullseye \
          bash -c '
@@ -401,7 +383,6 @@ backup() {
          }
     fi
   fi
-
 
   if [[ -z $hotBackup ]] ; then
     echo "### unpause repository and elastic tracker services"
@@ -454,11 +435,12 @@ restore() {
   $COMPOSE_EXEC stop $container
 
   if [[ -n $repo ]] ; then
+    # restore binaries
     if [[ -f "$backupDir/binaries.tar" ]] ; then
     echo "### restore binaries"
     docker run \
       --rm \
-      --volumes-from "$(docker compose ps repository-service -q -a)" \
+      --volumes-from "$($COMPOSE_EXEC ps repository-service -q -a)" \
       -v "$backupDir":/backup \
       bitnami/minideb:bullseye \
       bash -c '
@@ -471,7 +453,7 @@ restore() {
       echo "### restore binaries"
       docker run \
         --rm \
-        --volumes-from "$(docker compose ps repository-service -q -a)" \
+        --volumes-from "$($COMPOSE_EXEC ps repository-service -q -a)" \
         -v "$backupDir":/backup \
         bitnami/minideb:bullseye \
         bash -c '
@@ -482,12 +464,27 @@ restore() {
         '
     fi
 
-    if [[ -f "$backupDir/repository-db.gz" ]] ; then
       echo "### restore postgres"
-      gunzip <"$backupDir/repository-db.gz" | $COMPOSE_EXEC exec -T repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; psql -U postgres"
-    elif [[ -f "$backupDir/repository-db.sql" ]]; then
-      echo "### restore postgres"
-      $COMPOSE_EXEC exec -T repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; psql -U postgres" < "$backupDir/repository-db.sql"
+    if [[ -f "$backupDir/repository-db.gz" ]] || [[ -f "$backupDir/repository-db.sql" ]]; then
+      if [[ -f "$backupDir/repository-db.gz" ]] ; then
+        gunzip <"$backupDir/repository-db.gz" | $COMPOSE_EXEC exec -T repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_restore --username ${REPOSITORY_DATABASE_USER:-repository} --dbname ${REPOSITORY_DATABASE_NAME:-repository} --no-owner --no-privileges"
+      elif [[ -f "$backupDir/repository-db.sql" ]]; then
+        $COMPOSE_EXEC exec -T repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_restore --username ${REPOSITORY_DATABASE_USER:-repository} --dbname ${REPOSITORY_DATABASE_NAME:-repository} --no-owner --no-privileges" < "$backupDir/repository-db.sql"
+      fi
+
+      echo "### reset solr4"
+      docker run \
+              --rm \
+              --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q -a)" \
+              bitnami/minideb:bullseye \
+              bash -c '
+                rm -rf /opt/alfresco/alf_data/solr4/index || true
+                rm -rf /opt/alfresco/alf_data/solr4/content || true
+                rm -rf /opt/alfresco/alf_data/solr4/model || true
+              '
+
+      echo "### reset elastic"
+      $COMPOSE_EXEC exec -T repository-search-elastic-index bash -c 'rm -rf /usr/share/elasticsearch/data/nodes || true' || true
     fi
 
     if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
@@ -505,7 +502,7 @@ restore() {
     echo "### restore solr4"
     docker run \
       --rm \
-      --volumes-from "$(docker compose ps repository-search-solr4 -q -a)" \
+      --volumes-from "$($COMPOSE_EXEC ps repository-search-solr4 -q -a)" \
       -v "$backupDir":/backup \
       bitnami/minideb:bullseye \
       bash -c '
@@ -532,11 +529,12 @@ restore() {
   fi
 
   if [[ -n $elastic ]] ; then
-    echo "backup elastic"
+    echo "restore elastic"
+
     if [[ -f "$backupDir/elastic_workspace.gz" ]] ; then
       docker run \
         --rm \
-        -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=/tmp/elastic_workspace.gz \
         --output=http://repository-search-elastic-index:9200/workspace \
@@ -545,7 +543,7 @@ restore() {
     elif [[ -f "$backupDir/elastic_workspace.json" ]] ; then
       docker run \
         --rm \
-        -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=/tmp/elastic_workspace.json \
         --output=http://repository-search-elastic-index:9200/workspace \
@@ -555,7 +553,7 @@ restore() {
     if [[ -f "$backupDir/elastic_transactions.gz" ]] ; then
       docker run \
         --rm \
-        -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=/tmp/elastic_transactions.gz  \
         --output=http://repository-search-elastic-index:9200/transactions \
@@ -564,7 +562,7 @@ restore() {
     elif [[ -f "$backupDir/elastic_transactions.json" ]]; then
       docker run \
         --rm \
-        -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+        -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q -a)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=/tmp/elastic_transactions.json  \
         --output=http://repository-search-elastic-index:9200/transactions \

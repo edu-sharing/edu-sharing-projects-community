@@ -70,9 +70,6 @@ spec:
       - name: {{ include "edusharing_repository_service.name" . }}-server
         image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-repository-build-service:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
-        {{- if default .Values.global.debug .Values.debug }}
-        args: [ "catalina.sh", "jpda", "run" ]
-        {{- end }}
         {{- $patroni := merge .Values.config.database.patroni .Values.global.patroni }}
         {{- if $patroni.enabled }}
         env:
