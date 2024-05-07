@@ -4,6 +4,14 @@ lowercaseOutputName: true
 blacklistObjectNames:
   - "org.apache.logging.log4j2:*"
   - "org.alfresco.repo.admin:*"
+  # unused metrics (reduces the memory load for the metrics export)
+  - "JMImplementation:*"
+  - "Users:*"
+  - "com.sun.management:*"
+  - "java.lang:*"
+  - "java.nio:*"
+  - "java.util.logging:*"
+  - "jdk.management.jfr:*"
 rules:
   - pattern: 'Alfresco<type=DataSource><>(.*)Connections:'
     name: alfresco_datasource_$1_connection

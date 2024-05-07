@@ -26,7 +26,12 @@ my_home_appid="${REPOSITORY_SERVICE_HOME_APPID:-local}"
 my_home_auth="${REPOSITORY_SERVICE_HOME_AUTH:-}"
 my_home_auth_external="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL:-false}"
 my_home_auth_external_login="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN:-$my_path_external/shibboleth}"
-my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-}"
+
+my_home_auth_external_logout="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT:-/Shibboleth.sso/Logout}"
+my_home_auth_external_logout_destroy_session="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT_DESTROY_SESSION:-"false"}"
+my_home_auth_external_logout_redirect="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT_REDIRECT:-"false"}"
+my_home_auth_external_logout_redirect_url="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGOUT_REDIRECT_URL:-$my_base_external}"
+
 my_home_auth_external_login_providers_url="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN_PROVIDERS_URL:-}"
 my_home_auth_external_login_provider_target_url="${REPOSITORY_SERVICE_HOME_AUTH_EXTERNAL_LOGIN_PROVIDER_TARGET_URL:-}"
 my_home_provider="${REPOSITORY_SERVICE_HOME_PROVIDER:-}"
@@ -453,19 +458,25 @@ xmlstarlet ed -L \
           -s '/config/values' -t elem -n 'loginProviderTargetUrl' -v '' \
           -d '/config/values/loginProviderTargetUrl[position() != 1]' \
     			-u '/config/values/loginProviderTargetUrl' -v "${my_home_auth_external_login_provider_target_url}" \
+    			-s '/config/values' -t elem -n 'logout' -v '' \
+          -d '/config/values/logout[position() != 1]' \
+          -s '/config/values/logout' -t elem -n 'url' -v '' \
+          -d '/config/values/logout/url[position() != 1]' \
+          -u '/config/values/logout/url' -v "${my_home_auth_external_logout}" \
+          -s '/config/values/logout' -t elem -n 'destroySession' -v '' \
+          -d '/config/values/logout/destroySession[position() != 1]' \
+          -u '/config/values/logout/destroySession' -v "${my_home_auth_external_logout_destroy_session}" \
           ${eduCConf}
 
-          if [[ -n "${my_home_auth_external_logout}" ]] ; then
-             xmlstarlet ed -L \
-                  -s '/config/values' -t elem -n 'logout' -v '' \
-                  -d '/config/values/logout[position() != 1]' \
-                  -s '/config/values/logout' -t elem -n 'url' -v '' \
-                  -d '/config/values/logout/url[position() != 1]' \
-                  -u '/config/values/logout/url' -v "${my_home_auth_external_logout}" \
-                  -s '/config/values/logout' -t elem -n 'destroySession' -v '' \
-                  -d '/config/values/logout/destroySession[position() != 1]' \
-                  -u '/config/values/logout/destroySession' -v 'false' \
-                  ${eduCConf}
+          if [[ "${my_home_auth_external_logout_redirect}" == "true" ]] ; then
+            xmlstarlet ed -L \
+              -s '/config/values/logout' -t elem -n 'ajax' -v '' \
+              -d '/config/values/logout/ajax[position() != 1]' \
+              -u '/config/values/logout/ajax' -v 'true' \
+              -s '/config/values/logout' -t elem -n 'next' -v '' \
+              -d '/config/values/logout/next[position() != 1]' \
+              -u '/config/values/logout/next' -v "${my_home_auth_external_logout_redirect_url}" \
+              ${eduCConf}
           fi
   else
 		sed -i -r 's|<!--\s*SAML||g' tomcat/webapps/edu-sharing/WEB-INF/web.xml

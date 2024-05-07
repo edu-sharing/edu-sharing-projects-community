@@ -32,6 +32,8 @@ data:
   {{- end }}
   SERVICES_RENDERING_SERVICE_PORT_EXTERNAL: {{ if .Values.ingress.tls }}"443"{{ else }}"80"{{ end }}
   SERVICES_RENDERING_SERVICE_PORT_INTERNAL: {{ .Values.service.port.api.internal | quote }}
+  SERVICES_RENDERING_SERVICE_DYNAMIC_URL: {{ .Values.service.url.dynamic | quote }}
+  SERVICES_RENDERING_SERVICE_CUSTOM_CONTENT_URL: {{ .Values.service.url.content | quote }}
   SERVICES_RENDERING_SERVICE_PROT_EXTERNAL: {{ if .Values.ingress.tls }}"https"{{ else }}"http"{{ end }}
   {{- with .Values.config.http.client.proxy.nonproxyhosts }}
   SERVICES_RENDERING_SERVICE_PROXY_NONPROXYHOSTS: '{{- join "," . }}'
@@ -47,3 +49,6 @@ data:
   SERVICES_RENDERING_VIDEO_FORMATS: {{ .Values.config.converter.video.formats | quote }}
   SERVICES_RENDERING_VIDEO_RESOLUTIONS: {{ .Values.config.converter.video.resolution.all | quote }}
   SERVICES_RENDERING_VIDEO_DEFAULT_RESOLUTION: {{ .Values.config.converter.video.resolution.default | quote }}
+  SERVICES_RENDERING_VIDEO_THREADS: {{ .Values.config.converter.video.threads | quote }}
+  SERVICES_RENDERING_VIDEO_TIMEOUT: {{ .Values.config.converter.video.timeout | quote }}
+  SERVICES_RENDERING_H5P_DISABLE_CACHE_DELAY: {{ .Values.config.h5p.disableCacheDelay | quote }}
