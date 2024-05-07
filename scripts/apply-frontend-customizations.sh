@@ -8,14 +8,18 @@ set -e
 # Relative location of the edu-sharing Git-repository root.
 REPO_ROOT="../../repository"
 # Frontend source directory, relative to $REPO_ROOT.
-FRONTEND_SRC="Frontend/src"
+# Frontend source directory, relative to $REPO_ROOT.
+FRONTEND_SRC="Frontend"
 # Relative location of the source directory of extension frontend customizations.
-EXTENSION_SRC="../repository/Frontend/src/main/ng/src"
+EXTENSION_SRC="../repository/Frontend/src/main/ng"
+
+# folders to obey and watch for changes
+EXTENSION_FOLDERS=("src/" "projects/")
 
 show_help_and_exit() {
     echo
     echo "Usage:"
-    echo "        $0 put|get [--force]"
+    echo "        $0 put|get [--force] [--install]"
     echo
     echo "Modes:"
     echo "        put     Applies the contents of the extension directory to the edu-sharing"
@@ -25,6 +29,8 @@ show_help_and_exit() {
     echo
     echo "Options:"
     echo "        --force Overwrites uncommitted changes."
+    echo "Options:"
+    echo "        --install trigger npm install after put (useful if customer has a custom package.json)"
     exit 1
 }
 
@@ -47,6 +53,7 @@ read_args() {
     while [[ "$#" -gt 0 ]]; do
         case $1 in
         --force) force=1 ;;
+        --install) install=1 ;;
         *)
             echo "Unknown parameter passed: $1"
             show_help_and_exit
@@ -104,17 +111,32 @@ check_git_extension() {
 }
 
 put() {
-    cp -r "$EXTENSION_SRC/." "$REPO_ROOT/$FRONTEND_SRC"
+  for i in "${EXTENSION_FOLDERS[@]}"
+      do
+         cp -r --verbose "$EXTENSION_SRC/$i." "$REPO_ROOT/$FRONTEND_SRC/$i"
+  done
+  if [[ "$install" == 1 ]]; then
+    pushd $REPO_ROOT/$FRONTEND_SRC
+    mv src/app/extension/package.json src/app/extension/package.json.bak
+    # clear devDependencies since they might have internal repositories that are not available / configured
+    jq 'del(.devDependencies)' src/app/extension/package.json.bak > src/app/extension/package.json
+    npm i --no-package-lock
+    mv src/app/extension/package.json.bak src/app/extension/package.json
+  fi
 }
 
 get() {
-    rm -rf "$EXTENSION_SRC"
-    mkdir "$EXTENSION_SRC"
+    for i in "${EXTENSION_FOLDERS[@]}"
+    do
+      rm -rf "$EXTENSION_SRC/$i"
+      mkdir "$EXTENSION_SRC/$i"
+    done
     pushd "$REPO_ROOT" >/dev/null
     files=$(git add -A -n "$FRONTEND_SRC" | sed "s|^add '$FRONTEND_SRC/\(.*\)'$|\1|")
     submodule_files=$(git submodule foreach --quiet 'git add -A -n | sed "s|^add '"'"'\(.*\)'"'"'$|$name/\1|" | sed "s|^'$FRONTEND_SRC'/\(.*\)|\1|"')
     popd >/dev/null
     (echo "$files" && echo "$submodule_files") | while read file; do
+        echo $file
         if [[ ! -z "$file" && ! -d "$REPO_ROOT/$FRONTEND_SRC/$file" ]]; then
             install -D --mode=644 "$REPO_ROOT/$FRONTEND_SRC/$file" "$EXTENSION_SRC/$file"
         fi
