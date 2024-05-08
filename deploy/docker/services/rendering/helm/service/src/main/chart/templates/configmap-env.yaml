@@ -15,6 +15,7 @@ data:
   SERVICES_RENDERING_DATABASE_HOST: {{ .Values.config.database.host | quote }}
   SERVICES_RENDERING_DATABASE_NAME: {{ .Values.config.database.database | quote }}
   SERVICES_RENDERING_DATABASE_PORT: {{ .Values.config.database.port | quote }}
+  SERVICES_RENDERING_SERVICE_CACHE_CLEANER_USE_DISK_SIZE: {{ .Values.job.cachecleaner.config.useDiskSize | quote }}
   SERVICES_RENDERING_SERVICE_GDPR_ENABLED: {{ .Values.config.gdpr.enabled | quote }}
   {{- with .Values.config.gdpr.modules }}
   SERVICES_RENDERING_SERVICE_GDPR_MODULES: '{{- join "," . }}'

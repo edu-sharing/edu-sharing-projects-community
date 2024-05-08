@@ -329,6 +329,9 @@ job:
 
   cachecleaner:
 
+    config:
+      useDiskSize: true
+
     podAnnotations: {}
 
     resources:
