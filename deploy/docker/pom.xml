@@ -30,7 +30,7 @@
     </docker.edu_sharing.community.common.redis.exporter.name>
 
     <docker.edu_sharing.community.common.redis.exporter.tag>
-      1.45.0
+      1.59.0
     </docker.edu_sharing.community.common.redis.exporter.tag>
 
     <docker.edu_sharing.community.common.redis-cluster.name>
@@ -38,7 +38,7 @@
     </docker.edu_sharing.community.common.redis-cluster.name>
 
     <docker.edu_sharing.community.common.redis-cluster.tag>
-      6.2.7
+      6.2.14
     </docker.edu_sharing.community.common.redis-cluster.tag>
 
     <helm.kube.version>&gt;= 1.20.0</helm.kube.version>
