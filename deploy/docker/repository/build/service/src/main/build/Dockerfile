@@ -199,6 +199,11 @@ COPY --chown=worker:worker assets/profiler profiler/
 
 ########################################################################################################################
 
+RUN set -eux \
+    && chmod -R o+w /opt/bitnami/tomcat/conf /opt/bitnami/tomcat/lib /opt/bitnami/tomcat/logs /opt/bitnami/tomcat/temp /opt/bitnami/tomcat/webapps /opt/bitnami/tomcat/work
+
+########################################################################################################################
+
 USER worker
 
 EXPOSE 8009 8080 8081

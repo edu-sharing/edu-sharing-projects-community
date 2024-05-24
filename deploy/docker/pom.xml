@@ -47,10 +47,10 @@
       dockerio.mirror.docker.edu-sharing.com/bitnami/redis-exporter:1.45.0
     </docker.from.redis.exporter>
     <docker.from.redis.server>
-      dockerio.mirror.docker.edu-sharing.com/bitnami/redis:6.2.14
+      dockerio.mirror.docker.edu-sharing.com/bitnami/redis:6.2.7
     </docker.from.redis.server>
     <docker.from.rediscluster.server>
-      dockerio.mirror.docker.edu-sharing.com/bitnami/redis-cluster:6.2.14
+      dockerio.mirror.docker.edu-sharing.com/bitnami/redis-cluster:6.2.7
     </docker.from.rediscluster.server>
     <!--suppress UnresolvedMavenProperty -->
     <docker.from.tomcat>
