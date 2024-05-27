@@ -52,6 +52,11 @@ spec:
           if [[ ! "$(ls -A /opt/alfresco/alf_data)" ]]; then
             chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_data
           fi
+          {{- if .Values.persistence.share.safe.enabled }}
+          if [[ ! "$(ls -A /opt/alfresco/alf_safe)" ]]; then
+            chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.podSecurityContext.fsGroup }} /opt/alfresco/alf_safe
+          fi
+          {{- end }}
         volumeMounts:
         - name: data
           mountPath: /opt/bitnami/tomcat/shared/classes/config/node
@@ -59,6 +64,10 @@ spec:
           mountPath: /opt/bitnami/tomcat/shared/classes/config/cluster
         - name: share-data
           mountPath: /opt/alfresco/alf_data
+        {{- if .Values.persistence.share.safe.enabled }}
+        - name: share-safe
+          mountPath: /opt/alfresco/alf_safe
+        {{- end }}
         {{- with .Values.init.permission.resources }}
         resources: {{ toYaml . | nindent 10 }}
         {{- end }}
@@ -108,6 +117,10 @@ spec:
           mountPath: /opt/bitnami/tomcat/shared/classes/config/cluster
         - name: share-data
           mountPath: /opt/alfresco/alf_data
+        {{- if .Values.persistence.share.safe.enabled }}
+        - name: share-safe
+          mountPath: /opt/alfresco/alf_safe
+        {{- end }}
         {{- with .Values.config.override.config.application.client }}
         - name: file
           mountPath: /opt/bitnami/tomcat/shared/classes/config/defaults/client.config.override.xml
@@ -364,6 +377,11 @@ spec:
       - name: share-data
         persistentVolumeClaim:
           claimName: {{ include "edusharing_repository_service.pvc.share.data" . }}
+      {{- if .Values.persistence.share.safe.enabled }}
+      - name: share-safe
+        persistentVolumeClaim:
+          claimName: {{ include "edusharing_repository_service.pvc.share.safe" . }}
+      {{- end }}
       - name: file
         configMap:
           name: {{ include "edusharing_repository_service.name" . }}-file

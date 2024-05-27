@@ -52,6 +52,7 @@ RUN set -eux \
     && adduser --uid=1000 --home=$ALF_HOME --disabled-password --gecos "" --shell=/bin/bash worker \
     && mkdir -p bin \
     && mkdir -p alf_data \
+    && mkdir -p alf_safe \
     && mkdir -p tomcat/logs \
     && touch tomcat/logs/catalina.out \
     && mkdir -p tomcat/shared/classes/alfresco \
@@ -173,6 +174,7 @@ COPY --chown=worker:worker shared tomcat/shared/
 
 RUN set -eux \
     && chown -RL worker:worker alf_data \
+    && chown -RL worker:worker alf_safe \
     && chown -RL worker:worker tomcat/conf \
     && chown -RL worker:worker tomcat/shared \
     && chown -RL worker:worker tomcat/webapps \
@@ -206,7 +208,7 @@ EXPOSE 8009 8080 8081
 ENTRYPOINT ["entrypoint.sh"]
 CMD [ "/opt/bitnami/scripts/tomcat/run.sh" ]
 
-VOLUME [ "/opt/alfresco/alf_data", "/opt/bitnami/tomcat/shared/classes/config/cluster", "/opt/bitnami/tomcat/shared/classes/config/node" ]
+VOLUME [ "/opt/alfresco/alf_data", "/opt/alfresco/alf_safe", "/opt/bitnami/tomcat/shared/classes/config/cluster", "/opt/bitnami/tomcat/shared/classes/config/node" ]
 
 ########################################################################################################################
 
