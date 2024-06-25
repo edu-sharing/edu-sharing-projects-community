@@ -338,13 +338,13 @@ backup() {
     echo "backup postgres"
 
     if [[ -n $compressed ]] ; then
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository} | gzip" >"$backupDir/repository-db.gz" || {
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --username ${REPOSITORY_DATABASE_USER:-repository} --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository} | gzip" >"$backupDir/repository-db.gz" || {
         rm -rf "$backupDir"
         echo "ERROR on creating postgres dump"
         exit 1
       }
     else
-      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository}" > "$backupDir/repository-db.sql" || {
+      $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --username ${REPOSITORY_DATABASE_USER:-repository} --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository}" > "$backupDir/repository-db.sql" || {
         rm -rf "$backupDir"
         echo "ERROR on creating postgres dump"
         exit 1
