@@ -128,7 +128,7 @@ spec:
         {{- end }}
         {{- with .Values.config.override.config.application.mds }}
         - name: file
-          mountPath: /opt/bitnami/tomcat/shared/classes/config/default/metadatasets/xml/mds_override.xml
+          mountPath: /opt/bitnami/tomcat/shared/classes/config/defaults/metadatasets/xml/mds_override.xml
           subPath: config-application-mds
         {{- end }}
         {{- with .Values.config.override.logging.application }}
