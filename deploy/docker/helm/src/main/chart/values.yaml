@@ -2,35 +2,49 @@
 # GLOBAL
 ########################################################################################################################
 
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 global:
 
   cluster:
 
     istio:
+      ## @param global.cluster.istio.enabled Enable Istio Service mesh
       enabled: false
 
   metrics:
     prometheus:
+      ## @param global.metrics.prometheus.enabled Enable global prometheus metrics
       enabled: false
+      ## @param global.metrics.prometheus.retention Set prometheus metric retention time
       retention: 1w
     scrape:
+      ## @param global.metrics.scrape.interval Set prometheus scrape interval
       interval: 10s
+      ## @param global.metrics.scrape.timeout Set prometheus scrape timeout
       timeout: 10s
     servicemonitor:
+      ## @param global.metrics.servicemonitor.enabled Enable metrics service monitor
       enabled: false
 
 ########################################################################################################################
 # LOCAL
 ########################################################################################################################
 
+## @section Local parameters
+## @param nameOverride Override name
 nameOverride: edusharing
 
 image:
+  ## @param image.pullSecrets How to pull secrets
+  ## e.g.:
+  ## pullSecrets:
+  ##  - name: registry
+  ##    server: docker.edu-sharing.com
+  ##    username: someone
+  ##    password: secret
   pullSecrets: []
-#  - name: registry
-#    server: docker.edu-sharing.com
-#    username: someone
-#    password: secret
 
 ########################################################################################################################
 # DEPENDENCY
@@ -38,16 +52,21 @@ image:
 
 edusharing_rediscluster:
 
+  ## @param edusharing_rediscluster.enabled Enable edusharing rediscluster
   enabled: true
 
+  ## @param edusharing_rediscluster.nameOverride Override edusharing rediscluster name
   nameOverride: &redisclusterNameOverride edusharing-rediscluster
 
   image:
+    ## @param edusharing_rediscluster.image.name Set rediscluster image name
     name: ${docker.edu_sharing.community.common.redis-cluster.name}
+    ## @param edusharing_rediscluster.image.tag Set rediscluster image tag
     tag: ${docker.edu_sharing.community.common.redis-cluster.tag}
 
   service:
     port:
+      ## @param edusharing_rediscluster.service.port.api Set port for rediscluster service api
       api: &redisclusterServicePortApi 6379
 
   init:
@@ -55,13 +74,17 @@ edusharing_rediscluster:
     permission:
 
       image:
+        ## @param edusharing_rediscluster.init.permission.image.name Set rediscluster init image name
         name: ${docker.edu_sharing.community.common.minideb.name}
+        ## @param edusharing_rediscluster.init.permission.image.tag Set rediscluster init image tag
         tag: ${docker.edu_sharing.community.common.minideb.tag}
 
     sysctl:
 
       image:
+        ## @param edusharing_rediscluster.init.sysctl.image.name Set rediscluster init sysctl image name
         name: ${docker.edu_sharing.community.common.minideb.name}
+        ## @param edusharing_rediscluster.init.sysctl.image.tag Set rediscluster init sysctl image tag
         tag: ${docker.edu_sharing.community.common.minideb.tag}
 
   sidecar:
@@ -69,42 +92,53 @@ edusharing_rediscluster:
     metrics:
 
       image:
+        ## @param edusharing_rediscluster.sidecar.metrics.image.name Set rediscluster sidecar metrics image name
         name: ${docker.edu_sharing.community.common.redis.exporter.name}
+        ## @param edusharing_rediscluster.sidecar.metrics.image.tag Set rediscluster sidecar metrics image tag
         tag: ${docker.edu_sharing.community.common.redis.exporter.tag}
 
 ########################################################################################################################
 
 edusharing_repository:
 
+  ## @param edusharing_repository.enabled Enable repository
   enabled: true
 
   edusharing_repository_rediscluster:
 
+    ## @param edusharing_repository.edusharing_repository_rediscluster.enabled Enable repository rediscluster
     enabled: false
 
   edusharing_repository_service:
 
+    ## @param edusharing_repository.edusharing_repository_service.nameOverride Override repository service name
     nameOverride: &repositoryNameOverride edusharing-repository-service
 
     service:
       port:
         api:
+          ## @param edusharing_repository.edusharing_repository_service.service.port.api.internal Set internal repository service api port
           internal: &repositoryServicePostApiInternal 8080
 
     config:
 
       cache:
+        ## @param edusharing_repository.edusharing_repository_service.config.cache.host Set host for repository service redis config cache
         host: *redisclusterNameOverride
+        ## @param edusharing_repository.edusharing_repository_service.config.cache.port Set port for repository service redis config cache
         port: *redisclusterServicePortApi
+
 
 ########################################################################################################################
 
 edusharing_services_rendering:
 
+  ## @param edusharing_services_rendering.enabled Enable rendering service
   enabled: true
 
   edusharing_services_rendering_rediscluster:
 
+    ## @param edusharing_services_rendering.edusharing_services_rendering_rediscluster.enabled Enable rediscluster rendering service
     enabled: false
 
   edusharing_services_rendering_service:
@@ -112,11 +146,15 @@ edusharing_services_rendering:
     config:
 
       cache:
+        ## @param edusharing_services_rendering.edusharing_services_rendering_service.config.cache.host Set host for rendering service cache
         host: *redisclusterNameOverride
+        ## @param edusharing_services_rendering.edusharing_services_rendering_service.config.cache.port Set port for rendering service cache
         port: *redisclusterServicePortApi
 
       repository:
+        ## @param edusharing_services_rendering.edusharing_services_rendering_service.config.repository.host Set host for rendering service repository
         host: *repositoryNameOverride
+        ## @param edusharing_services_rendering.edusharing_services_rendering_service.config.repository.port Set port for rendering service repository
         port: *repositoryServicePostApiInternal
 
 ########################################################################################################################
