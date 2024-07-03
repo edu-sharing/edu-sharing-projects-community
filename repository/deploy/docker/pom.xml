@@ -38,7 +38,7 @@
     </docker.edu_sharing.community.common.postgresql.exporter.name>
 
     <docker.edu_sharing.community.common.postgresql.exporter.tag>
-      0.11.1
+      0.15.0
     </docker.edu_sharing.community.common.postgresql.exporter.tag>
 
     <docker.edu_sharing.community.common.redis.exporter.name>
