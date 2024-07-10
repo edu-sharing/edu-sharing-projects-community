@@ -34,8 +34,8 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      initContainers:
       {{- if (default .Values.global.cluster.storage.share.permission .Values.persistence.share.permission) }}
+      initContainers:
       - name: {{ include "edusharing_repository_service.name" . }}-init-permission
         image: {{ include "edusharing_repository_service.image" . }}{{ .Values.image.prefix }}-deploy-docker-build-minideb:{{ .Values.image.tag }}
         imagePullPolicy: {{ .Values.global.image.pullPolicy }}
