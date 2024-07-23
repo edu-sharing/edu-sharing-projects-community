@@ -375,7 +375,7 @@ terminationGracePeriod: 120
 
 startupProbe:
 
-  failureThreshold: 30
+  failureThreshold: 60
   initialDelaySeconds: 0
   periodSeconds: 30
   successThreshold: 1
