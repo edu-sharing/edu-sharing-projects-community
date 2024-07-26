@@ -1,7 +1,5 @@
 # edu_sharing-projects-community - deploy docker
 
-Prerequisites
--------------
 
 - Docker Engine 18.06.0+
 - Apache Maven 3.8.4+
@@ -9,8 +7,6 @@ Prerequisites
 - PHP Framework 7.4 (<8)
 - Git SCM
 
-Install
--------
 
 1. Please login with your credentials (if necessary):
 
@@ -30,8 +26,6 @@ Install
    ./deploy.sh info
    ```
 
-Build
------
 
 1. Please add following elements to `$HOME/.m2/settings.xml` 
 
@@ -63,8 +57,6 @@ Build
    mvn clean install
    ```
 
-Test
-----
 
 1. [Build](#build) local docker images first.
 
@@ -92,8 +84,6 @@ Test
    ./deploy.sh logs
    ```
 
-Debugging
----------
 
 1. [Build](#build) local docker images first.
 
@@ -135,8 +125,6 @@ Debugging
      ./deploy.sh reload edu-sharing
      ```
 
-Uninstall
----------
 
 1. Shut down an instance by calling:
 
@@ -149,6 +137,8 @@ Uninstall
    ```
    ./deploy.sh remove
    ```
+
+
 
 ---
 If you need more information, please consult

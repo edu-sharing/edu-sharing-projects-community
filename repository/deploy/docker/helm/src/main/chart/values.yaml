@@ -2,52 +2,70 @@
 # GLOBAL
 ########################################################################################################################
 
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 global:
 
   patroni:
+    ## @param global.patroni.name Override Postgres Zalando Patroni name
     name: &postgresqlNameOverride edusharing-repository-postgresql
 
 ########################################################################################################################
 # LOCAL
 ########################################################################################################################
 
+## @section Local parameters
+## @param nameOverride Override repository name
 nameOverride: edusharing-repository
 
 ########################################################################################################################
 # DEPENDENCY
 ########################################################################################################################
 
+## @section Dependency
+
 edusharing_repository_antivirus:
 
+  ## @param edusharing_repository_antivirus.enabled Enable antivirus repository
   enabled: ${helm.edusharing_repository_antivirus.enabled}
 
+  ## @param edusharing_repository_antivirus.nameOverride Override antivirus repository name
   nameOverride: &antivirusNameOverride edusharing-repository-antivirus
 
   service:
 
     port:
+      ## @param edusharing_repository_antivirus.service.port.api Set port for antivirus repository service api
       api: &antivirusServicePortApi 1344
 
 ########################################################################################################################
 
 edusharing_repository_postgresql:
 
+  ## @param edusharing_repository_postgresql.enabled Enable postgresql repository
   enabled: true
 
+  ## @param edusharing_repository_postgresql.nameOverride Override postgresql repository name
   nameOverride: *postgresqlNameOverride
 
   image:
+    ## @param edusharing_repository_postgresql.image.name Set postgresql repository image name
     name: ${docker.edu_sharing.community.common.postgresql.name}
+    ## @param edusharing_repository_postgresql.image.tag Set postgresql repository image tag
     tag: ${docker.edu_sharing.community.common.postgresql.tag}
 
   service:
 
     port:
+      ## @param edusharing_repository_postgresql.service.port.api Set postgresql repository service api port
       api: &postgresqlServicePortApi 5432
 
   config:
 
+    ## @param edusharing_repository_postgresql.config.database Set postgresql repository database
     database: &postgresqlConfigDatabase repository
+    ## @param edusharing_repository_postgresql.config.username Set postgresql repository username
     username: &postgresqlConfigUsername repository
 
   init:
@@ -55,7 +73,9 @@ edusharing_repository_postgresql:
     permission:
 
       image:
+        ## @param edusharing_repository_postgresql.init.permission.image.name Set postgresql repository init permission image name
         name: ${docker.edu_sharing.community.common.minideb.name}
+        ## @param edusharing_repository_postgresql.init.permission.image.tag Set postgresql repository init permission image tag
         tag: ${docker.edu_sharing.community.common.minideb.tag}
 
   job:
@@ -63,7 +83,9 @@ edusharing_repository_postgresql:
     dump:
 
       image:
+        ## @param edusharing_repository_postgresql.job.dump.image.name Set postgresql repository job dump image name
         name: ${docker.edu_sharing.community.common.postgresql.name}
+        ## @param edusharing_repository_postgresql.job.dump.image.tag Set postgresql repository job dump image tag
         tag: ${docker.edu_sharing.community.common.postgresql.tag}
 
   sidecar:
@@ -71,24 +93,31 @@ edusharing_repository_postgresql:
     metrics:
 
       image:
+        ## @param edusharing_repository_postgresql.sidecar.metrics.image.name Set postgresql repository sidecar metrics image name
         name: ${docker.edu_sharing.community.common.postgresql.exporter.name}
+        ## @param edusharing_repository_postgresql.sidecar.metrics.image.tag Set postgresql repository sidecar metrics image tag
         tag: ${docker.edu_sharing.community.common.postgresql.exporter.tag}
 
 ########################################################################################################################
 
 edusharing_repository_rediscluster:
 
+  ## @param edusharing_repository_rediscluster.enabled Enable rediscluster repository
   enabled: true
 
+  ## @param edusharing_repository_rediscluster.nameOverride Override repository rediscluster name
   nameOverride: &redisclusterNameOverride edusharing-repository-rediscluster
 
   image:
+    ## @param edusharing_repository_rediscluster.image.name Set repository rediscluster image name
     name: ${docker.edu_sharing.community.common.redis-cluster.name}
+    ## @param edusharing_repository_rediscluster.image.tag Set repository rediscluster image tag
     tag: ${docker.edu_sharing.community.common.redis-cluster.tag}
 
   service:
 
     port:
+      ## @param edusharing_repository_rediscluster.service.port.api Set port of rediscluster repository service api
       api: &redisclusterServicePortApi 6379
 
   init:
@@ -96,13 +125,17 @@ edusharing_repository_rediscluster:
     permission:
 
       image:
+        ## @param edusharing_repository_rediscluster.init.permission.image.name Set rediscluster repository permission image name
         name: ${docker.edu_sharing.community.common.minideb.name}
+        ## @param edusharing_repository_rediscluster.init.permission.image.tag Set rediscluster repository permission image tag
         tag: ${docker.edu_sharing.community.common.minideb.tag}
 
     sysctl:
 
       image:
+        ## @param edusharing_repository_rediscluster.init.sysctl.image.name Set rediscluster repository sysctl image name
         name: ${docker.edu_sharing.community.common.minideb.name}
+        ## @param edusharing_repository_rediscluster.init.sysctl.image.tag Set rediscluster repository sysctl image tag
         tag: ${docker.edu_sharing.community.common.minideb.tag}
 
   sidecar:
@@ -110,185 +143,247 @@ edusharing_repository_rediscluster:
     metrics:
 
       image:
+        ## @param edusharing_repository_rediscluster.sidecar.metrics.image.name Set rediscluster repository metrics sidecar image name
         name: ${docker.edu_sharing.community.common.redis.exporter.name}
+        ## @param edusharing_repository_rediscluster.sidecar.metrics.image.tag Set rediscluster repository metrics sidecar image tag
         tag: ${docker.edu_sharing.community.common.redis.exporter.tag}
 
 ########################################################################################################################
 
 edusharing_repository_mongo:
 
+  ## @param edusharing_repository_mongo.enabled Enable mongo repository
   enabled: ${helm.edusharing_repository_mongo.enabled}
 
+  ## @param edusharing_repository_mongo.nameOverride Override mongo repository name
   nameOverride: &mongoNameOverride edusharing-repository-mongo
 
   service:
 
     port:
+      ## @param edusharing_repository_mongo.service.port.api Set mongo repository service api port
       api: &mongoServicePortApi 27017
 
   config:
 
+    ## @param edusharing_repository_mongo.config.database Set mongo repository database
     database: &mongoConfigDatabase repository
+    ## @param edusharing_repository_mongo.config.username Set mongo repository username
     username: &mongoConfigUsername repository
 
 ########################################################################################################################
 
 edusharing_repository_search_elastic_index:
 
+  ## @param edusharing_repository_search_elastic_index.enabled Enable search elastic index repository
   enabled: ${helm.edusharing_repository_search_elastic_index.enabled}
 
+  ## @param edusharing_repository_search_elastic_index.nameOverride Override search elastic index repository name
   nameOverride: &searchElasticNameOverride edusharing-repository-search-elastic-index
 
   service:
 
     port:
+      ## @param edusharing_repository_search_elastic_index.service.port.api Set search elastic index repository service api port
       api: &searchElasticServicePortApi 9200
 
 ########################################################################################################################
 
 edusharing_repository_search_solr:
 
+  ## @param edusharing_repository_search_solr.enabled Enable search solr repository
   enabled: true
 
+  ## @param edusharing_repository_search_solr.nameOverride Override search solr repository name
   nameOverride: &searchSolrNameOverride edusharing-repository-search-solr
 
   service:
 
     port:
+      ## @param edusharing_repository_search_solr.service.port.api Set search solr repository service api port
       api: &searchSolrServicePortApi 9200
 
   config:
 
     repository:
+      ## @param edusharing_repository_search_solr.config.repository.host Set search solr repository host
       host: &serviceNameOverride edusharing-repository-service
+      ## @param edusharing_repository_search_solr.config.repository.port Set search solr repository port
       port: &serviceServicePortApiInternal 8080
 
 ########################################################################################################################
 
 edusharing_repository_transform:
 
+  ## @param edusharing_repository_transform.enabled Enable transform repository
   enabled: ${helm.edusharing_repository_transform.enabled}
 
+  ## @param edusharing_repository_transform.nameOverride Override transform repository name
   nameOverride: &transformNameOverride edusharing-repository-transform
 
   service:
 
     port:
+      ## @param edusharing_repository_transform.service.port.api Set port of transform repository service api
       api: &transformServicePortApi 8080
 
 ########################################################################################################################
 
 edusharing_repository_transform_aio:
 
+  ## @param edusharing_repository_transform_aio.enabled Enable transform_aio repository
   enabled: true
 
+  ## @param edusharing_repository_transform_aio.nameOverride Override transform_aio repository name
   nameOverride: &transformAIONameOverride edusharing-repository-transform-aio
 
   service:
 
     port:
+      ## @param edusharing_repository_transform_aio.service.port.api Set port of transform_aio repository service api
       api: &transformAIOServicePortApi 8090
 
 ########################################################################################################################
 
 edusharing_repository_transform_es:
 
+  ## @param edusharing_repository_transform_es.enabled Enable transform_es repository
   enabled: true
 
+  ## @param edusharing_repository_transform_es.nameOverride Override transform_es repository name
   nameOverride: &transformESNameOverride edusharing-repository-transform-es
 
   service:
 
     port:
+      ## @param edusharing_repository_transform_es.service.port.api Set port for transform_aes repository service api
       api: &transformESServicePortApi 8091
 
 ########################################################################################################################
 
 edusharing_repository_service:
 
+  ## @param edusharing_repository_service.enabled Enable repository service
   enabled: true
 
+  ## @param edusharing_repository_service.nameOverride Override repository service name
   nameOverride: *serviceNameOverride
 
   image:
+    ## @param edusharing_repository_service.image.repository Set repository service image repository
     repository: ${docker.repository}
+    ## @param edusharing_repository_service.image.name Set repository service image name
     name: ${docker.prefix}-deploy-docker-build-repository-service
+    ## @param edusharing_repository_service.image.tag Set repository service image tag
     tag: ${docker.tag}
 
   service:
 
     port:
       api:
+        ## @param edusharing_repository_service.service.port.api.internal Set port for repository service internal service api
         internal: *serviceServicePortApiInternal
 
   config:
 
     antivirus:
+      ## @param edusharing_repository_service.config.antivirus.enabled Enable repository service antivirus
       enabled: ${helm.edusharing_repository_antivirus.enabled}
+      ## @param edusharing_repository_service.config.antivirus.host Set host for repository service antivirus
       host: *antivirusNameOverride
+      ## @param edusharing_repository_service.config.antivirus.port Set port for repository service antivirus
       port: *antivirusServicePortApi
 
     cache:
+      ## @param edusharing_repository_service.config.cache.host Set host for repository service cache
       host: *redisclusterNameOverride
+      ## @param edusharing_repository_service.config.cache.port Set port for repository service cache
       port: *redisclusterServicePortApi
 
     cluster:
+      ## @param edusharing_repository_service.config.cluster.enabled Enable repository service cluster
       enabled: ${helm.edusharing_repository_cluster.enabled}
 
     database:
+      ## @param edusharing_repository_service.config.database.host Set host for repository service database
       host: *postgresqlNameOverride
+      ## @param edusharing_repository_service.config.database.port Set port for repository service database
       port: *postgresqlServicePortApi
+      ## @param edusharing_repository_service.config.database.database Set repository service database
       database: *postgresqlConfigDatabase
+      ## @param edusharing_repository_service.config.database.username Set repository service database username
       username: *postgresqlConfigUsername
 
     mongo:
+      ## @param edusharing_repository_service.config.mongo.enabled Enable repository service mongo
       enabled: ${helm.edusharing_repository_mongo.enabled}
+      ## @param edusharing_repository_service.config.mongo.host Set host for repository service mongo
       host: *mongoNameOverride
+      ## @param edusharing_repository_service.config.mongo.port Set port for repository service mongo
       port: *mongoServicePortApi
+      ## @param edusharing_repository_service.config.mongo.database Set repository service mongo database
       database: *mongoConfigDatabase
+      ## @param edusharing_repository_service.config.mongo.username Set repository service mongo username
       username: *mongoConfigUsername
 
     search:
 
       elastic:
+        ## @param edusharing_repository_service.config.search.elastic.enabled Enable repository service elastic search
         enabled: ${helm.edusharing_repository_search_elastic_index.enabled}
+        ## @param edusharing_repository_service.config.search.elastic.host Set host for repository service elastic search
         host: *searchElasticNameOverride
+        ## @param edusharing_repository_service.config.search.elastic.port Set port for repository service elastic search
         port: *searchElasticServicePortApi
 
       solr:
+        ## @param edusharing_repository_service.config.search.solr.host Set host for repository service solr search
         host: *searchSolrNameOverride
+        ## @param edusharing_repository_service.config.search.solr.port Set port for repository service solr search
         port: *searchSolrServicePortApi
 
     transform:
 
       aio:
+        ## @param edusharing_repository_service.config.transform.aio.host Set host for repository service transform_aio
         host: *transformAIONameOverride
+        ## @param edusharing_repository_service.config.transform.aio.port Set port for repository service transform_aio
         port: *transformAIOServicePortApi
 
       es:
+        ## @param edusharing_repository_service.config.transform.es.host Set host for repository service transform_es
         host: *transformESNameOverride
+        ## @param edusharing_repository_service.config.transform.es.port Set port for repository service transform_es
         port: *transformESServicePortApi
 
       server:
+        ## @param edusharing_repository_service.config.transform.server.enabled Enable repository service transform server
         enabled: ${helm.edusharing_repository_transform.enabled}
+        ## @param edusharing_repository_service.config.transform.server.host Set host for repository service transform server
         host: *transformNameOverride
+        ## @param edusharing_repository_service.config.transform.server.port Set port for repository service transform server
         port: *transformServicePortApi
 
 ########################################################################################################################
 
 edusharing_repository_search_elastic_tracker:
 
+  ## @param edusharing_repository_search_elastic_tracker.enabled Enable search repositories elastic tracker
   enabled: ${helm.edusharing_repository_search_elastic_tracker.enabled}
 
   config:
 
     repository:
+      ## @param edusharing_repository_search_elastic_tracker.config.repository.host Set host of search repositories elastic tracker
       host: *serviceNameOverride
+      ## @param edusharing_repository_search_elastic_tracker.config.repository.port Set port of search repositories elastic tracker
       port: *serviceServicePortApiInternal
 
     search:
       elastic:
+        ## @param edusharing_repository_search_elastic_tracker.config.search.elastic.host Set host of elastic search repository
         host: *searchElasticNameOverride
+        ## @param edusharing_repository_search_elastic_tracker.config.search.elastic.port Set port of elastic search repository
         port: *searchElasticServicePortApi
 
 ########################################################################################################################

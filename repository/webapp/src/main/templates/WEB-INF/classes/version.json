@@ -1,4 +1,7 @@
 {
+  "build": {
+    "timestamp": "${build.timestamp}"
+  },
   "git": {
     "branch": "${git.branch}",
     "closest": {
