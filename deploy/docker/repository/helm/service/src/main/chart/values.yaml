@@ -161,6 +161,8 @@ config:
 
   connector:
 
+    accesslog: false
+
     external:
       threads: 200
       timeout: 20000
