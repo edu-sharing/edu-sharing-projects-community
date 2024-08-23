@@ -24,6 +24,10 @@
       <resource>
         <directory>src/generated/resources</directory>
       </resource>
+      <resource>
+        <directory>src/main/templates</directory>
+        <filtering>true</filtering>
+      </resource>
     </resources>
 
     <plugins>
