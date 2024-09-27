@@ -1,73 +1,51 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.edu_sharing</groupId>
     <artifactId>edu_sharing-projects-community-repository-deploy</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-
   <artifactId>edu_sharing-projects-community-repository-deploy-docker</artifactId>
   <packaging>pom</packaging>
-
   <name>edu_sharing-projects-community-repository-deploy-docker</name>
-
   <properties>
-
     <docker.edu_sharing.community.common.minideb.name>
       edu_sharing-community-common-docker-minideb
     </docker.edu_sharing.community.common.minideb.name>
-
     <docker.edu_sharing.community.common.minideb.tag>
       11
     </docker.edu_sharing.community.common.minideb.tag>
-
     <docker.edu_sharing.community.common.postgresql.name>
       edu_sharing-community-common-docker-postgresql
     </docker.edu_sharing.community.common.postgresql.name>
-
     <docker.edu_sharing.community.common.postgresql.tag>
       13.15.0
     </docker.edu_sharing.community.common.postgresql.tag>
-
     <docker.edu_sharing.community.common.postgresql.exporter.name>
       edu_sharing-community-common-docker-postgresql-exporter
     </docker.edu_sharing.community.common.postgresql.exporter.name>
-
     <docker.edu_sharing.community.common.postgresql.exporter.tag>
       0.15.0
     </docker.edu_sharing.community.common.postgresql.exporter.tag>
-
     <docker.edu_sharing.community.common.redis.exporter.name>
       edu_sharing-community-common-docker-redis-export
     </docker.edu_sharing.community.common.redis.exporter.name>
-
     <docker.edu_sharing.community.common.redis.exporter.tag>
       1.59.0
     </docker.edu_sharing.community.common.redis.exporter.tag>
-
     <docker.edu_sharing.community.common.redis-cluster.name>
       edu_sharing-community-common-docker-redis-cluster
     </docker.edu_sharing.community.common.redis-cluster.name>
-
     <docker.edu_sharing.community.common.redis-cluster.tag>
       6.2.14
     </docker.edu_sharing.community.common.redis-cluster.tag>
-
     <helm.kube.version>&gt;= 1.20.0-0</helm.kube.version>
     <helm.version>3.14.2</helm.version>
-
   </properties>
-
   <build>
-
     <pluginManagement>
-
       <plugins>
-
         <plugin>
           <groupId>io.kokuwa.maven</groupId>
           <artifactId>helm-maven-plugin</artifactId>
@@ -75,14 +53,11 @@
             <helmVersion>${helm.version}</helmVersion>
           </configuration>
         </plugin>
-
       </plugins>
-
     </pluginManagement>
-
   </build>
-
-<modules>  <module>build</module>
+  <modules>
+    <module>build</module>
     <module>helm</module>
   </modules>
 </project>
