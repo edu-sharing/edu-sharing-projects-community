@@ -1,22 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.edu_sharing</groupId>
     <artifactId>edu_sharing-projects-community-deploy</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-
   <artifactId>edu_sharing-projects-community-deploy-docker</artifactId>
   <packaging>pom</packaging>
-
   <name>edu_sharing-projects-community-deploy-docker</name>
-
   <properties>
-
     <docker.from.apache.exporter>
       dockerio.mirror.docker.edu-sharing.com/bitnami/apache-exporter:0.11.0
     </docker.from.apache.exporter>
@@ -62,16 +55,12 @@
     <docker.from.varnish.exporter>
       dockerio.mirror.docker.edu-sharing.com/ibmcom/varnish-metrics-exporter:0.35.0
     </docker.from.varnish.exporter>
-
     <helm.kube.version>&gt;= 1.20.0-0</helm.kube.version>
     <helm.version>3.10.0</helm.version>
-
     <phpredis.version>5.3.7</phpredis.version>
     <prometheus.jmx.version>0.17.2</prometheus.jmx.version>
     <redisson.version>3.18.0</redisson.version>
-
   </properties>
-
   <profiles>
     <profile>
       <id>deploy.deploy.docker.customer</id>
@@ -86,13 +75,9 @@
       </modules>
     </profile>
   </profiles>
-
   <build>
-
     <pluginManagement>
-
       <plugins>
-
         <plugin>
           <groupId>io.kokuwa.maven</groupId>
           <artifactId>helm-maven-plugin</artifactId>
@@ -100,14 +85,11 @@
             <helmVersion>${helm.version}</helmVersion>
           </configuration>
         </plugin>
-
       </plugins>
-
     </pluginManagement>
-
   </build>
-
-<modules>  <module>build</module>
+  <modules>
+    <module>build</module>
     <module>compose</module>
     <module>helm</module>
     <module>repository</module>
