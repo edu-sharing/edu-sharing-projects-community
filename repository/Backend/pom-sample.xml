@@ -1,26 +1,19 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<?xml version="1.0" encoding="UTF-8"?><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>org.edu_sharing</groupId>
     <artifactId>edu_sharing-projects-community-repository</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-
   <artifactId>edu_sharing-projects-community-repository-backend</artifactId>
   <packaging>pom</packaging>
-
   <name>edu_sharing-projects-community-repository-backend</name>
-
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <java.version>11</java.version>
   </properties>
-
   <profiles>
     <profile>
       <id>jdk9+</id>
@@ -32,7 +25,6 @@
       </properties>
     </profile>
   </profiles>
-
   <licenses>
     <license>
       <name>GNU Lesser General Public License v3.0 or later</name>
@@ -41,8 +33,8 @@
       </url>
     </license>
   </licenses>
-
-<modules>  <module>alfresco</module>
+  <modules>
+    <module>alfresco</module>
     <module>services</module>
   </modules>
 </project>

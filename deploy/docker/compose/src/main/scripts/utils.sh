@@ -335,8 +335,25 @@ backup() {
 
 
   if [[ -n $repodb ]] ; then
-    echo "backup postgres"
+    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
+       echo "backup mongo"
 
+       if [[ -n $compressed ]] ; then
+         $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.gz" || {
+           rm -rf "$backupDir"
+           echo "ERROR on creating mongodb dump"
+           exit 1
+         }
+       else
+          $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.dump" || {
+            rm -rf "$backupDir"
+            echo "ERROR on creating mongodb dump"
+            exit 1
+          }
+       fi
+    fi
+
+    echo "backup postgres"
     if [[ -n $compressed ]] ; then
       $COMPOSE_EXEC exec -t repository-database sh -c "export PGPASSWORD=${REPOSITORY_DATABASE_PASS:-repository}; pg_dump --username ${REPOSITORY_DATABASE_USER:-repository} --format custom --no-owner --no-privileges ${REPOSITORY_DATABASE_NAME:-repository} | gzip" >"$backupDir/repository-db.gz" || {
         rm -rf "$backupDir"
