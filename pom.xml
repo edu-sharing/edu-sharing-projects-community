@@ -18,7 +18,7 @@
   </scm>
   <properties>
     <!-- release-4 -->
-    <bom.bom.version>9.0.0-RC46</bom.bom.version>
+    <bom.bom.version>9.0.0</bom.bom.version>
 
   </properties>
   <profiles>
