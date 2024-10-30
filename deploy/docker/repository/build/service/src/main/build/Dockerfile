@@ -4,6 +4,12 @@ FROM ${docker.from.tomcat}
 
 USER root
 
+RUN echo '\
+Acquire::Retries "100";\
+Acquire::https::Timeout "180";\
+Acquire::http::Timeout "180";\
+' > /etc/apt/apt.conf.d/99custom
+
 RUN set -eux \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends \
