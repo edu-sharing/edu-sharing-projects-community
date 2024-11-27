@@ -17,7 +17,7 @@ dependencies:
 
   - name: edu_sharing-community-common-rediscluster
     repository: ${helm.deploy.url}
-    version: 1.x.x
+    version: 2.x.x
     alias: edusharing_rediscluster
     condition: edusharing_rediscluster.enabled
 
