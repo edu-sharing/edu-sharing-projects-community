@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-community</artifactId>
+    <artifactId>edu_sharing-projects-maven/fixes/9.1 - </artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>edu_sharing-projects-community-repository</artifactId>
+  <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository</artifactId>
   <packaging>pom</packaging>
-  <name>edu_sharing-projects-community-repository</name>
+  <name>edu_sharing-projects-maven/fixes/9.1 - -repository</name>
   <properties>
     <alfresco.sdk.version>4.7.0</alfresco.sdk.version>
   </properties>
