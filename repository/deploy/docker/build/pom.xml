@@ -6,15 +6,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-deploy-docker</artifactId>
+    <artifactId>edu_sharing-projects-community-repository-deploy-docker</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-deploy-docker-build</artifactId>
+  <artifactId>edu_sharing-projects-community-repository-deploy-docker-build</artifactId>
   <packaging>jar</packaging>
 
-  <name>edu_sharing-projects-maven/fixes/9.1 - -repository-deploy-docker-build</name>
+  <name>edu_sharing-projects-community-repository-deploy-docker-build</name>
 
   <build>
 
@@ -40,7 +40,7 @@
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/9.1 - -repository-webapp
+                edu_sharing-projects-community-repository-webapp
               </includeArtifactIds>
               <outputDirectory>${project.build.directory}/build/webapp</outputDirectory>
             </configuration>
@@ -54,7 +54,7 @@
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/9.1 - -repository-config-cluster
+                edu_sharing-projects-community-repository-config-cluster
               </includeArtifactIds>
               <outputDirectory>${project.build.directory}/build/shared/assets/cluster</outputDirectory>
             </configuration>
@@ -68,7 +68,7 @@
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/9.1 - -repository-config-defaults
+                edu_sharing-projects-community-repository-config-defaults
               </includeArtifactIds>
               <outputDirectory>${project.build.directory}/build/shared/classes/config/defaults</outputDirectory>
             </configuration>
@@ -82,7 +82,7 @@
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/9.1 - -repository-config-node
+                edu_sharing-projects-community-repository-config-node
               </includeArtifactIds>
               <outputDirectory>${project.build.directory}/build/shared/assets/node</outputDirectory>
             </configuration>
@@ -116,7 +116,7 @@
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/9.1 - -repository-backend-alfresco-module
+                edu_sharing-projects-community-repository-backend-alfresco-module
               </includeArtifactIds>
               <outputDirectory>${project.build.directory}/build/amps/alfresco/3</outputDirectory>
             </configuration>
@@ -268,28 +268,28 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-backend-alfresco-module</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-backend-alfresco-module</artifactId>
       <type>amp</type>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-config-cluster</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-config-cluster</artifactId>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-config-defaults</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-config-defaults</artifactId>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-config-node</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-config-node</artifactId>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-webapp</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-webapp</artifactId>
       <type>war</type>
     </dependency>
 

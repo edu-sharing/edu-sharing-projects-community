@@ -1,4 +1,4 @@
-# edu_sharing-projects-maven/fixes/9.1 -  - deploy docker
+# edu_sharing-projects-community - deploy docker
 
 
 - Docker Engine 18.06.0+

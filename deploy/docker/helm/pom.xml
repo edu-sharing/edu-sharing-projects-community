@@ -6,15 +6,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-maven/fixes/9.1 - -deploy-docker</artifactId>
+    <artifactId>edu_sharing-projects-community-deploy-docker</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-maven/fixes/9.1 - -deploy-docker-helm</artifactId>
+  <artifactId>edu_sharing-projects-community-deploy-docker-helm</artifactId>
   <packaging>jar</packaging>
 
-  <name>edu_sharing-projects-maven/fixes/9.1 - -deploy-docker-helm</name>
+  <name>edu_sharing-projects-community-deploy-docker-helm</name>
 
   <properties>
 
@@ -80,7 +80,7 @@
             <phase>generate-sources</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/9.1 - -repository-deploy-docker-helm
+                edu_sharing-projects-community-repository-deploy-docker-helm
               </includeArtifactIds>
               <type>tar.gz</type>
               <classifier>bin</classifier>
@@ -224,7 +224,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/9.1 - -repository-deploy-docker-helm</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-deploy-docker-helm</artifactId>
       <type>tar.gz</type>
       <classifier>bin</classifier>
     </dependency>
