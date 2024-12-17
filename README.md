@@ -1,4 +1,4 @@
-# edu_sharing-projects-community
+# edu_sharing-projects-maven/fixes/8.1 - 
 
 The edu-sharing open-source project started in 2007 to develop networked E-Learning environments 
 for managing and sharing educational contents inter-organisationally.

@@ -1,4 +1,4 @@
-# edu_sharing-projects-community - deploy docker
+# edu_sharing-projects-maven/fixes/8.1 -  - deploy docker
 
 Prerequisites
 -------------

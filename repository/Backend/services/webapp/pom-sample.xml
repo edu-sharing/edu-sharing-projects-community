@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-community-repository-backend-services</artifactId>
+    <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-community-repository-backend-services-webapp</artifactId>
+  <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-webapp</artifactId>
   <packaging>war</packaging>
 
-  <name>edu_sharing-projects-community-repository-backend-services-webapp</name>
+  <name>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-webapp</name>
 
   <build>
 
@@ -67,7 +67,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-community-repository-backend-services-core</artifactId>
+      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-core</artifactId>
     </dependency>
 
   </dependencies>

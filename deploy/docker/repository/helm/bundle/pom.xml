@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-community-deploy-docker-repository-helm</artifactId>
+    <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-community-deploy-docker-repository-helm-bundle</artifactId>
+  <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-bundle</artifactId>
   <packaging>jar</packaging>
 
-  <name>edu_sharing-projects-community-deploy-docker-repository-helm-bundle</name>
+  <name>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-bundle</name>
 
   <properties>
 
@@ -75,7 +75,7 @@
             <phase>generate-sources</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-community-deploy-docker-helm-postgresql
+                edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-helm-postgresql
               </includeArtifactIds>
               <type>tar.gz</type>
               <classifier>bin</classifier>
@@ -90,7 +90,7 @@
             <phase>generate-sources</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-community-deploy-docker-helm-rediscluster
+                edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-helm-rediscluster
               </includeArtifactIds>
               <type>tar.gz</type>
               <classifier>bin</classifier>
@@ -174,7 +174,7 @@
             <phase>generate-sources</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-community-deploy-docker-repository-helm-solr4
+                edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-solr4
               </includeArtifactIds>
               <type>tar.gz</type>
               <classifier>bin</classifier>
@@ -190,7 +190,7 @@
             <phase>generate-sources</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-community-deploy-docker-repository-helm-service
+                edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-service
               </includeArtifactIds>
               <type>tar.gz</type>
               <classifier>bin</classifier>
@@ -294,21 +294,21 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-community-deploy-docker-helm-postgresql</artifactId>
+      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-helm-postgresql</artifactId>
       <type>tar.gz</type>
       <classifier>bin</classifier>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-community-deploy-docker-helm-rediscluster</artifactId>
+      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-helm-rediscluster</artifactId>
       <type>tar.gz</type>
       <classifier>bin</classifier>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-community-deploy-docker-repository-helm-solr4
+      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-solr4
       </artifactId>
       <type>tar.gz</type>
       <classifier>bin</classifier>
@@ -316,7 +316,7 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-community-deploy-docker-repository-helm-service</artifactId>
+      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-service</artifactId>
       <type>tar.gz</type>
       <classifier>bin</classifier>
     </dependency>
