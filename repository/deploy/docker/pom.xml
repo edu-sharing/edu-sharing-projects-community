@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-maven/fixes/9.0 - -repository-deploy</artifactId>
+    <artifactId>edu_sharing-projects-community-repository-deploy</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>edu_sharing-projects-maven/fixes/9.0 - -repository-deploy-docker</artifactId>
+  <artifactId>edu_sharing-projects-community-repository-deploy-docker</artifactId>
   <packaging>pom</packaging>
-  <name>edu_sharing-projects-maven/fixes/9.0 - -repository-deploy-docker</name>
+  <name>edu_sharing-projects-community-repository-deploy-docker</name>
   <properties>
     <docker.edu_sharing.community.common.minideb.name>
       edu_sharing-community-common-docker-minideb
