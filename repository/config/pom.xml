@@ -2,13 +2,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-community-repository</artifactId>
+    <artifactId>edu_sharing-projects-maven/fixes/9.0 - -repository</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
-  <artifactId>edu_sharing-projects-community-repository-config</artifactId>
+  <artifactId>edu_sharing-projects-maven/fixes/9.0 - -repository-config</artifactId>
   <packaging>pom</packaging>
-  <name>edu_sharing-projects-community-repository-config</name>
+  <name>edu_sharing-projects-maven/fixes/9.0 - -repository-config</name>
   <modules>
     <module>cluster</module>
     <module>defaults</module>
