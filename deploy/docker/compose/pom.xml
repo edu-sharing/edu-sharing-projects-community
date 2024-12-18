@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker</artifactId>
+    <artifactId>edu_sharing-projects-community-deploy-docker</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-compose</artifactId>
+  <artifactId>edu_sharing-projects-community-deploy-docker-compose</artifactId>
   <packaging>jar</packaging>
 
-  <name>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-compose</name>
+  <name>edu_sharing-projects-community-deploy-docker-compose</name>
 
   <build>
 
@@ -31,7 +31,7 @@
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering-compose,
+                edu_sharing-projects-community-deploy-docker-services-rendering-compose,
                 edu_sharing-community-services-connector-deploy-docker-compose
               </includeArtifactIds>
               <excludes>META-INF/**</excludes>
@@ -46,7 +46,7 @@
             <phase>package</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-compose
+                edu_sharing-projects-community-deploy-docker-repository-compose
               </includeArtifactIds>
               <excludes>META-INF/**</excludes>
               <outputDirectory>${project.build.directory}/compose</outputDirectory>
@@ -211,12 +211,12 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-compose</artifactId>
+      <artifactId>edu_sharing-projects-community-deploy-docker-repository-compose</artifactId>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering-compose</artifactId>
+      <artifactId>edu_sharing-projects-community-deploy-docker-services-rendering-compose</artifactId>
     </dependency>
 
   </dependencies>

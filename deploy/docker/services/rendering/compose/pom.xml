@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering</artifactId>
+    <artifactId>edu_sharing-projects-community-deploy-docker-services-rendering</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering-compose</artifactId>
+  <artifactId>edu_sharing-projects-community-deploy-docker-services-rendering-compose</artifactId>
   <packaging>jar</packaging>
 
-  <name>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering-compose</name>
+  <name>edu_sharing-projects-community-deploy-docker-services-rendering-compose</name>
 
   <build>
 

@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository</artifactId>
+    <artifactId>edu_sharing-projects-community-deploy-docker-repository</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-compose</artifactId>
+  <artifactId>edu_sharing-projects-community-deploy-docker-repository-compose</artifactId>
   <packaging>jar</packaging>
 
-  <name>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-compose</name>
+  <name>edu_sharing-projects-community-deploy-docker-repository-compose</name>
 
   <build>
 
@@ -286,14 +286,14 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-alfresco-module</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-backend-alfresco-module</artifactId>
       <type>amp</type>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-core</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-backend-services-core</artifactId>
       <scope>provided</scope>
     </dependency>
 

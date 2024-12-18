@@ -5,15 +5,15 @@
 
   <parent>
     <groupId>org.edu_sharing</groupId>
-    <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services</artifactId>
+    <artifactId>edu_sharing-projects-community-repository-backend-services</artifactId>
     <version>git</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-core</artifactId>
+  <artifactId>edu_sharing-projects-community-repository-backend-services-core</artifactId>
   <packaging>jar</packaging>
 
-  <name>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-core</name>
+  <name>edu_sharing-projects-community-repository-backend-services-core</name>
 
   <build>
 
@@ -73,25 +73,25 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-alfresco-module</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-backend-alfresco-module</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-config-cluster</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-config-cluster</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-config-defaults</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-config-defaults</artifactId>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-config-node</artifactId>
+      <artifactId>edu_sharing-projects-community-repository-config-node</artifactId>
       <scope>provided</scope>
     </dependency>
 

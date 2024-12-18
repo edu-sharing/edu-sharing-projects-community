@@ -6,14 +6,14 @@
     <version>develop-SNAPSHOT</version>
     <relativePath/>
   </parent>
-  <artifactId>edu_sharing-projects-maven/fixes/8.1 - </artifactId>
+  <artifactId>edu_sharing-projects-community</artifactId>
   <packaging>pom</packaging>
   <version>git</version>
-  <name>edu_sharing-projects-maven/fixes/8.1 - </name>
+  <name>edu_sharing-projects-community</name>
   <scm>
-    <connection>scm:git:https://scm.edu-sharing.com/edu-sharing/projects/maven/fixes/8.1 - /edu-sharing-projects-maven/fixes/8.1 - .git</connection>
-    <developerConnection>scm:git:https://scm.edu-sharing.com/edu-sharing/projects/maven/fixes/8.1 - /edu-sharing-projects-maven/fixes/8.1 - .git</developerConnection>
-    <url>https://scm.edu-sharing.com/edu-sharing/projects/maven/fixes/8.1 - /edu-sharing-projects-maven/fixes/8.1 - .git</url>
+    <connection>scm:git:https://scm.edu-sharing.com/edu-sharing/projects/community/edu-sharing-projects-community.git</connection>
+    <developerConnection>scm:git:https://scm.edu-sharing.com/edu-sharing/projects/community/edu-sharing-projects-community.git</developerConnection>
+    <url>https://scm.edu-sharing.com/edu-sharing/projects/community/edu-sharing-projects-community.git</url>
   </scm>
   <properties>
     <!-- release-4 -->
@@ -103,133 +103,133 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-helm-postgresql</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-helm-postgresql</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-helm-rediscluster</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-helm-rediscluster</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-compose</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-repository-compose</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-bundle</artifactId>
-        <version>${project.version}</version>
-        <type>tar.gz</type>
-        <classifier>bin</classifier>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-service</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-repository-helm-bundle</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-repository-helm-solr4</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-repository-helm-service</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering-compose</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering-helm-bundle</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-repository-helm-solr4</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-docker-services-rendering-helm-service</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-services-rendering-compose</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-services-rendering-helm-bundle</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-installer-repository-compose-debian-bullseye</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-installer-repository-distribution</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-docker-services-rendering-helm-service</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-installer-services-rendering-compose-debian-bullseye</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-installer-repository-compose-debian-bullseye</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -deploy-installer-services-rendering-distribution</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-installer-repository-distribution</artifactId>
         <version>${project.version}</version>
         <type>tar.gz</type>
         <classifier>bin</classifier>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-alfresco-module</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-installer-services-rendering-compose-debian-bullseye</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-alfresco-module</artifactId>
+        <artifactId>edu_sharing-projects-community-deploy-installer-services-rendering-distribution</artifactId>
+        <version>${project.version}</version>
+        <type>tar.gz</type>
+        <classifier>bin</classifier>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>edu_sharing-projects-community-repository-backend-alfresco-module</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>edu_sharing-projects-community-repository-backend-alfresco-module</artifactId>
         <version>${project.version}</version>
         <type>amp</type>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-core</artifactId>
+        <artifactId>edu_sharing-projects-community-repository-backend-services-core</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-backend-services-webapp</artifactId>
-        <version>${project.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-config-cluster</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-config-defaults</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-config-node</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-frontend</artifactId>
+        <artifactId>edu_sharing-projects-community-repository-backend-services-webapp</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>edu_sharing-projects-maven/fixes/8.1 - -repository-webapp</artifactId>
+        <artifactId>edu_sharing-projects-community-repository-config-cluster</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>edu_sharing-projects-community-repository-config-defaults</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>edu_sharing-projects-community-repository-config-node</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>edu_sharing-projects-community-repository-frontend</artifactId>
+        <version>${project.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>edu_sharing-projects-community-repository-webapp</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
