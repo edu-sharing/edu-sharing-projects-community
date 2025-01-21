@@ -422,7 +422,7 @@ ldev() {
 
 	$COMPOSE_EXEC \
 		$COMPOSE_LIST \
-		up -d $@ || exit
+		up --force-recreate -d $@ || exit
 }
 
 stop() {
