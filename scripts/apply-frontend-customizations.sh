@@ -113,7 +113,7 @@ check_git_extension() {
 put() {
   for i in "${EXTENSION_FOLDERS[@]}"
       do
-         cp -r --verbose "$EXTENSION_SRC/$i." "$REPO_ROOT/$FRONTEND_SRC/$i"
+         cp -rv "$EXTENSION_SRC/$i." "$REPO_ROOT/$FRONTEND_SRC/$i"
   done
   if [[ "$install" == 1 ]]; then
     pushd $REPO_ROOT/$FRONTEND_SRC
@@ -138,7 +138,8 @@ get() {
     (echo "$files" && echo "$submodule_files") | while read file; do
         echo $file
         if [[ ! -z "$file" && ! -d "$REPO_ROOT/$FRONTEND_SRC/$file" ]]; then
-            install -D --mode=644 "$REPO_ROOT/$FRONTEND_SRC/$file" "$EXTENSION_SRC/$file"
+            mkdir -p "$(dirname "$EXTENSION_SRC/$file")"
+            install -m 644 "$REPO_ROOT/$FRONTEND_SRC/$file" "$EXTENSION_SRC/$file"
         fi
     done
 }
