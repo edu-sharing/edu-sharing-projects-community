@@ -27,3 +27,4 @@ overlays/
 THIRD-PARTY*.txt
 # Dotenv
 .env
+.composeProjectName

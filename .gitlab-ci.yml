@@ -15,6 +15,8 @@ variables:
   REPOSITORY_MONGO_ENABLED: "false"
   REPOSITORY_REMOTE_ENABLED: "false"
   REPOSITORY_TRANSFORM_ENABLED: "false"
+  SERVICE_RENDERING_ENABLED: "true"
+  SERVICE_RENDERING2_ENABLED: "false"
   SERVICE_CONNECTOR_ENABLED: "false"
 
 default:
@@ -33,7 +35,8 @@ deploy:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /^maven\/release\/.*/ && $CI_PIPELINE_SOURCE == "pipeline"
     - if: $CI_COMMIT_TAG && $CI_PIPELINE_SOURCE == "pipeline"
-    - if: $CI_COMMIT_BRANCH !~ /^maven\/release\/.*/ && $CI_COMMIT_TAG == null
+    - if: $CI_COMMIT_BRANCH =~ /^maven\/fixes\/.*/ && $CI_COMMIT_TAG == null
+    - if: $CI_COMMIT_BRANCH =~ /^maven\/feature\/\d+\.\d+[_-].*/ && $PROJECT_NAME && $CI_COMMIT_TAG == null && $CI_PIPELINE_SOURCE == "pipeline" #Feature branches build pipeline only in
   before_script:
     - apt-get update -y
     - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip wget git

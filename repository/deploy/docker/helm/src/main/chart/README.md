@@ -45,9 +45,17 @@
 | `edusharing_repository_rediscluster.sidecar.metrics.image.tag`            | Set rediscluster repository metrics sidecar image tag  | `${docker.edu_sharing.community.common.redis.exporter.tag}`       |
 | `edusharing_repository_mongo.enabled`                                     | Enable mongo repository                                | `${helm.edusharing_repository_mongo.enabled}`                     |
 | `edusharing_repository_mongo.nameOverride`                                | Override mongo repository name                         | `edusharing-repository-mongo`                                     |
+| `edusharing_repository_mongo.image.name`                                  | Set repository rediscluster image name                 | `${docker.edu_sharing.community.common.mongodb.name}`             |
+| `edusharing_repository_mongo.image.tag`                                   | Set repository rediscluster image tag                  | `${docker.edu_sharing.community.common.mongodb.tag}`              |
 | `edusharing_repository_mongo.service.port.api`                            | Set mongo repository service api port                  | `27017`                                                           |
 | `edusharing_repository_mongo.config.database`                             | Set mongo repository database                          | `repository`                                                      |
 | `edusharing_repository_mongo.config.username`                             | Set mongo repository username                          | `repository`                                                      |
+| `edusharing_repository_mongo.init.permission.image.name`                  | Set init container image name                          | `${docker.edu_sharing.community.common.minideb.name}`             |
+| `edusharing_repository_mongo.init.permission.image.tag`                   | Set init container image tag                           | `${docker.edu_sharing.community.common.minideb.tag}`              |
+| `edusharing_repository_mongo.job.dump.image.name`                         | Set dump job image name                                | `${docker.edu_sharing.community.common.mongodb.name}`             |
+| `edusharing_repository_mongo.job.dump.image.tag`                          | Set dump job image tag                                 | `${docker.edu_sharing.community.common.mongodb.tag}`              |
+| `edusharing_repository_mongo.sidecar.metrics.image.name`                  | Set metrics sidecar image name                         | `${docker.edu_sharing.community.common.mongodb.exporter.name}`    |
+| `edusharing_repository_mongo.sidecar.metrics.image.tag`                   | Set metrics sidecar image tag                          | `${docker.edu_sharing.community.common.mongodb.exporter.tag}`     |
 | `edusharing_repository_search_elastic_index.enabled`                      | Enable search elastic index repository                 | `${helm.edusharing_repository_search_elastic_index.enabled}`      |
 | `edusharing_repository_search_elastic_index.nameOverride`                 | Override search elastic index repository name          | `edusharing-repository-search-elastic-index`                      |
 | `edusharing_repository_search_elastic_index.service.port.api`             | Set search elastic index repository service api port   | `9200`                                                            |

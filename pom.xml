@@ -16,6 +16,8 @@
     <url>https://scm.edu-sharing.com/edu-sharing/projects/community/edu-sharing-projects-community.git</url>
   </scm>
   <properties>
+    <!-- git extension controlled props -->
+    <project.version.base>git</project.version.base>
     <!-- release-4 -->
     <bom.bom.version>${project.version}</bom.bom.version>
   </properties>
@@ -156,6 +158,12 @@
         <artifactId>edu_sharing-projects-community-repository-webapp</artifactId>
         <version>${project.version}</version>
         <type>war</type>
+      </dependency>
+      <!-- common docker deployment -->
+      <dependency>
+        <groupId>org.edu_sharing</groupId>
+        <artifactId>edu_sharing-community-common-deployment-mongodb-compose</artifactId>
+        <version>7.0.2</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

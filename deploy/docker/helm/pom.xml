@@ -18,11 +18,21 @@
 
   <properties>
 
-    <helm.edusharing_services_rendering.line2>
-      <!--suppress UnresolvedMavenProperty -->
-      version:
-      ${org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.range}
-    </helm.edusharing_services_rendering.line2>
+    <helm.edusharing_services_rendering.enabled>
+      false
+    </helm.edusharing_services_rendering.enabled>
+    <helm.edusharing_services_rendering.line1/>
+    <helm.edusharing_services_rendering.line2/>
+    <helm.edusharing_services_rendering.line3/>
+    <helm.edusharing_services_rendering.line4/>
+
+    <helm.edusharing_services_rendering2.enabled>
+      false
+    </helm.edusharing_services_rendering2.enabled>
+    <helm.edusharing_services_rendering2.line1/>
+    <helm.edusharing_services_rendering2.line2/>
+    <helm.edusharing_services_rendering2.line3/>
+    <helm.edusharing_services_rendering2.line4/>
 
   </properties>
 
@@ -57,6 +67,20 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
+            <id>edusharing_repository</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-projects-community-repository-deploy-docker-helm
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/${helm.prefix}-repository</outputDirectory>
+            </configuration>
+          </execution>          <execution>
             <id>edusharing_services_rendering</id>
             <goals>
               <goal>unpack-dependencies</goal>
@@ -73,18 +97,19 @@
             </configuration>
           </execution>
           <execution>
-            <id>edusharing_repository</id>
+            <id>edusharing_services_rendering2</id>
             <goals>
               <goal>unpack-dependencies</goal>
             </goals>
             <phase>generate-sources</phase>
             <configuration>
               <includeArtifactIds>
-                edu_sharing-projects-community-repository-deploy-docker-helm
+                edu_sharing-community-services-rendering2-deploy-docker-helm-bundle
               </includeArtifactIds>
               <type>tar.gz</type>
               <classifier>bin</classifier>
-              <outputDirectory>${project.build.directory}/chart/charts/${helm.prefix}-repository</outputDirectory>
+              <outputDirectory>${project.build.directory}/chart/charts/edu_sharing-community-services-rendering2
+              </outputDirectory>
             </configuration>
           </execution>
         </executions>
@@ -159,30 +184,6 @@
         </executions>
       </plugin>
 
-      <plugin>
-        <groupId>org.codehaus.gmavenplus</groupId>
-        <artifactId>gmavenplus-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>services_rendering</id>
-            <goals>
-              <goal>execute</goal>
-            </goals>
-            <phase>generate-sources</phase>
-            <configuration>
-              <scripts>
-                <!--suppress UnresolvedMavenProperty -->
-                <script><![CDATA[
-                      def version = project.properties['org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.version']
-                      ${git.semver}
-                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.range', semver)
-                    ]]></script>
-              </scripts>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
 
     <pluginManagement>
@@ -217,18 +218,173 @@
 
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-community-services-rendering-deploy-docker-helm-bundle</artifactId>
-      <type>tar.gz</type>
-      <classifier>bin</classifier>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>edu_sharing-projects-community-repository-deploy-docker-helm</artifactId>
       <type>tar.gz</type>
       <classifier>bin</classifier>
     </dependency>
 
   </dependencies>
+
+  <profiles>
+
+    <profile>
+
+      <id>service.rendering</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.SERVICE_RENDERING_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <properties>
+
+        <helm.edusharing_services_rendering.enabled>
+          true
+        </helm.edusharing_services_rendering.enabled>
+        <helm.edusharing_services_rendering.line1>
+          - name: edu_sharing-community-services-rendering
+        </helm.edusharing_services_rendering.line1>
+        <helm.edusharing_services_rendering.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.range}
+        </helm.edusharing_services_rendering.line2>
+        <helm.edusharing_services_rendering.line3>
+          alias: edusharing_services_rendering
+        </helm.edusharing_services_rendering.line3>
+        <helm.edusharing_services_rendering.line4>
+          condition: edusharing_services_rendering.enabled
+        </helm.edusharing_services_rendering.line4>
+
+      </properties>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>services_rendering</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-services-rendering-deploy-docker-helm-bundle:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-services-rendering-deploy-docker-helm-bundle</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+    <profile>
+
+      <id>service.rendering2</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.SERVICE_RENDERING2_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <properties>
+
+        <helm.edusharing_services_rendering2.enabled>
+          true
+        </helm.edusharing_services_rendering2.enabled>
+        <helm.edusharing_services_rendering2.line1>
+          - name: edu_sharing-community-services-rendering2
+        </helm.edusharing_services_rendering2.line1>
+        <helm.edusharing_services_rendering2.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-community-services-rendering2-deploy-docker-helm-bundle:tar.gz:bin.range}
+        </helm.edusharing_services_rendering2.line2>
+        <helm.edusharing_services_rendering2.line3>
+          alias: edusharing_services_rendering2
+        </helm.edusharing_services_rendering2.line3>
+        <helm.edusharing_services_rendering2.line4>
+          condition: edusharing_services_rendering2.enabled
+        </helm.edusharing_services_rendering2.line4>
+
+      </properties>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>services_rendering2</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-services-rendering2-deploy-docker-helm-bundle:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-services-rendering2-deploy-docker-helm-bundle:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+      
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-services-rendering2-deploy-docker-helm-bundle</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+  </profiles>
 
 </project>

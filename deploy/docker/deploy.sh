@@ -31,7 +31,13 @@ popd >/dev/null || exit
 	cp -f ".env" "${COMPOSE_DIR}"
 }
 
-export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-$(echo "${COMPOSE_PROJECT}-docker-$(git rev-parse --abbrev-ref HEAD)" | sed 's|[\/\.]|-|g' | tr '[:upper:]' '[:lower:]')}"
+if [[ -f ".composeProjectName" ]] ; then
+  gitBranchName="$(cat .composeProjectName)"
+else
+  gitBranchName="$(git rev-parse --abbrev-ref HEAD)"
+fi
+
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-$(echo "${COMPOSE_PROJECT}-docker-${gitBranchName}" | sed 's|[\/\.]|-|g' | tr '[:upper:]' '[:lower:]')}"
 
 case "$(uname)" in
 MINGW*)
@@ -215,7 +221,7 @@ note() {
 	echo ""
 	echo "  edu-sharing repository:"
 	echo ""
-	echo "    http://${REPOSITORY_SERVICE_HOST:-repository.127.0.0.1.nip.io}:${REPOSITORY_SERVICE_PORT:-8100}/edu-sharing/"
+	echo "    http://${REPOSITORY_SERVICE_HOST:-repository.127.0.0.1.nip.io}:${REPOSITORY_SERVICE_PORT:-80}/edu-sharing/"
 	echo ""
 	echo "    username: admin"
 	echo "    password: ${REPOSITORY_SERVICE_ADMIN_PASS:-admin}"
@@ -266,6 +272,7 @@ compose() {
         -debug) COMPOSE_FILE_TYPE="debug" ;;
         -dev) COMPOSE_FILE_TYPE="dev" ;;
         -remote) COMPOSE_FILE_TYPE="remote" ;;
+        -nginx) COMPOSE_FILE_TYPE="nginx" ;;
         *)
           {
             echo "error: unknown flag: $flag"
@@ -275,6 +282,7 @@ compose() {
             echo "  -debug"
             echo "  -dev"
             echo "  -remote"
+            echo "  -nginx"
           } >&2
           exit 1
           ;;
@@ -293,7 +301,7 @@ compose() {
 }
 
 logs() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -303,7 +311,7 @@ logs() {
 }
 
 ps() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -340,7 +348,7 @@ getComposeFilesFromRemote() {
 rstart() {
   getComposeFilesFromRemote
 
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -remote)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -remote -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -356,7 +364,7 @@ rstart() {
 rdebug() {
   getComposeFilesFromRemote
 
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -remote -debug)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -remote -debug -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -377,7 +385,7 @@ rdev() {
 	export GIT_ROOT
 	popd >/dev/null || exit
 
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -remote -debug -dev)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -remote -debug -dev -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -391,7 +399,7 @@ rdev() {
 }
 
 lstart() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -401,7 +409,7 @@ lstart() {
 }
 
 ldebug() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -416,7 +424,7 @@ ldev() {
 	export GIT_ROOT
 	popd >/dev/null || exit
 
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -426,7 +434,7 @@ ldev() {
 }
 
 stop() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -439,7 +447,7 @@ remove() {
 	read -p "Are you sure you want to continue? [y/N] " answer
 	case ${answer:0:1} in
 	y | Y)
-		COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
+		COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev -nginx)"
 
 		echo "Use compose set: $COMPOSE_LIST"
 
@@ -462,7 +470,7 @@ reload() {
 		CLI_OPT2="edu-sharing"
 	}
 
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -487,7 +495,7 @@ config() {
 	export GIT_ROOT
 	popd >/dev/null || exit
 
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -debug -dev -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -507,7 +515,7 @@ ci() {
 			pull || exit
 	}
 
-	COMPOSE_LIST="$(compose . 0 -common) $(compose . 1 -common) $(compose . 2 -common -remote)"
+	COMPOSE_LIST="$(compose . 0 -common) $(compose . 1 -common) $(compose . 2 -common -remote -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -517,7 +525,7 @@ ci() {
 }
 
 terminal() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 
@@ -527,7 +535,7 @@ terminal() {
 }
 
 pull() {
-	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common)"
+	COMPOSE_LIST="$COMPOSE_LIST $(compose . "*" -common -nginx)"
 
 	echo "Use compose set: $COMPOSE_LIST"
 

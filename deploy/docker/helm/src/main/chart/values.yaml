@@ -134,7 +134,7 @@ edusharing_repository:
 edusharing_services_rendering:
 
   ## @param edusharing_services_rendering.enabled Enable rendering service
-  enabled: true
+  enabled: ${helm.edusharing_services_rendering.enabled}
 
   edusharing_services_rendering_rediscluster:
 
@@ -155,6 +155,34 @@ edusharing_services_rendering:
         ## @param edusharing_services_rendering.edusharing_services_rendering_service.config.repository.host Set host for rendering service repository
         host: *repositoryNameOverride
         ## @param edusharing_services_rendering.edusharing_services_rendering_service.config.repository.port Set port for rendering service repository
+        port: *repositoryServicePostApiInternal
+
+########################################################################################################################
+
+edusharing_services_rendering2:
+
+  ## @param edusharing_services_rendering2.enabled Enable rendering service
+  enabled: ${helm.edusharing_services_rendering2.enabled}
+
+  edusharing_services_rendering2_rediscluster:
+
+    ## @param edusharing_services_rendering2.edusharing_services_rendering2_rediscluster.enabled Enable rediscluster rendering service
+    enabled: false
+
+  edusharing_services_rendering2_service:
+
+    config:
+
+      redis:
+        ## @param edusharing_services_rendering2.edusharing_services_rendering2_service.config.redis.host Set host for rendering service cache
+        host: *redisclusterNameOverride
+        ## @param edusharing_services_rendering2.edusharing_services_rendering2_service.config.redis.port Set port for rendering service cache
+        port: *redisclusterServicePortApi
+
+      repository:
+        ## @param edusharing_services_rendering2.edusharing_services_rendering2_service.config.repository.host Set host for rendering service repository
+        host: *repositoryNameOverride
+        ## @param edusharing_services_rendering2.edusharing_services_rendering2_service.config.repository.port Set port for rendering service repository
         port: *repositoryServicePostApiInternal
 
 ########################################################################################################################

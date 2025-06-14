@@ -26,7 +26,12 @@ dependencies:
     alias: edusharing_repository
     condition: edusharing_repository.enabled
 
-  - name: edu_sharing-community-services-rendering
+  ${helm.edusharing_services_rendering.line1}
     ${helm.edusharing_services_rendering.line2}
-    alias: edusharing_services_rendering
-    condition: edusharing_services_rendering.enabled
+    ${helm.edusharing_services_rendering.line3}
+    ${helm.edusharing_services_rendering.line4}
+
+  ${helm.edusharing_services_rendering2.line1}
+    ${helm.edusharing_services_rendering2.line2}
+    ${helm.edusharing_services_rendering2.line3}
+    ${helm.edusharing_services_rendering2.line4}

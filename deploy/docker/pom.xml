@@ -14,7 +14,7 @@
       edu_sharing-community-common-docker-minideb
     </docker.edu_sharing.community.common.minideb.name>
     <docker.edu_sharing.community.common.minideb.tag>
-      11
+      12
     </docker.edu_sharing.community.common.minideb.tag>
     <docker.edu_sharing.community.common.redis.exporter.name>
       edu_sharing-community-common-docker-redis-export
@@ -28,6 +28,24 @@
     <docker.edu_sharing.community.common.redis-cluster.tag>
       7.4.1
     </docker.edu_sharing.community.common.redis-cluster.tag>
+    <docker.edu_sharing.community.common.mongodb.name>
+      edu_sharing-community-common-docker-mongodb
+    </docker.edu_sharing.community.common.mongodb.name>
+    <docker.edu_sharing.community.common.mongodb.tag>
+      7.0.15
+    </docker.edu_sharing.community.common.mongodb.tag>
+    <docker.edu_sharing.community.common.mongodb>
+      ${docker.registry}/${docker.common}/${docker.edu_sharing.community.common.mongodb.name}:${docker.edu_sharing.community.common.mongodb.tag}
+    </docker.edu_sharing.community.common.mongodb>
+    <docker.edu_sharing.community.common.onyx.name>
+      edu_sharing-community-common-docker-onyx
+    </docker.edu_sharing.community.common.onyx.name>
+    <docker.edu_sharing.community.common.onyx.tag>
+      2025.05.1-0
+    </docker.edu_sharing.community.common.onyx.tag>
+    <docker.edu_sharing.community.common.onyx>
+      ${docker.registry}/${docker.common}/${docker.edu_sharing.community.common.onyx.name}:${docker.edu_sharing.community.common.onyx.tag}
+    </docker.edu_sharing.community.common.onyx>
     <helm.kube.version>&gt;= 1.20.0-0</helm.kube.version>
     <helm.version>3.14.2</helm.version>
   </properties>
@@ -57,6 +75,27 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo file=".composeProjectName">${project.version.base}</echo>
+                <replaceregexp byline="true" file=".composeProjectName" match="-SNAPSHOT" replace=""/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
   <modules>
     <module>compose</module>

@@ -158,6 +158,12 @@ edusharing_repository_mongo:
   ## @param edusharing_repository_mongo.nameOverride Override mongo repository name
   nameOverride: &mongoNameOverride edusharing-repository-mongo
 
+  image:
+    ## @param edusharing_repository_mongo.image.name Set repository rediscluster image name
+    name: ${docker.edu_sharing.community.common.mongodb.name}
+    ## @param edusharing_repository_mongo.image.tag Set repository rediscluster image tag
+    tag: ${docker.edu_sharing.community.common.mongodb.tag}
+
   service:
 
     port:
@@ -170,6 +176,36 @@ edusharing_repository_mongo:
     database: &mongoConfigDatabase repository
     ## @param edusharing_repository_mongo.config.username Set mongo repository username
     username: &mongoConfigUsername repository
+
+  init:
+
+    permission:
+
+      image:
+        ## @param edusharing_repository_mongo.init.permission.image.name Set init container image name
+        name: ${docker.edu_sharing.community.common.minideb.name}
+        ## @param edusharing_repository_mongo.init.permission.image.tag Set init container image tag
+        tag: ${docker.edu_sharing.community.common.minideb.tag}
+
+  job:
+
+    dump:
+
+      image:
+        ## @param edusharing_repository_mongo.job.dump.image.name Set dump job image name
+        name: ${docker.edu_sharing.community.common.mongodb.name}
+        ## @param edusharing_repository_mongo.job.dump.image.tag Set dump job image tag
+        tag: ${docker.edu_sharing.community.common.mongodb.tag}
+
+  sidecar:
+
+    metrics:
+
+      image:
+        ## @param edusharing_repository_mongo.sidecar.metrics.image.name Set metrics sidecar image name
+        name: ${docker.edu_sharing.community.common.mongodb.exporter.name}
+        ## @param edusharing_repository_mongo.sidecar.metrics.image.tag Set metrics sidecar image tag
+        tag: ${docker.edu_sharing.community.common.mongodb.exporter.tag}
 
 ########################################################################################################################
 

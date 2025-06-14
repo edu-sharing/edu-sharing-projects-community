@@ -16,14 +16,30 @@
 
   <name>edu_sharing-projects-community-deploy-docker-compose</name>
 
-  <build>
 
+  <build>
     <plugins>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
+          <execution>
+            <id>commons</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-common-deployment-mongodb-compose,
+                edu_sharing-community-common-deployment-onyx-compose
+              </includeArtifactIds>
+              <excludes>META-INF/**,**/*-dev.yml</excludes>
+              <outputDirectory>${project.build.directory}/commons</outputDirectory>
+            </configuration>
+          </execution>
+
           <execution>
             <id>services</id>
             <goals>
@@ -35,7 +51,21 @@
                 edu_sharing-community-services-rendering-deploy-docker-compose,
                 edu_sharing-community-services-connector-deploy-docker-compose
               </includeArtifactIds>
-              <excludes>META-INF/**</excludes>
+              <excludes>META-INF/**,**/*-dev.yml</excludes>
+              <outputDirectory>${project.build.directory}/compose</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>services2</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-services-rendering2-deploy-docker-compose,
+              </includeArtifactIds>
+              <excludes>META-INF/**,**/*-dev.yml</excludes>
               <outputDirectory>${project.build.directory}/compose</outputDirectory>
             </configuration>
           </execution>
@@ -67,6 +97,22 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
+          <execution>
+            <id>commons</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/compose</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/commons</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
           <execution>
             <id>compose</id>
             <phase>validate</phase>
@@ -161,6 +207,26 @@
               </fileSets>
               <outputDirectory>${project.build.directory}/edu-sharing</outputDirectory>
               <finalName>docker-compose.debug.yml</finalName>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>proxy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>merge</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.build.directory}/compose</directory>
+                  <includes>
+                    <include>*-nginx.yml</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
+              <outputDirectory>${project.build.directory}/edu-sharing</outputDirectory>
+              <finalName>docker-compose.proxy.yml</finalName>
             </configuration>
           </execution>
         </executions>
@@ -361,6 +427,52 @@
 
     <profile>
 
+      <id>service.rendering</id>
+
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>env.SERVICE_RENDERING_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-services-rendering-deploy-docker-compose</artifactId>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+    <profile>
+
+      <id>service.rendering2</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.SERVICE_RENDERING2_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-services-rendering2-deploy-docker-compose</artifactId>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
+
+    <profile>
+
       <id>service.connector</id>
 
       <activation>
@@ -389,11 +501,6 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>edu_sharing-community-repository-deploy-docker-compose</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>edu_sharing-community-services-rendering-deploy-docker-compose</artifactId>
     </dependency>
 
     <dependency>

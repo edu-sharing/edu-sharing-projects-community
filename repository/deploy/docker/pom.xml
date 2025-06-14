@@ -14,7 +14,7 @@
       edu_sharing-community-common-docker-minideb
     </docker.edu_sharing.community.common.minideb.name>
     <docker.edu_sharing.community.common.minideb.tag>
-      11
+      12
     </docker.edu_sharing.community.common.minideb.tag>
     <docker.edu_sharing.community.common.postgresql.name>
       edu_sharing-community-common-docker-postgresql
@@ -40,6 +40,18 @@
     <docker.edu_sharing.community.common.redis-cluster.tag>
       7.4.1
     </docker.edu_sharing.community.common.redis-cluster.tag>
+    <docker.edu_sharing.community.common.mongodb.name>
+      edu_sharing-community-common-docker-mongodb
+    </docker.edu_sharing.community.common.mongodb.name>
+    <docker.edu_sharing.community.common.mongodb.tag>
+      7.0.15
+    </docker.edu_sharing.community.common.mongodb.tag>
+    <docker.edu_sharing.community.common.mongodb.exporter.name>
+      edu_sharing-community-common-docker-mongodb-exporter
+    </docker.edu_sharing.community.common.mongodb.exporter.name>
+    <docker.edu_sharing.community.common.mongodb.exporter.tag>
+      0.30.0
+    </docker.edu_sharing.community.common.mongodb.exporter.tag>
     <helm.kube.version>&gt;= 1.20.0-0</helm.kube.version>
     <helm.version>3.14.2</helm.version>
   </properties>
