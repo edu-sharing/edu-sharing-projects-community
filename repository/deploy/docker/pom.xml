@@ -14,7 +14,7 @@
       edu_sharing-community-common-docker-minideb
     </docker.edu_sharing.community.common.minideb.name>
     <docker.edu_sharing.community.common.minideb.tag>
-      12
+      12.0.1
     </docker.edu_sharing.community.common.minideb.tag>
     <docker.edu_sharing.community.common.postgresql.name>
       edu_sharing-community-common-docker-postgresql
@@ -38,7 +38,7 @@
       edu_sharing-community-common-docker-redis-cluster
     </docker.edu_sharing.community.common.redis-cluster.name>
     <docker.edu_sharing.community.common.redis-cluster.tag>
-      7.4.1
+      7.4.3
     </docker.edu_sharing.community.common.redis-cluster.tag>
     <docker.edu_sharing.community.common.mongodb.name>
       edu_sharing-community-common-docker-mongodb
