@@ -59,6 +59,11 @@
         </file>
       </activation>
 
+      <properties>
+        <!-- we need to use npm i since npm ci will not support nested package-lock files-->
+        <npm.args.install>i</npm.args.install>
+      </properties>
+
       <build>
 
         <plugins>
