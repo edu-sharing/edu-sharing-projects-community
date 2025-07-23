@@ -59,7 +59,7 @@
 | `edusharing_repository_search_elastic_index.enabled`                      | Enable search elastic index repository                 | `${helm.edusharing_repository_search_elastic_index.enabled}`      |
 | `edusharing_repository_search_elastic_index.nameOverride`                 | Override search elastic index repository name          | `edusharing-repository-search-elastic-index`                      |
 | `edusharing_repository_search_elastic_index.service.port.api`             | Set search elastic index repository service api port   | `9200`                                                            |
-| `edusharing_repository_search_solr.enabled`                               | Enable search solr repository                          | `true`                                                            |
+| `edusharing_repository_search_solr.enabled`                               | Enable search solr repository                          | `false`                                                           |
 | `edusharing_repository_search_solr.nameOverride`                          | Override search solr repository name                   | `edusharing-repository-search-solr`                               |
 | `edusharing_repository_search_solr.service.port.api`                      | Set search solr repository service api port            | `9200`                                                            |
 | `edusharing_repository_search_solr.config.repository.host`                | Set search solr repository host                        | `edusharing-repository-service`                                   |

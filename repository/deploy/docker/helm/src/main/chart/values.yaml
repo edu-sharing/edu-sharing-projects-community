@@ -228,7 +228,7 @@ edusharing_repository_search_elastic_index:
 edusharing_repository_search_solr:
 
   ## @param edusharing_repository_search_solr.enabled Enable search solr repository
-  enabled: true
+  enabled: false
 
   ## @param edusharing_repository_search_solr.nameOverride Override search solr repository name
   nameOverride: &searchSolrNameOverride edusharing-repository-search-solr
