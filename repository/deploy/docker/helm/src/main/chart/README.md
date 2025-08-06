@@ -28,6 +28,8 @@
 | `edusharing_repository_postgresql.config.username`                        | Set postgresql repository username                     | `repository`                                                      |
 | `edusharing_repository_postgresql.init.permission.image.name`             | Set postgresql repository init permission image name   | `${docker.edu_sharing.community.common.minideb.name}`             |
 | `edusharing_repository_postgresql.init.permission.image.tag`              | Set postgresql repository init permission image tag    | `${docker.edu_sharing.community.common.minideb.tag}`              |
+| `edusharing_repository_postgresql.init.upgrade.image.name`                | Set postgresql repository init upgrade image name      | `${docker.edu_sharing.community.common.postgresql.upgrade.name}`  |
+| `edusharing_repository_postgresql.init.upgrade.image.tag`                 | Set postgresql repository init upgrade image tag       | `${docker.edu_sharing.community.common.postgresql.upgrade.tag}`   |
 | `edusharing_repository_postgresql.job.dump.image.name`                    | Set postgresql repository job dump image name          | `${docker.edu_sharing.community.common.postgresql.name}`          |
 | `edusharing_repository_postgresql.job.dump.image.tag`                     | Set postgresql repository job dump image tag           | `${docker.edu_sharing.community.common.postgresql.tag}`           |
 | `edusharing_repository_postgresql.sidecar.metrics.image.name`             | Set postgresql repository sidecar metrics image name   | `${docker.edu_sharing.community.common.postgresql.exporter.name}` |
