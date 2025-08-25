@@ -78,6 +78,14 @@ edusharing_repository_postgresql:
         ## @param edusharing_repository_postgresql.init.permission.image.tag Set postgresql repository init permission image tag
         tag: ${docker.edu_sharing.community.common.minideb.tag}
 
+    upgrade:
+
+      image:
+        ## @param edusharing_repository_postgresql.init.upgrade.image.name Set postgresql repository init upgrade image name
+        name: ${docker.edu_sharing.community.common.postgresql.upgrade.name}
+        ## @param edusharing_repository_postgresql.init.upgrade.image.tag Set postgresql repository init upgrade image tag
+        tag: ${docker.edu_sharing.community.common.postgresql.upgrade.tag}
+
   job:
 
     dump:
@@ -228,7 +236,7 @@ edusharing_repository_search_elastic_index:
 edusharing_repository_search_solr:
 
   ## @param edusharing_repository_search_solr.enabled Enable search solr repository
-  enabled: true
+  enabled: false
 
   ## @param edusharing_repository_search_solr.nameOverride Override search solr repository name
   nameOverride: &searchSolrNameOverride edusharing-repository-search-solr

@@ -28,6 +28,8 @@
 | `edusharing_repository_postgresql.config.username`                        | Set postgresql repository username                     | `repository`                                                      |
 | `edusharing_repository_postgresql.init.permission.image.name`             | Set postgresql repository init permission image name   | `${docker.edu_sharing.community.common.minideb.name}`             |
 | `edusharing_repository_postgresql.init.permission.image.tag`              | Set postgresql repository init permission image tag    | `${docker.edu_sharing.community.common.minideb.tag}`              |
+| `edusharing_repository_postgresql.init.upgrade.image.name`                | Set postgresql repository init upgrade image name      | `${docker.edu_sharing.community.common.postgresql.upgrade.name}`  |
+| `edusharing_repository_postgresql.init.upgrade.image.tag`                 | Set postgresql repository init upgrade image tag       | `${docker.edu_sharing.community.common.postgresql.upgrade.tag}`   |
 | `edusharing_repository_postgresql.job.dump.image.name`                    | Set postgresql repository job dump image name          | `${docker.edu_sharing.community.common.postgresql.name}`          |
 | `edusharing_repository_postgresql.job.dump.image.tag`                     | Set postgresql repository job dump image tag           | `${docker.edu_sharing.community.common.postgresql.tag}`           |
 | `edusharing_repository_postgresql.sidecar.metrics.image.name`             | Set postgresql repository sidecar metrics image name   | `${docker.edu_sharing.community.common.postgresql.exporter.name}` |
@@ -59,7 +61,7 @@
 | `edusharing_repository_search_elastic_index.enabled`                      | Enable search elastic index repository                 | `${helm.edusharing_repository_search_elastic_index.enabled}`      |
 | `edusharing_repository_search_elastic_index.nameOverride`                 | Override search elastic index repository name          | `edusharing-repository-search-elastic-index`                      |
 | `edusharing_repository_search_elastic_index.service.port.api`             | Set search elastic index repository service api port   | `9200`                                                            |
-| `edusharing_repository_search_solr.enabled`                               | Enable search solr repository                          | `true`                                                            |
+| `edusharing_repository_search_solr.enabled`                               | Enable search solr repository                          | `false`                                                           |
 | `edusharing_repository_search_solr.nameOverride`                          | Override search solr repository name                   | `edusharing-repository-search-solr`                               |
 | `edusharing_repository_search_solr.service.port.api`                      | Set search solr repository service api port            | `9200`                                                            |
 | `edusharing_repository_search_solr.config.repository.host`                | Set search solr repository host                        | `edusharing-repository-service`                                   |
