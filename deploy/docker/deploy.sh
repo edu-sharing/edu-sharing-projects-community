@@ -428,9 +428,10 @@ ldev() {
 
 	echo "Use compose set: $COMPOSE_LIST"
 
+
 	$COMPOSE_EXEC \
 		$COMPOSE_LIST \
-		up --force-recreate -d $@ || exit
+		up -d $@ || exit
 }
 
 stop() {
