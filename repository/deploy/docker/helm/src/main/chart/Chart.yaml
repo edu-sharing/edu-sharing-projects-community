@@ -17,7 +17,7 @@ dependencies:
 
   - name: edu_sharing-community-common-postgresql
     repository: ${helm.deploy.url}
-    version: 1.x.x
+    version: 2.x.x
     alias: edusharing_repository_postgresql
     condition: edusharing_repository_postgresql.enabled
 
