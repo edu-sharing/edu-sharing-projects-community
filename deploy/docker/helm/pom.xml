@@ -18,6 +18,14 @@
 
   <properties>
 
+    <helm.edusharing_services_connector.enabled>
+      false
+    </helm.edusharing_services_connector.enabled>
+    <helm.edusharing_services_connector.line1/>
+    <helm.edusharing_services_connector.line2/>
+    <helm.edusharing_services_connector.line3/>
+    <helm.edusharing_services_connector.line4/>
+
     <helm.edusharing_services_rendering.enabled>
       false
     </helm.edusharing_services_rendering.enabled>
