@@ -131,6 +131,34 @@ edusharing_repository:
 
 ########################################################################################################################
 
+edusharing_services_connector:
+
+  ## @param edusharing_services_connector.enabled Enable connector service
+  enabled: ${helm.edusharing_services_connector.enabled}
+
+  edusharing_services_connector_rediscluster:
+
+    ## @param edusharing_services_connector.edusharing_services_connector_rediscluster.enabled Enable rediscluster connector service
+    enabled: false
+
+  edusharing_services_connector_service:
+
+    config:
+
+      cache:
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.cache.host Set host for connector service cache
+        host: *redisclusterNameOverride
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.cache.port Set port for connector service cache
+        port: *redisclusterServicePortApi
+
+      repository:
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.repository.host Set host for connector service repository
+        host: *repositoryNameOverride
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.repository.port Set port for connector service repository
+        port: *repositoryServicePostApiInternal
+
+########################################################################################################################
+
 edusharing_services_rendering:
 
   ## @param edusharing_services_rendering.enabled Enable rendering service

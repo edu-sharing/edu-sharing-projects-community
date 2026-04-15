@@ -26,6 +26,11 @@ dependencies:
     alias: edusharing_repository
     condition: edusharing_repository.enabled
 
+  ${helm.edusharing_services_connector.line1}
+    ${helm.edusharing_services_connector.line2}
+    ${helm.edusharing_services_connector.line3}
+    ${helm.edusharing_services_connector.line4}
+
   ${helm.edusharing_services_rendering.line1}
     ${helm.edusharing_services_rendering.line2}
     ${helm.edusharing_services_rendering.line3}

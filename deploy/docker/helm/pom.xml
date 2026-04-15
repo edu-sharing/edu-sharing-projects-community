@@ -18,6 +18,14 @@
 
   <properties>
 
+    <helm.edusharing_services_connector.enabled>
+      false
+    </helm.edusharing_services_connector.enabled>
+    <helm.edusharing_services_connector.line1/>
+    <helm.edusharing_services_connector.line2/>
+    <helm.edusharing_services_connector.line3/>
+    <helm.edusharing_services_connector.line4/>
+
     <helm.edusharing_services_rendering.enabled>
       false
     </helm.edusharing_services_rendering.enabled>
@@ -80,7 +88,24 @@
               <classifier>bin</classifier>
               <outputDirectory>${project.build.directory}/chart/charts/${helm.prefix}-repository</outputDirectory>
             </configuration>
-          </execution>          <execution>
+          </execution>
+          <execution>
+            <id>edusharing_services_connector</id>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <includeArtifactIds>
+                edu_sharing-community-services-connector-deploy-docker-helm-bundle
+              </includeArtifactIds>
+              <type>tar.gz</type>
+              <classifier>bin</classifier>
+              <outputDirectory>${project.build.directory}/chart/charts/edu_sharing-community-services-connector
+              </outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
             <id>edusharing_services_rendering</id>
             <goals>
               <goal>unpack-dependencies</goal>
@@ -226,6 +251,85 @@
   </dependencies>
 
   <profiles>
+
+    <profile>
+
+      <id>service.connector</id>
+
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <property>
+          <name>env.SERVICE_CONNECTOR_ENABLED</name>
+          <value>true</value>
+        </property>
+      </activation>
+
+      <properties>
+
+        <helm.edusharing_services_connector.enabled>
+          true
+        </helm.edusharing_services_connector.enabled>
+        <helm.edusharing_services_connector.line1>
+          - name: edu_sharing-community-services-connector
+        </helm.edusharing_services_connector.line1>
+        <helm.edusharing_services_connector.line2>
+          <!--suppress UnresolvedMavenProperty -->
+          version:
+          ${org.edu_sharing:edu_sharing-community-services-connector-deploy-docker-helm-bundle:tar.gz:bin.range}
+        </helm.edusharing_services_connector.line2>
+        <helm.edusharing_services_connector.line3>
+          alias: edusharing_services_connector
+        </helm.edusharing_services_connector.line3>
+        <helm.edusharing_services_connector.line4>
+          condition: edusharing_services_connector.enabled
+        </helm.edusharing_services_connector.line4>
+
+      </properties>
+
+      <build>
+
+        <plugins>
+
+          <plugin>
+            <groupId>org.codehaus.gmavenplus</groupId>
+            <artifactId>gmavenplus-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>services_connector</id>
+                <goals>
+                  <goal>execute</goal>
+                </goals>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <scripts>
+                    <!--suppress UnresolvedMavenProperty -->
+                    <script><![CDATA[
+                      def version = project.properties['org.edu_sharing:edu_sharing-community-services-connector-deploy-docker-helm-bundle:tar.gz:bin.version']
+                      ${git.semver}
+                      project.properties.setProperty('org.edu_sharing:edu_sharing-community-services-connector-deploy-docker-helm-bundle:tar.gz:bin.range', semver)
+                    ]]></script>
+                  </scripts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+
+      </build>
+
+      <dependencies>
+
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>edu_sharing-community-services-connector-deploy-docker-helm-bundle</artifactId>
+          <type>tar.gz</type>
+          <classifier>bin</classifier>
+        </dependency>
+
+      </dependencies>
+
+    </profile>
 
     <profile>
 
