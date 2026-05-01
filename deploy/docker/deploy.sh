@@ -456,7 +456,7 @@ ldev() {
 
 	$COMPOSE_EXEC \
 		$COMPOSE_LIST \
-		up --force-recreate -d $@ || exit
+		up -d $@ || exit
 }
 
 stop() {
