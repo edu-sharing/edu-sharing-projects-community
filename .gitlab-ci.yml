@@ -38,7 +38,7 @@ deploy:
     - if: $CI_COMMIT_BRANCH !~ /^maven\/release\/.*/ && $CI_COMMIT_TAG == null
   before_script:
     - apt-get update -y
-    - apt-get install -y php php-curl php-dom php-gd php-mbstring php-xml php-zip wget git
+    - apt-get install -y wget git
     - pushd /tmp
     - wget https://get.helm.sh/helm-v3.14.2-linux-amd64.tar.gz
     - tar -xzvf helm-v3.14.2-linux-amd64.tar.gz
