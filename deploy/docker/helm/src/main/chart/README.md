@@ -2,14 +2,21 @@
 
 ### Global parameters
 
-| Name                                    | Description                          | Value   |
-| --------------------------------------- | ------------------------------------ | ------- |
-| `global.cluster.istio.enabled`          | Enable Istio Service mesh            | `false` |
-| `global.metrics.prometheus.enabled`     | Enable global prometheus metrics     | `false` |
-| `global.metrics.prometheus.retention`   | Set prometheus metric retention time | `1w`    |
-| `global.metrics.scrape.interval`        | Set prometheus scrape interval       | `10s`   |
-| `global.metrics.scrape.timeout`         | Set prometheus scrape timeout        | `10s`   |
-| `global.metrics.servicemonitor.enabled` | Enable metrics service monitor       | `false` |
+| Name                                    | Description                          | Value       |
+| --------------------------------------- | ------------------------------------ | ----------- |
+| `global.backup.velero.enabled`          | Enable velero backup                 | `false`     |
+| `global.backup.velero.namespace`        | namespace of velero backup operator  | `velero`    |
+| `global.backup.velero.paused`           | Flag to pause velero backup          | `false`     |
+| `global.backup.velero.schedule`         | cron expression for velero backup    | `0 0 * * *` |
+| `global.backup.velero.storageLocation`  | velero storage location              | `default`   |
+| `global.backup.velero.timeout`          | timeout for hooks execution          | `4h`        |
+| `global.backup.velero.ttl`              | Time-to-live for velero backup       | `72h0m0s`   |
+| `global.cluster.istio.enabled`          | Enable Istio Service mesh            | `false`     |
+| `global.metrics.prometheus.enabled`     | Enable global prometheus metrics     | `false`     |
+| `global.metrics.prometheus.retention`   | Set prometheus metric retention time | `1w`        |
+| `global.metrics.scrape.interval`        | Set prometheus scrape interval       | `10s`       |
+| `global.metrics.scrape.timeout`         | Set prometheus scrape timeout        | `10s`       |
+| `global.metrics.servicemonitor.enabled` | Enable metrics service monitor       | `false`     |
 
 ### Local parameters
 

@@ -7,6 +7,24 @@
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 global:
 
+  backup:
+
+    velero:
+      ## @param global.backup.velero.enabled Enable velero backup
+      enabled: false
+      ## @param global.backup.velero.namespace namespace of velero backup operator
+      namespace: velero
+      ## @param global.backup.velero.paused Flag to pause velero backup
+      paused: false
+      ## @param global.backup.velero.schedule cron expression for velero backup
+      schedule: "0 0 * * *"
+      ## @param global.backup.velero.storageLocation velero storage location
+      storageLocation: default
+      ## @param global.backup.velero.timeout timeout for hooks execution
+      timeout: 4h
+      ## @param global.backup.velero.ttl Time-to-live for velero backup
+      ttl: 72h0m0s
+
   cluster:
 
     istio:

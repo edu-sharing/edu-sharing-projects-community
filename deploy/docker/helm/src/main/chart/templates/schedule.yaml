@@ -1,0 +1,117 @@
+{{- if .Values.global.backup.velero.enabled }}
+{{- if .Capabilities.APIVersions.Has "velero.io/v1" }}
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: {{ .Release.Namespace }}
+  namespace: {{ .Values.global.backup.velero.namespace }}
+  labels: {{ include "edusharing_common_lib.labels.app" . | nindent 4 }}
+spec:
+  paused: {{ .Values.global.backup.velero.paused }}
+  schedule: {{ .Values.global.backup.velero.schedule }}
+  template:
+    includedNamespaces:
+    - {{ .Release.Namespace }}
+    includedResources:
+    - namespaces
+    - persistentvolumes
+    - persistentvolumeclaims
+    - pods
+    - deployments.apps
+    - statefulsets.apps
+    - services
+    - ingresses.networking.k8s.io
+    - configmaps
+    - secrets
+    - cronjobs.batch
+    - prometheusrules.monitoring.coreos.com
+    - servicemonitors.monitoring.coreos.com
+    storageLocation: {{ .Values.global.backup.velero.storageLocation }}
+    ttl: {{ .Values.global.backup.velero.ttl }}
+    orderedResources:
+      pods: {{ .Release.Namespace }}/edusharing-services-rendering-postgresql-0,{{ .Release.Namespace }}/edusharing-services-rendering-service-0,{{ .Release.Namespace }}/edusharing-repository-search-elastic-index-0,{{ .Release.Namespace }}/edusharing-repository-search-solr-0,{{ .Release.Namespace }}/edusharing-repository-postgresql-0,{{ .Release.Namespace }}/edusharing-repository-mongo-0,{{ .Release.Namespace }}/edusharing-repository-mongo-1,{{ .Release.Namespace }}/edusharing-repository-mongo-2,{{ .Release.Namespace }}/edusharing-repository-service-0
+    defaultVolumesToFsBackup: false
+    hooks:
+      resources:
+      - name: edusharing-rediscluster
+        labelSelector:
+          matchLabels:
+            app: edusharing-rediscluster
+        pre:
+        - exec:
+            container: edusharing-rediscluster
+            command:
+            - /bin/bash
+            - -c
+            - /scripts/backup-pre.sh
+            timeout: {{ .Values.global.backup.velero.timeout }}
+      - name: edusharing-repository-mongo
+        labelSelector:
+          matchLabels:
+            app: edusharing-repository-mongo
+        pre:
+        - exec:
+            container: edusharing-repository-mongo
+            command:
+            - /bin/bash
+            - -c
+            - /scripts/backup-pre.sh
+            timeout: {{ .Values.global.backup.velero.timeout }}
+      - name: edusharing-repository-postgresql
+        labelSelector:
+          matchLabels:
+            app: edusharing-repository-postgresql
+        pre:
+        - exec:
+            container: edusharing-repository-postgresql
+            command:
+            - /bin/bash
+            - -c
+            - /scripts/backup-pre.sh
+            timeout: {{ .Values.global.backup.velero.timeout }}
+      - name: edusharing-repository-search-elastic-index
+        labelSelector:
+          matchLabels:
+            app: edusharing-repository-search-elastic-index
+        pre:
+        - exec:
+            container: edusharing-repository-search-elastic-index
+            command:
+            - /bin/bash
+            - -c
+            - /scripts/backup-pre.sh
+            timeout: {{ .Values.global.backup.velero.timeout }}
+        post:
+        - exec:
+            container: edusharing-repository-search-elastic-index
+            command:
+            - /bin/bash
+            - -c
+            - /scripts/backup-post.sh
+            timeout: {{ .Values.global.backup.velero.timeout }}
+      - name: edusharing-repository-search-solr
+        labelSelector:
+          matchLabels:
+            app: edusharing-repository-search-solr
+        pre:
+        - exec:
+            container: edusharing-repository-search-solr
+            command:
+            - /bin/bash
+            - -c
+            - /scripts/backup-pre.sh
+            timeout: {{ .Values.global.backup.velero.timeout }}
+      - name: edusharing-services-rendering-postgresql
+        labelSelector:
+          matchLabels:
+            app: edusharing-services-rendering-postgresql
+        pre:
+        - exec:
+            container: edusharing-services-rendering-postgresql
+            command:
+            - /bin/bash
+            - -c
+            - /scripts/backup-pre.sh
+            timeout: {{ .Values.global.backup.velero.timeout }}
+{{- end }}
+{{- end }}
