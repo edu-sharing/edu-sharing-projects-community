@@ -507,10 +507,10 @@ restore() {
     if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
       if [[ -f "$backupDir/repository-mongo.gz" ]] ; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive --gzip -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" < "$backupDir/repository-mongo.gz"
+        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive --gzip -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" < "$backupDir/repository-mongo.gz"
       elif [[ -f "$backupDir/repository-mongo.dump" ]]; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" < "$backupDir/repository-mongo.dump"
+        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" < "$backupDir/repository-mongo.dump"
       fi
     fi
   fi
