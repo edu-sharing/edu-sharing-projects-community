@@ -141,6 +141,28 @@
       </plugin>
 
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>generate-global-readme</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>bash</executable>
+              <arguments>
+                <argument>${project.basedir}/src/main/scripts/generate-global-readme.sh</argument>
+                <argument>${project.build.directory}/chart</argument>
+                <argument>${project.build.directory}/chart/GLOBAL-README.md</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>io.kokuwa.maven</groupId>
         <artifactId>helm-maven-plugin</artifactId>
         <executions>

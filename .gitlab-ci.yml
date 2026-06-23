@@ -39,6 +39,8 @@ deploy:
   before_script:
     - apt-get update -y
     - apt-get install -y wget git
+    - wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+    - chmod +x /usr/local/bin/yq
     - pushd /tmp
     - wget https://get.helm.sh/helm-v3.14.2-linux-amd64.tar.gz
     - tar -xzvf helm-v3.14.2-linux-amd64.tar.gz
