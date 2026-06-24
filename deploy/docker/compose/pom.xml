@@ -51,7 +51,7 @@
                 edu_sharing-community-services-rendering-deploy-docker-compose,
                 edu_sharing-community-services-connector-deploy-docker-compose
               </includeArtifactIds>
-              <excludes>META-INF/**,**/*-dev.yml</excludes>
+              <excludes>META-INF/**</excludes>
               <outputDirectory>${project.build.directory}/compose</outputDirectory>
             </configuration>
           </execution>

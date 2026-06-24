@@ -2,14 +2,21 @@
 
 ### Global parameters
 
-| Name                                    | Description                          | Value   |
-| --------------------------------------- | ------------------------------------ | ------- |
-| `global.cluster.istio.enabled`          | Enable Istio Service mesh            | `false` |
-| `global.metrics.prometheus.enabled`     | Enable global prometheus metrics     | `false` |
-| `global.metrics.prometheus.retention`   | Set prometheus metric retention time | `1w`    |
-| `global.metrics.scrape.interval`        | Set prometheus scrape interval       | `10s`   |
-| `global.metrics.scrape.timeout`         | Set prometheus scrape timeout        | `10s`   |
-| `global.metrics.servicemonitor.enabled` | Enable metrics service monitor       | `false` |
+| Name                                    | Description                          | Value       |
+| --------------------------------------- | ------------------------------------ | ----------- |
+| `global.backup.velero.enabled`          | Enable velero backup                 | `false`     |
+| `global.backup.velero.namespace`        | namespace of velero backup operator  | `velero`    |
+| `global.backup.velero.paused`           | Flag to pause velero backup          | `false`     |
+| `global.backup.velero.schedule`         | cron expression for velero backup    | `0 0 * * *` |
+| `global.backup.velero.storageLocation`  | velero storage location              | `default`   |
+| `global.backup.velero.timeout`          | timeout for hooks execution          | `4h`        |
+| `global.backup.velero.ttl`              | Time-to-live for velero backup       | `72h0m0s`   |
+| `global.cluster.istio.enabled`          | Enable Istio Service mesh            | `false`     |
+| `global.metrics.prometheus.enabled`     | Enable global prometheus metrics     | `false`     |
+| `global.metrics.prometheus.retention`   | Set prometheus metric retention time | `1w`        |
+| `global.metrics.scrape.interval`        | Set prometheus scrape interval       | `10s`       |
+| `global.metrics.scrape.timeout`         | Set prometheus scrape timeout        | `10s`       |
+| `global.metrics.servicemonitor.enabled` | Enable metrics service monitor       | `false`     |
 
 ### Local parameters
 
@@ -34,6 +41,12 @@
 | `edusharing_repository.edusharing_repository_service.service.port.api.internal`                | Set internal repository service api port           | `8080`                                                       |
 | `edusharing_repository.edusharing_repository_service.config.cache.host`                        | Set host for repository service redis config cache | `edusharing-rediscluster`                                    |
 | `edusharing_repository.edusharing_repository_service.config.cache.port`                        | Set port for repository service redis config cache | `6379`                                                       |
+| `edusharing_services_connector.enabled`                                                        | Enable connector service                           | `${helm.edusharing_services_connector.enabled}`              |
+| `edusharing_services_connector.edusharing_services_connector_rediscluster.enabled`             | Enable rediscluster connector service              | `false`                                                      |
+| `edusharing_services_connector.edusharing_services_connector_service.config.cache.host`        | Set host for connector service cache               | `edusharing-rediscluster`                                    |
+| `edusharing_services_connector.edusharing_services_connector_service.config.cache.port`        | Set port for connector service cache               | `6379`                                                       |
+| `edusharing_services_connector.edusharing_services_connector_service.config.repository.host`   | Set host for connector service repository          | `edusharing-repository-service`                              |
+| `edusharing_services_connector.edusharing_services_connector_service.config.repository.port`   | Set port for connector service repository          | `8080`                                                       |
 | `edusharing_services_rendering.enabled`                                                        | Enable rendering service                           | `${helm.edusharing_services_rendering.enabled}`              |
 | `edusharing_services_rendering.edusharing_services_rendering_rediscluster.enabled`             | Enable rediscluster rendering service              | `false`                                                      |
 | `edusharing_services_rendering.edusharing_services_rendering_service.config.cache.host`        | Set host for rendering service cache               | `edusharing-rediscluster`                                    |

@@ -7,6 +7,24 @@
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 global:
 
+  backup:
+
+    velero:
+      ## @param global.backup.velero.enabled Enable velero backup
+      enabled: false
+      ## @param global.backup.velero.namespace namespace of velero backup operator
+      namespace: velero
+      ## @param global.backup.velero.paused Flag to pause velero backup
+      paused: false
+      ## @param global.backup.velero.schedule cron expression for velero backup
+      schedule: "0 0 * * *"
+      ## @param global.backup.velero.storageLocation velero storage location
+      storageLocation: default
+      ## @param global.backup.velero.timeout timeout for hooks execution
+      timeout: 4h
+      ## @param global.backup.velero.ttl Time-to-live for velero backup
+      ttl: 72h0m0s
+
   cluster:
 
     istio:
@@ -128,6 +146,34 @@ edusharing_repository:
         ## @param edusharing_repository.edusharing_repository_service.config.cache.port Set port for repository service redis config cache
         port: *redisclusterServicePortApi
 
+
+########################################################################################################################
+
+edusharing_services_connector:
+
+  ## @param edusharing_services_connector.enabled Enable connector service
+  enabled: ${helm.edusharing_services_connector.enabled}
+
+  edusharing_services_connector_rediscluster:
+
+    ## @param edusharing_services_connector.edusharing_services_connector_rediscluster.enabled Enable rediscluster connector service
+    enabled: false
+
+  edusharing_services_connector_service:
+
+    config:
+
+      cache:
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.cache.host Set host for connector service cache
+        host: *redisclusterNameOverride
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.cache.port Set port for connector service cache
+        port: *redisclusterServicePortApi
+
+      repository:
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.repository.host Set host for connector service repository
+        host: *repositoryNameOverride
+        ## @param edusharing_services_connector.edusharing_services_connector_service.config.repository.port Set port for connector service repository
+        port: *repositoryServicePostApiInternal
 
 ########################################################################################################################
 

@@ -195,7 +195,7 @@ info() {
 	echo ""
 	echo "  Database:         ${SERVICES_RENDERING_DATABASE_NAME:-rendering}"
 	echo ""
-	echo "  Port:             127.0.0.1:${SERVICES_RENDERING_DATABASE_PORT:-9000}"
+	echo "  Port:             127.0.0.1:${SERVICES_RENDERING_DATABASE_PORT:-9101}"
 	echo ""
 	echo "#########################################################################"
 	echo ""
@@ -208,7 +208,33 @@ info() {
 	echo ""
 	echo "  Services:"
 	echo ""
-	echo "    HTTP:           http://${SERVICES_RENDERING_SERVICE_HOST:-rendering.services.127.0.0.1.nip.io}:${SERVICES_RENDERING_SERVICE_PORT_HTTP:-9100}/esrender/admin/"
+	echo "    HTTP:           http://${SERVICES_RENDERING_SERVICE_HOST:-rendering.services.127.0.0.1.nip.io}:${SERVICES_RENDERING_SERVICE_PORT:-9100}${SERVICES_RENDERING_SERVICE_PATH:-/esrender}/admin"
+	echo ""
+	echo "#########################################################################"
+	echo ""
+	echo "services-connector-database:"
+	echo ""
+	echo "  Credentials:"
+	echo ""
+	echo "    Name:           ${SERVICES_CONNECTOR_DATABASE_USER:-connector}"
+	echo "    Password:       ${SERVICES_CONNECTOR_DATABASE_PASS:-connector}"
+	echo ""
+	echo "  Database:         ${SERVICES_CONNECTOR_DATABASE_NAME:-connector}"
+	echo ""
+	echo "  Port:             127.0.0.1:${SERVICES_CONNECTOR_DATABASE_PORT:-9201}"
+	echo ""
+	echo "#########################################################################"
+	echo ""
+	echo "services-connector-service:"
+	echo ""
+	echo "  Credentials:"
+	echo ""
+	echo "    Name:           ${SERVICES_CONNECTOR_DATABASE_USER:-connector}"
+	echo "    Password:       ${SERVICES_CONNECTOR_DATABASE_PASS:-connector}"
+	echo ""
+	echo "  Services:"
+	echo ""
+	echo "    HTTP:           http://${SERVICES_CONNECTOR_SERVICE_HOST:-connector.services.127.0.0.1.nip.io}:${SERVICES_CONNECTOR_SERVICE_PORT:-9200}${SERVICES_CONNECTOR_SERVICE_PATH:-}/"
 	echo ""
 	echo "#########################################################################"
 	echo ""
@@ -430,7 +456,7 @@ ldev() {
 
 	$COMPOSE_EXEC \
 		$COMPOSE_LIST \
-		up --force-recreate -d $@ || exit
+		up -d $@ || exit
 }
 
 stop() {
