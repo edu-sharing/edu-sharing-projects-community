@@ -138,7 +138,7 @@ backup() {
   elastic=
   repodb=
   repobinaries=
-  hotbackup=
+  hotBackup=
   compressed=
   keep=
   while true ; do
@@ -214,7 +214,7 @@ backup() {
                   break
               elif [ "$status" != "success" ]; then
                   echo "wait for solr $store backup..."
-                  sleep 500
+                  sleep 5
               else
                   break
               fi
@@ -223,8 +223,8 @@ backup() {
 
           apt update \
           && apt install -y wget curl xmlstarlet \
-          && wget -qo- "http://repository-search-solr:8080/solr/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
-          && wget -qo- "http://repository-search-solr:8080/solr/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
+          && wget -qO- "http://repository-search-solr:8080/solr/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
+          && wget -qO- "http://repository-search-solr:8080/solr/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
           && check_Backup_status alfresco \
           && check_Backup_status archive \
           && echo "compress backup:" \
@@ -255,7 +255,7 @@ backup() {
                     break
                 elif [ "$status" != "success" ]; then
                     echo "wait for solr $store backup..."
-                    sleep 500
+                    sleep 5
                 else
                     break
                 fi
@@ -264,8 +264,8 @@ backup() {
 
             apt update \
             && apt install -y wget curl xmlstarlet \
-            && wget -qo- "http://repository-search-solr:8080/solr/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
-            && wget -qo- "http://repository-search-solr:8080/solr/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
+            && wget -qO- "http://repository-search-solr:8080/solr/alfresco/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=alfresco" \
+            && wget -qO- "http://repository-search-solr:8080/solr/archive/replication?command=backup&location=/opt/alfresco/alf_data/backup&name=archive"  \
             && check_Backup_status alfresco \
             && check_Backup_status archive \
             && echo "move backup:" \
@@ -283,7 +283,6 @@ backup() {
     if [[ -n $compressed ]] ; then
       docker run \
         --rm \
-        -ti \
         -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=http://repository-search-elastic-index:9200/workspace \
@@ -296,7 +295,6 @@ backup() {
 
       docker run \
         --rm \
-        -ti \
         -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
         elasticdump/elasticsearch-dump \
         --input=http://repository-search-elastic-index:9200/transactions \
@@ -309,8 +307,7 @@ backup() {
       else
         docker run \
           --rm \
-          -ti \
-          -v "$backupDir":/tmp --network "$(docker inspect "$(docker compose ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
+          -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
           elasticdump/elasticsearch-dump \
           --input=http://repository-search-elastic-index:9200/workspace \
           --output=/tmp/elastic_workspace.json || {
@@ -321,7 +318,6 @@ backup() {
 
         docker run \
           --rm \
-          -ti \
           -v "$backupDir":/tmp --network "$(docker inspect "$($COMPOSE_EXEC ps repository-search-elastic-index -q)" -f '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s" $net}}{{end}}')" \
           elasticdump/elasticsearch-dump \
           --input=http://repository-search-elastic-index:9200/transactions \
@@ -335,17 +331,17 @@ backup() {
 
 
   if [[ -n $repodb ]] ; then
-    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
+    if $COMPOSE_EXEC config --services 2>/dev/null | grep -qx mongo-database; then
        echo "backup mongo"
 
        if [[ -n $compressed ]] ; then
-         $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.gz" || {
+         $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/repository-mongo.gz" || {
            rm -rf "$backupDir"
            echo "ERROR on creating mongodb dump"
            exit 1
          }
        else
-          $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.dump" || {
+          $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/repository-mongo.dump" || {
             rm -rf "$backupDir"
             echo "ERROR on creating mongodb dump"
             exit 1
@@ -403,7 +399,7 @@ backup() {
 
   if [[ -z $hotBackup ]] ; then
     echo "### unpause repository and elastic tracker services"
-    $COMPOSE_EXEC unpause repository-search-elastic-tracker repository-service
+    $COMPOSE_EXEC unpause repository-search-elastic-tracker repository-service || true
   fi
 
   if [[ -n $keep ]] ; then
@@ -504,13 +500,13 @@ restore() {
       $COMPOSE_EXEC exec -T repository-search-elastic-index bash -c 'rm -rf /usr/share/elasticsearch/data/nodes || true' || true
     fi
 
-    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
+    if $COMPOSE_EXEC config --services 2>/dev/null | grep -qx mongo-database; then
       if [[ -f "$backupDir/repository-mongo.gz" ]] ; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive --gzip -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" < "$backupDir/repository-mongo.gz"
+        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/repository-mongo.gz"
       elif [[ -f "$backupDir/repository-mongo.dump" ]]; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive -u ${REPOSITORY_MONGO_ROOT_PASS:-root} -p ${REPOSITORY_MONGO_ROOT_USER:-root}" < "$backupDir/repository-mongo.dump"
+        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/repository-mongo.dump"
       fi
     fi
   fi
