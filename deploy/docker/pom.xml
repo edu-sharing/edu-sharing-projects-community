@@ -32,7 +32,7 @@
       edu_sharing-community-common-docker-mongodb
     </docker.edu_sharing.community.common.mongodb.name>
     <docker.edu_sharing.community.common.mongodb.tag>
-      8.0.12
+      8.0.12-1
     </docker.edu_sharing.community.common.mongodb.tag>
     <docker.edu_sharing.community.common.mongodb>
       ${docker.registry}/${docker.common}/${docker.edu_sharing.community.common.mongodb.name}:${docker.edu_sharing.community.common.mongodb.tag}
