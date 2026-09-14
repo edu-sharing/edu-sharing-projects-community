@@ -20,7 +20,7 @@
     <!-- git extension controlled props -->
     <project.version.base>git</project.version.base>
     <!-- release-4 -->
-    <bom.bom.version>${project.version}</bom.bom.version>
+    <bom.bom.version>11.0.0-RC25</bom.bom.version>
   </properties>
   <profiles>
     <profile>
