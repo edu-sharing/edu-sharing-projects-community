@@ -335,13 +335,13 @@ backup() {
        echo "backup mongo"
 
        if [[ -n $compressed ]] ; then
-         $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/repository-mongo.gz" || {
+         $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/mongo-database.gz" || {
            rm -rf "$backupDir"
            echo "ERROR on creating mongodb dump"
            exit 1
          }
        else
-          $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/repository-mongo.dump" || {
+          $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/mongo-database.dump" || {
             rm -rf "$backupDir"
             echo "ERROR on creating mongodb dump"
             exit 1
@@ -423,8 +423,8 @@ restore() {
   repo=
   solr=
   elastic=
-  if [[ -f "$backupDir/binaries.tar" ]] || [[ -f "$backupDir/repository-db.gz" ]] || [[ -f "$backupDir/repository-mongo.gz" ]] \
-  || [[ -d "$backupDir/alf_data" ]] || [[ -f "$backupDir/repository-db.sql" ]] || [[ -f "$backupDir/repository-mongo.dump" ]]; then
+  if [[ -f "$backupDir/binaries.tar" ]] || [[ -f "$backupDir/repository-db.gz" ]] || [[ -f "$backupDir/mongo-database.gz" ]] \
+  || [[ -d "$backupDir/alf_data" ]] || [[ -f "$backupDir/repository-db.sql" ]] || [[ -f "$backupDir/mongo-database.dump" ]]; then
     repo=true
     container="$container  repository-service"
   fi
@@ -501,12 +501,12 @@ restore() {
     fi
 
     if $COMPOSE_EXEC config --services 2>/dev/null | grep -qx mongo-database; then
-      if [[ -f "$backupDir/repository-mongo.gz" ]] ; then
+      if [[ -f "$backupDir/mongo-database.gz" ]] ; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/repository-mongo.gz"
-      elif [[ -f "$backupDir/repository-mongo.dump" ]]; then
+        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/mongo-database.gz"
+      elif [[ -f "$backupDir/mongo-database.dump" ]]; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/repository-mongo.dump"
+        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/mongo-database.dump"
       fi
     fi
   fi
