@@ -26,13 +26,13 @@
       edu_sharing-community-common-docker-redis-cluster
     </docker.edu_sharing.community.common.redis-cluster.name>
     <docker.edu_sharing.community.common.redis-cluster.tag>
-      8.2.10
+      8.2.10-2
     </docker.edu_sharing.community.common.redis-cluster.tag>
     <docker.edu_sharing.community.common.mongodb.name>
       edu_sharing-community-common-docker-mongodb
     </docker.edu_sharing.community.common.mongodb.name>
     <docker.edu_sharing.community.common.mongodb.tag>
-      8.0.34
+      8.0.34-2
     </docker.edu_sharing.community.common.mongodb.tag>
     <docker.edu_sharing.community.common.mongodb>
       ${docker.registry}/${docker.common}/${docker.edu_sharing.community.common.mongodb.name}:${docker.edu_sharing.community.common.mongodb.tag}
