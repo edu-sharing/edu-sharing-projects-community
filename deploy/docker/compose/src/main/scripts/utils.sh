@@ -335,17 +335,17 @@ backup() {
 
 
   if [[ -n $repodb ]] ; then
-    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
+    if [[ "$($COMPOSE_EXEC ps mongo-database -a)" != "no such service: mongo-database" ]]; then
        echo "backup mongo"
 
        if [[ -n $compressed ]] ; then
-         $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive --gzip -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.gz" || {
+         $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/mongo-database.gz" || {
            rm -rf "$backupDir"
            echo "ERROR on creating mongodb dump"
            exit 1
          }
        else
-          $COMPOSE_EXEC exec -t repository-mongo sh -c "mongodump --archive -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" >"$backupDir/repository-mongo.dump" || {
+          $COMPOSE_EXEC exec -t mongo-database sh -c "mongodump --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" >"$backupDir/mongo-database.dump" || {
             rm -rf "$backupDir"
             echo "ERROR on creating mongodb dump"
             exit 1
@@ -427,8 +427,8 @@ restore() {
   repo=
   solr=
   elastic=
-  if [[ -f "$backupDir/binaries.tar" ]] || [[ -f "$backupDir/repository-db.gz" ]] || [[ -f "$backupDir/repository-mongo.gz" ]] \
-  || [[ -d "$backupDir/alf_data" ]] || [[ -f "$backupDir/repository-db.sql" ]] || [[ -f "$backupDir/repository-mongo.dump" ]]; then
+  if [[ -f "$backupDir/binaries.tar" ]] || [[ -f "$backupDir/repository-db.gz" ]] || [[ -f "$backupDir/mongo-database.gz" ]] \
+  || [[ -d "$backupDir/alf_data" ]] || [[ -f "$backupDir/repository-db.sql" ]] || [[ -f "$backupDir/mongo-database.dump" ]]; then
     repo=true
     container="$container  repository-service"
   fi
@@ -504,13 +504,13 @@ restore() {
       $COMPOSE_EXEC exec -T repository-search-elastic-index bash -c 'rm -rf /usr/share/elasticsearch/data/nodes || true' || true
     fi
 
-    if [[ "$($COMPOSE_EXEC ps repository-mongo -a)" != "no such service: repository-mongo" ]]; then
-      if [[ -f "$backupDir/repository-mongo.gz" ]] ; then
+    if [[ "$($COMPOSE_EXEC ps mongo-database -a)" != "no such service: mongo-database" ]]; then
+      if [[ -f "$backupDir/mongo-database.gz" ]] ; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive --gzip -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" < "$backupDir/repository-mongo.gz"
-      elif [[ -f "$backupDir/repository-mongo.dump" ]]; then
+        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive --gzip -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/mongo-database.gz"
+      elif [[ -f "$backupDir/mongo-database.dump" ]]; then
         echo "restore mongo"
-        $COMPOSE_EXEC exec -T repository-mongo sh -c "mongorestore --archive -u ${REPOSITORY_MONGO_ROOT_USER:-root} -p ${REPOSITORY_MONGO_ROOT_PASS:-root}" < "$backupDir/repository-mongo.dump"
+        $COMPOSE_EXEC exec -T mongo-database sh -c "mongorestore --archive -u ${MONGO_DATABASES_ROOT_USER:-root} -p ${MONGO_DATABASES_ROOT_PASS:-root}" < "$backupDir/mongo-database.dump"
       fi
     fi
   fi
