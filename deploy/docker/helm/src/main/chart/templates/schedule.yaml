@@ -29,7 +29,7 @@ spec:
     storageLocation: {{ .Values.global.backup.velero.storageLocation }}
     ttl: {{ .Values.global.backup.velero.ttl }}
     orderedResources:
-      pods: {{ .Release.Namespace }}/edusharing-services-connector-postgresql-0,{{ .Release.Namespace }}/edusharing-services-connector-service-0,{{ .Release.Namespace }}/edusharing-services-rendering-postgresql-0,{{ .Release.Namespace }}/edusharing-services-rendering-service-0,{{ .Release.Namespace }}/edusharing-services-rendering2-mongodb-0,{{ .Release.Namespace }}/edusharing-services-rendering2-mongodb-1,{{ .Release.Namespace }}/edusharing-services-rendering2-mongodb-2,{{ .Release.Namespace }}/edusharing-services-rendering2-storage-0,{{ .Release.Namespace }}/edusharing-repository-search-elastic-index-0,{{ .Release.Namespace }}/edusharing-repository-search-solr-0,{{ .Release.Namespace }}/edusharing-repository-postgresql-0,{{ .Release.Namespace }}/edusharing-repository-mongo-0,{{ .Release.Namespace }}/edusharing-repository-mongo-1,{{ .Release.Namespace }}/edusharing-repository-mongo-2,{{ .Release.Namespace }}/edusharing-repository-service-0
+      pods: {{ .Release.Namespace }}/edusharing-services-connector-postgresql-0,{{ .Release.Namespace }}/edusharing-services-connector-service-0,{{ .Release.Namespace }}/edusharing-services-rendering-postgresql-0,{{ .Release.Namespace }}/edusharing-services-rendering-service-0,{{ .Release.Namespace }}/edusharing-services-rendering2-mongodb-0,{{ .Release.Namespace }}/edusharing-services-rendering2-mongodb-1,{{ .Release.Namespace }}/edusharing-services-rendering2-mongodb-2,{{ .Release.Namespace }}/edusharing-services-rendering2-storage-0,{{ .Release.Namespace }}/edusharing-repository-search-elastic-index-0,{{ .Release.Namespace }}/edusharing-repository-postgresql-0,{{ .Release.Namespace }}/edusharing-repository-mongo-0,{{ .Release.Namespace }}/edusharing-repository-mongo-1,{{ .Release.Namespace }}/edusharing-repository-mongo-2,{{ .Release.Namespace }}/edusharing-repository-service-0
     defaultVolumesToFsBackup: false
     hooks:
       resources:
@@ -88,18 +88,6 @@ spec:
             - /bin/bash
             - -c
             - /scripts/backup-post.sh
-            timeout: {{ .Values.global.backup.velero.timeout }}
-      - name: edusharing-repository-search-solr
-        labelSelector:
-          matchLabels:
-            app: edusharing-repository-search-solr
-        pre:
-        - exec:
-            container: edusharing-repository-search-solr
-            command:
-            - /bin/bash
-            - -c
-            - /scripts/backup-pre.sh
             timeout: {{ .Values.global.backup.velero.timeout }}
       - name: edusharing-services-connector-postgresql
         labelSelector:
