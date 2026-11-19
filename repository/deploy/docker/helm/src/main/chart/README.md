@@ -61,11 +61,6 @@
 | `edusharing_repository_search_elastic_index.enabled`                      | Enable search elastic index repository                 | `${helm.edusharing_repository_search_elastic_index.enabled}`      |
 | `edusharing_repository_search_elastic_index.nameOverride`                 | Override search elastic index repository name          | `edusharing-repository-search-elastic-index`                      |
 | `edusharing_repository_search_elastic_index.service.port.api`             | Set search elastic index repository service api port   | `9200`                                                            |
-| `edusharing_repository_search_solr.enabled`                               | Enable search solr repository                          | `false`                                                           |
-| `edusharing_repository_search_solr.nameOverride`                          | Override search solr repository name                   | `edusharing-repository-search-solr`                               |
-| `edusharing_repository_search_solr.service.port.api`                      | Set search solr repository service api port            | `9200`                                                            |
-| `edusharing_repository_search_solr.config.repository.host`                | Set search solr repository host                        | `edusharing-repository-service`                                   |
-| `edusharing_repository_search_solr.config.repository.port`                | Set search solr repository port                        | `8080`                                                            |
 | `edusharing_repository_transform.enabled`                                 | Enable transform repository                            | `${helm.edusharing_repository_transform.enabled}`                 |
 | `edusharing_repository_transform.nameOverride`                            | Override transform repository name                     | `edusharing-repository-transform`                                 |
 | `edusharing_repository_transform.service.port.api`                        | Set port of transform repository service api           | `8080`                                                            |
@@ -99,8 +94,6 @@
 | `edusharing_repository_service.config.search.elastic.enabled`             | Enable repository service elastic search               | `${helm.edusharing_repository_search_elastic_index.enabled}`      |
 | `edusharing_repository_service.config.search.elastic.host`                | Set host for repository service elastic search         | `edusharing-repository-search-elastic-index`                      |
 | `edusharing_repository_service.config.search.elastic.port`                | Set port for repository service elastic search         | `9200`                                                            |
-| `edusharing_repository_service.config.search.solr.host`                   | Set host for repository service solr search            | `edusharing-repository-search-solr`                               |
-| `edusharing_repository_service.config.search.solr.port`                   | Set port for repository service solr search            | `9200`                                                            |
 | `edusharing_repository_service.config.transform.aio.host`                 | Set host for repository service transform_aio          | `edusharing-repository-transform-aio`                             |
 | `edusharing_repository_service.config.transform.aio.port`                 | Set port for repository service transform_aio          | `8090`                                                            |
 | `edusharing_repository_service.config.transform.es.host`                  | Set host for repository service transform_es           | `edusharing-repository-transform-es`                              |

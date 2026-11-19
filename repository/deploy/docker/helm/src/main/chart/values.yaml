@@ -233,30 +233,6 @@ edusharing_repository_search_elastic_index:
 
 ########################################################################################################################
 
-edusharing_repository_search_solr:
-
-  ## @param edusharing_repository_search_solr.enabled Enable search solr repository
-  enabled: false
-
-  ## @param edusharing_repository_search_solr.nameOverride Override search solr repository name
-  nameOverride: &searchSolrNameOverride edusharing-repository-search-solr
-
-  service:
-
-    port:
-      ## @param edusharing_repository_search_solr.service.port.api Set search solr repository service api port
-      api: &searchSolrServicePortApi 9200
-
-  config:
-
-    repository:
-      ## @param edusharing_repository_search_solr.config.repository.host Set search solr repository host
-      host: &serviceNameOverride edusharing-repository-service
-      ## @param edusharing_repository_search_solr.config.repository.port Set search solr repository port
-      port: &serviceServicePortApiInternal 8080
-
-########################################################################################################################
-
 edusharing_repository_transform:
 
   ## @param edusharing_repository_transform.enabled Enable transform repository
@@ -311,7 +287,7 @@ edusharing_repository_service:
   enabled: true
 
   ## @param edusharing_repository_service.nameOverride Override repository service name
-  nameOverride: *serviceNameOverride
+  nameOverride: &serviceNameOverride edusharing-repository-service
 
   image:
     ## @param edusharing_repository_service.image.repository Set repository service image repository
@@ -326,7 +302,7 @@ edusharing_repository_service:
     port:
       api:
         ## @param edusharing_repository_service.service.port.api.internal Set port for repository service internal service api
-        internal: *serviceServicePortApiInternal
+        internal: &serviceServicePortApiInternal 8080
 
   config:
 
@@ -379,12 +355,6 @@ edusharing_repository_service:
         host: *searchElasticNameOverride
         ## @param edusharing_repository_service.config.search.elastic.port Set port for repository service elastic search
         port: *searchElasticServicePortApi
-
-      solr:
-        ## @param edusharing_repository_service.config.search.solr.host Set host for repository service solr search
-        host: *searchSolrNameOverride
-        ## @param edusharing_repository_service.config.search.solr.port Set port for repository service solr search
-        port: *searchSolrServicePortApi
 
     transform:
 
