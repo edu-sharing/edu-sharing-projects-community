@@ -27,13 +27,8 @@ dependencies:
     alias: edusharing_repository_rediscluster
     condition: edusharing_repository_rediscluster.enabled
 
-  - name: edu_sharing-community-repository-search-solr
-    ${helm.edusharing_repository_search_solr.line2}
-    alias: edusharing_repository_search_solr
-    condition: edusharing_repository_search_solr.enabled
-
   - name: edu_sharing-community-repository-service
-    ${helm.edusharing_repository_search_solr.line2}
+    ${helm.edusharing_repository_service.line2}
     alias: edusharing_repository_service
     condition: edusharing_repository_service.enabled
 
